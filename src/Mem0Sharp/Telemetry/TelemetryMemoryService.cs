@@ -34,11 +34,29 @@ public sealed class TelemetryMemoryService : IMemoryService
     public Task<AddResult> AddManyAsync(IEnumerable<string> texts, MemoryAddOptions? options = null, CancellationToken cancellationToken = default) =>
         CaptureAsync<AddResult>("mem0.add_many", () => inner.AddManyAsync(texts, options, cancellationToken), cancellationToken: cancellationToken);
 
+    public Task<AddResult> AddAsync(DataContent image, MemoryAddOptions? options = null, CancellationToken cancellationToken = default) =>
+        CaptureAsync<AddResult>("mem0.add_image", () => inner.AddAsync(image, options, cancellationToken), new Dictionary<string, object?> { ["input_type"] = "image", ["media_type"] = image.MediaType }, cancellationToken);
+
+    public Task<AddResult> AddAsync(ReadOnlyMemory<byte> imageData, string mediaType, MemoryAddOptions? options = null, CancellationToken cancellationToken = default) =>
+        AddAsync(new DataContent(imageData, mediaType), options, cancellationToken);
+
+    public Task<AddResult> AddAsync(Uri imageUri, string mediaType = "image/jpeg", MemoryAddOptions? options = null, CancellationToken cancellationToken = default) =>
+        AddAsync(Message.CreateDataContent(imageUri, mediaType), options, cancellationToken);
+
     public Task<IReadOnlyList<SearchResult>> SearchAsync(string query, MemorySearchOptions? options = null, CancellationToken cancellationToken = default) =>
         CaptureAsync<IReadOnlyList<SearchResult>>("mem0.search", () => inner.SearchAsync(query, options, cancellationToken), new Dictionary<string, object?> { ["top_k"] = options?.TopK, ["rerank"] = options?.Rerank, ["explain"] = options?.Explain }, cancellationToken);
 
     public Task<IReadOnlyList<SearchResult>> SearchAsync(string query, MemoryFilter? filter, int? topK = null, CancellationToken cancellationToken = default) =>
         SearchAsync(query, new MemorySearchOptions { Filter = filter, TopK = topK ?? 5 }, cancellationToken);
+
+    public Task<IReadOnlyList<SearchResult>> SearchAsync(DataContent image, MemorySearchOptions? options = null, CancellationToken cancellationToken = default) =>
+        CaptureAsync<IReadOnlyList<SearchResult>>("mem0.search_image", () => inner.SearchAsync(image, options, cancellationToken), new Dictionary<string, object?> { ["top_k"] = options?.TopK }, cancellationToken);
+
+    public Task<IReadOnlyList<SearchResult>> SearchAsync(ReadOnlyMemory<byte> imageData, string mediaType, MemorySearchOptions? options = null, CancellationToken cancellationToken = default) =>
+        SearchAsync(new DataContent(imageData, mediaType), options, cancellationToken);
+
+    public Task<IReadOnlyList<SearchResult>> SearchAsync(Uri imageUri, string mediaType = "image/jpeg", MemorySearchOptions? options = null, CancellationToken cancellationToken = default) =>
+        SearchAsync(Message.CreateDataContent(imageUri, mediaType), options, cancellationToken);
 
     public Task<IReadOnlyList<IReadOnlyList<SearchResult>>> SearchManyAsync(IEnumerable<string> queries, MemorySearchOptions? options = null, CancellationToken cancellationToken = default) =>
         CaptureAsync<IReadOnlyList<IReadOnlyList<SearchResult>>>("mem0.search_many", () => inner.SearchManyAsync(queries, options, cancellationToken), new Dictionary<string, object?> { ["top_k"] = options?.TopK, ["include_non_factual"] = options?.IncludeNonFactual }, cancellationToken);

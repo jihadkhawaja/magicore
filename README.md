@@ -105,6 +105,7 @@ dotnet add package Mem0Sharp.SQLite
 ## Features
 
 - **Semantic & Hybrid Retrieval**: Dense vector search combined with BM25 keyword scoring and LLM/Cohere/Cross-Encoder reranking.
+- **Multimodal & Image Memory**: Native support for image ingestion via Vision LLMs (OpenAI GPT-4.1 / GPT-4o, Anthropic Claude Sonnet 4, Google Gemini 2.5, and Ollama Qwen2.5-VL / Llama 3.2 Vision) and direct image embedding search (`IImageEmbeddingGenerator`).
 - **Model Support**: Built-in support for OpenAI-compatible, Anthropic, and Ollama model APIs.
 - **Cognitive Behaviors**:
   - `Normal`: Standard factual extraction and recall.
@@ -148,13 +149,15 @@ await memory.UpdateAsync(memoryId, "I prefer dark mode and Neovim keybindings");
 var history = await memory.GetHistoryAsync(memoryId);
 ```
 
-### 2. Multi-turn Conversation Extraction
+### 2. Multi-turn & Multimodal Conversation Extraction
 
 ```csharp
+// Extract facts from messages including images
 await memory.AddAsync(
 [
-    new Message("user", "I live in Berlin and work as a .NET architect."),
-    new Message("assistant", "Nice to meet you! I will remember that.")
+    new Message("user", "Here is my conference receipt."),
+    Message.FromImage(receiptBytes, "image/png"),
+    new Message("assistant", "I've reviewed the receipt.")
 ],
 userId: "alice",
 scope: MemoryScope.User);

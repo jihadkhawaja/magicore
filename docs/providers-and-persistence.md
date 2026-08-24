@@ -7,7 +7,8 @@ Mem0Sharp standardizes entirely on **`Microsoft.Extensions.AI`** (`IChatClient` 
 | Capability | Ecosystem Integrations |
 | --- | --- |
 | **Chat & Extraction** | Any `Microsoft.Extensions.AI.IChatClient` (OpenAI, Azure, [OllamaSharp](https://github.com/awaescher/OllamaSharp), Google Gemini, ONNX Runtime GenAI, Anthropic, Mistral) |
-| **Embeddings** | Any `Microsoft.Extensions.AI.IEmbeddingGenerator<string, Embedding<float>>` (OpenAI, OllamaSharp, ONNX embeddings, deterministic local) |
+| **Text Embeddings** | Any `Microsoft.Extensions.AI.IEmbeddingGenerator<string, Embedding<float>>` (OpenAI, OllamaSharp, ONNX embeddings, deterministic local) |
+| **Image Embeddings** | Any `Microsoft.Extensions.AI.IEmbeddingGenerator<DataContent, Embedding<float>>` / `IImageEmbeddingGenerator` (LocalImageEmbeddingGenerator, ONNX vision models, CLIP) |
 | **Vector storage** | In-memory and Qdrant in core; SQLite and PostgreSQL/pgvector in dedicated packages |
 | **Reranking** | Any `IChatClient` (via `LlmReranker`), Cohere, ZeroEntropy, local cross-encoders |
 | **Security & Governance** | `IAdmissionGate` (Prompt injection filter, scope authority, novelty gate) |

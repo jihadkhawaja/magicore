@@ -98,6 +98,48 @@ scope: MemoryScope.User);
 
 For model-backed fact extraction, use `LlmMemoryExtractor` with an OpenAI-compatible client as described in [Providers and persistence](providers-and-persistence.md).
 
+## Multimodal and image memories
+
+Mem0Sharp natively supports multimodal messages and image embeddings via `Microsoft.Extensions.AI`:
+
+### 1. Extracting memories from images with Vision LLMs
+
+Pass messages with images (as URLs, byte arrays, or `DataContent`) to extract factual memories using any multimodal LLM (OpenAI GPT-4.1 / GPT-4o, Anthropic Claude Sonnet 4, Google Gemini 2.5, or Ollama Qwen2.5-VL / Llama 3.2 Vision):
+
+```csharp
+var imageBytes = await File.ReadAllBytesAsync("receipt.png");
+await memory.AddAsync(
+[
+    new Message("user", "Here is my receipt for reimbursement"),
+    Message.FromImage(imageBytes, "image/png")
+],
+userId: "alice");
+```
+
+### 2. Direct image vector search
+
+Configure an `IImageEmbeddingGenerator` (or `LocalImageEmbeddingGenerator` for local testing) to store and search image vectors directly:
+
+```csharp
+var memory = new MemoryService(
+    embeddings: new LocalEmbeddingGenerator(384),
+    imageEmbeddings: new LocalImageEmbeddingGenerator(384));
+
+// Add image memory
+await memory.AddAsync(imageBytes, "image/png", new MemoryAddOptions
+{
+    UserId = "alice",
+    Prompt = "Receipt for conference travel"
+});
+
+// Search by image
+var results = await memory.SearchAsync(imageBytes, "image/png", new MemorySearchOptions
+{
+    Filter = new MemoryFilter(UserId: "alice"),
+    TopK = 3
+});
+```
+
 ## Choose a memory behavior
 
 `MemoryAddOptions.Behavior` optionally changes how inferred memories are shaped. The default is `MemoryBehavior.Normal`, which preserves the existing durable-fact extraction behavior.

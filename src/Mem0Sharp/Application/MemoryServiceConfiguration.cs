@@ -6,6 +6,7 @@ public sealed record MemoryServiceConfiguration
 {
     public IMemoryStore? Store { get; init; }
     public IEmbeddingGenerator<string, Embedding<float>>? Embeddings { get; init; }
+    public IEmbeddingGenerator<DataContent, Embedding<float>>? ImageEmbeddings { get; init; }
     public IMemoryExtractor? Extractor { get; init; }
     public MemoryOptions? Options { get; init; }
     public IMemoryReranker? Reranker { get; init; }
@@ -36,7 +37,8 @@ public sealed record MemoryServiceConfiguration
             GraphStore,
             AdmissionGate,
             ConsolidationVerifier,
-            TrajectoryStore);
+            TrajectoryStore,
+            ImageEmbeddings);
         return Telemetry is null ? service : new TelemetryMemoryService(service, Telemetry);
     }
 }

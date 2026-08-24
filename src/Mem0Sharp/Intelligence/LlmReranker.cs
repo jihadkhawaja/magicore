@@ -11,7 +11,7 @@ public sealed class LlmReranker : IMemoryReranker
     private readonly IChatClient client;
     private readonly int maxDegreeOfParallelism;
 
-    public LlmReranker(IChatClient client, int maxDegreeOfParallelism = 8)
+    public LlmReranker(IChatClient client, int maxDegreeOfParallelism = 4)
     {
         Guard.NotNull(client);
         if (maxDegreeOfParallelism < 1) throw new ArgumentOutOfRangeException(nameof(maxDegreeOfParallelism));
@@ -27,16 +27,23 @@ public sealed class LlmReranker : IMemoryReranker
         await Compatibility.ForEachAsync(Enumerable.Range(0, candidates.Count), maxDegreeOfParallelism, async (index, ct) =>
         {
             var candidate = candidates[index];
-            var response = await client.GetResponseAsync(
-            [
-                new ChatMessage(ChatRole.System, "Score the relevance of the document to the query from 0.0 to 1.0. Return only the number."),
-                new ChatMessage(ChatRole.User, $"Query: {query.Substring(0, Math.Min(query.Length, MaxInputLength))}\n\nDocument: {candidate.Memory.Text.Substring(0, Math.Min(candidate.Memory.Text.Length, MaxInputLength))}")
-            ], cancellationToken: ct);
-            var rerankScore = ParseScore(response.Text ?? string.Empty);
-            var details = candidate.ScoreDetails is null
-                ? new SearchScoreDetails(candidate.Score, Reranker: rerankScore)
-                : candidate.ScoreDetails with { Reranker = rerankScore };
-            scored[index] = candidate with { Score = rerankScore, ScoreDetails = details };
+            try
+            {
+                var response = await client.GetResponseAsync(
+                [
+                    new ChatMessage(ChatRole.System, "Score the relevance of the document to the query from 0.0 to 1.0. Return only the number."),
+                    new ChatMessage(ChatRole.User, $"Query: {query.Substring(0, Math.Min(query.Length, MaxInputLength))}\n\nDocument: {candidate.Memory.Text.Substring(0, Math.Min(candidate.Memory.Text.Length, MaxInputLength))}")
+                ], cancellationToken: ct);
+                var rerankScore = ParseScore(response.Text ?? string.Empty);
+                var details = candidate.ScoreDetails is null
+                    ? new SearchScoreDetails(candidate.Score, Reranker: rerankScore)
+                    : candidate.ScoreDetails with { Reranker = rerankScore };
+                scored[index] = candidate with { Score = rerankScore, ScoreDetails = details };
+            }
+            catch (Exception) when (!ct.IsCancellationRequested)
+            {
+                scored[index] = candidate;
+            }
         }, cancellationToken);
 
         return scored.OrderByDescending(result => result.Score).Take(topK).ToArray();

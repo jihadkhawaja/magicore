@@ -15,9 +15,11 @@ Npgsql 9 for modern .NET targets.
 | Method | Purpose |
 | --- | --- |
 | `AddAsync(string, ...)` | Save one memory and generate its embedding. |
-| `AddAsync(IEnumerable<Message>, ...)` | Extract and save memories from conversation messages. |
+| `AddAsync(IEnumerable<Message>, ...)` | Extract and save memories from conversation messages (including multimodal messages with images). |
+| `AddAsync(DataContent / ReadOnlyMemory<byte> / Uri, ...)` | Save an image memory, generate its image embedding, or extract facts via Vision LLM. |
 | `AddManyAsync(IEnumerable<string>, ...)` | Deduplicate, batch embed, and save several memories. |
-| `SearchAsync(string, ...)` | Return the most relevant memories for a query. |
+| `SearchAsync(string, ...)` | Return the most relevant memories for a text query. |
+| `SearchAsync(DataContent / ReadOnlyMemory<byte> / Uri, ...)` | Return the most relevant memories using an image query vector. |
 | `SearchManyAsync(IEnumerable<string>, ...)` | Search several queries with the same filter, using batch-capable embedding and vector providers when available. |
 | `SearchManyAsync(IEnumerable<string>, MemorySearchOptions, ...)` | Search several queries with explicit behavior and retrieval policies. |
 | `GetAsync(string)` | Retrieve one memory by ID. |
@@ -36,7 +38,7 @@ All methods are asynchronous and accept an optional `CancellationToken`.
 
 - `Memory` is the stored record. It contains `Id`, `Text`, `UserId`, optional `AgentId` and `RunId`, `Scope`, `Metadata`, `CreatedAt`, `UpdatedAt`, `Behavior`, and optional `MemoryType` provenance.
 - `MemoryInput` is the extractor output used when creating memories.
-- `Message` contains a conversation `Role` and `Content`.
+- `Message` contains a conversation `Role`, `Content`, and optional `Contents` (`IReadOnlyList<AIContent>`) for multimodal messages (images/audio/data). Includes `Message.FromImage(...)` and `Message.FromTextAndImage(...)` factories.
 - `SearchResult` contains a `Memory` and its similarity `Score`.
 - `AddResult` contains the memories created by an add operation.
 - `MemoryHistoryEntry` contains the event type, old and new text, memory ID, event ID, original creation time, event update time, deletion state, actor ID, and role.
@@ -84,7 +86,8 @@ A vector store such as `PostgresMemoryStore` applies similarity ordering and `to
 ## Extension points
 
 - `IEmbeddingGenerator` generates a vector for text.
-- `OpenAiCompatibleClient`, `OllamaClient`, and `LocalEmbeddingGenerator` provide hosted and local embedding protocols.
+- `IImageEmbeddingGenerator` generates a vector for image / multimodal `DataContent`.
+- `OpenAiCompatibleClient`, `OllamaClient`, `LocalEmbeddingGenerator`, and `LocalImageEmbeddingGenerator` provide hosted and local embedding protocols.
 - `OpenAiCompatibleClient`, `AnthropicClient`, and `OllamaClient` provide hosted and local chat protocols.
 - `IMemoryExtractor` converts messages into `MemoryInput` values.
 - `IBehaviorAwareMemoryExtractor` optionally adds behavior and persona-aware extraction without changing existing `IMemoryExtractor` implementations.

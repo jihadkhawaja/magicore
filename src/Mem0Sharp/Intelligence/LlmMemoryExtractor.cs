@@ -17,12 +17,30 @@ public sealed class LlmMemoryExtractor : IMemoryExtractor
     {
         if (messages.Count == 0) return [];
         var instructions = options is null ? MemoryBehaviorPrompts.NormalExtraction : MemoryBehaviorPrompts.ForExtraction(options);
-        var conversationText = string.Join("\n", messages.Select(m => $"{m.Role}: {m.Content}"));
-        var chatMessages = new List<ChatMessage>
+        var hasMultimodal = messages.Any(m => m.Contents is { Count: > 0 } contents && contents.Any(c => c is not TextContent));
+        List<ChatMessage> chatMessages;
+
+        if (!hasMultimodal)
         {
-            new(ChatRole.System, instructions),
-            new(ChatRole.User, $"Conversation:\n{conversationText}\n\nReturn only a JSON array of strings.")
-        };
+            var conversationText = string.Join("\n", messages.Select(m => $"{m.Role}: {m.Content}"));
+            chatMessages = new List<ChatMessage>
+            {
+                new(ChatRole.System, instructions),
+                new(ChatRole.User, $"Conversation:\n{conversationText}\n\nReturn only a JSON array of strings.")
+            };
+        }
+        else
+        {
+            chatMessages = new List<ChatMessage>
+            {
+                new(ChatRole.System, instructions)
+            };
+            foreach (var message in messages)
+            {
+                chatMessages.Add(message.ToChatMessage());
+            }
+            chatMessages.Add(new(ChatRole.User, "Extract all salient long-term memory facts from the conversation and any attached images/media above. Return only a JSON array of strings."));
+        }
 
         var response = await client.GetResponseAsync(chatMessages, cancellationToken: cancellationToken);
         var text = response.Text ?? string.Empty;

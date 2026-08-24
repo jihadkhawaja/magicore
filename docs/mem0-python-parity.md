@@ -14,6 +14,7 @@ Status meanings:
 | --- | --- | --- |
 | Add raw text | Complete | `AddAsync(string)` |
 | Add conversation messages | Complete | Raw and inferred adds, custom prompts, conflict actions, procedural memory, expiration, metadata, and scopes are supported. |
+| Add multimodal / image memories | Complete | Ingestion of image messages via Vision LLMs and direct image embedding vectors (`IImageEmbeddingGenerator`) are supported. |
 | Get one / list | Complete | CRUD, paging, expiration visibility, and expression filters are supported. |
 | Update | Complete | Text, metadata, expiration, hash regeneration, entity relinking, graph relinking, and history are supported. |
 | Delete / filtered delete all | Complete | Single and filtered bulk deletion are supported. |

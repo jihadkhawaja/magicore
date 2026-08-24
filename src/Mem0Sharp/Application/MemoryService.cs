@@ -10,6 +10,7 @@ public sealed class MemoryService : IMemoryService
 {
     private readonly IMemoryStore store;
     private readonly IEmbeddingGenerator<string, Embedding<float>> embeddings;
+    private readonly IEmbeddingGenerator<DataContent, Embedding<float>>? imageEmbeddings;
     private readonly IMemoryExtractor extractor;
     private readonly IMemoryReranker? reranker;
     private readonly IMemoryConflictResolver? conflictResolver;
@@ -39,7 +40,8 @@ public sealed class MemoryService : IMemoryService
         IGraphMemoryStore? graphStore = null,
         IAdmissionGate? admissionGate = null,
         IConsolidationVerifier? consolidationVerifier = null,
-        ITrajectoryStore? trajectoryStore = null)
+        ITrajectoryStore? trajectoryStore = null,
+        IEmbeddingGenerator<DataContent, Embedding<float>>? imageEmbeddings = null)
     {
         this.store = store ?? new InMemoryStore();
         this.embeddings = embeddings ?? new LocalEmbeddingGenerator();
@@ -55,6 +57,7 @@ public sealed class MemoryService : IMemoryService
         this.admissionGate = admissionGate;
         this.consolidationVerifier = consolidationVerifier;
         this.trajectoryStore = trajectoryStore ?? new InMemoryTrajectoryStore();
+        this.imageEmbeddings = imageEmbeddings;
     }
 
     public Task<AddResult> AddAsync(string text, MemoryAddOptions? options = null, CancellationToken cancellationToken = default)
@@ -113,6 +116,64 @@ public sealed class MemoryService : IMemoryService
         return SaveInputsAsync(texts.Select(text => new MemoryInput(text, addOptions.Scope, addOptions.Metadata, addOptions.ExpiresAt, addOptions.Behavior, addOptions.MemoryType)), addOptions, cancellationToken);
     }
 
+    public async Task<AddResult> AddAsync(DataContent image, MemoryAddOptions? options = null, CancellationToken cancellationToken = default)
+    {
+        Guard.NotNull(image);
+        var addOptions = options ?? new MemoryAddOptions();
+        var metadata = (addOptions.Metadata ?? new Dictionary<string, string>()).ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
+        if (!string.IsNullOrEmpty(image.MediaType)) metadata["media_type"] = image.MediaType!;
+        if (image.Uri is not null) metadata["media_uri"] = image.Uri.ToString();
+
+        if (addOptions.Infer && extractor is not null)
+        {
+            var msg = new Message("user", string.Empty, [image]);
+            return await AddAsync([msg], addOptions with { Metadata = metadata }, cancellationToken);
+        }
+
+        if (imageEmbeddings is not null)
+        {
+            var vector = await imageEmbeddings.GenerateVectorCoreAsync(image, cancellationToken);
+            var text = !string.IsNullOrWhiteSpace(addOptions.Prompt)
+                ? addOptions.Prompt!
+                : (image.Uri is not null ? $"Image: {image.Uri}" : $"Image ({image.MediaType ?? "binary"})");
+
+            var memory = new Memory
+            {
+                Id = Guid.NewGuid().ToString("N"),
+                Text = text,
+                UserId = addOptions.UserId,
+                AgentId = addOptions.AgentId,
+                RunId = addOptions.RunId,
+                Scope = addOptions.Scope,
+                Metadata = metadata,
+                CreatedAt = DateTimeOffset.UtcNow,
+                UpdatedAt = DateTimeOffset.UtcNow,
+                ExpiresAt = addOptions.ExpiresAt,
+                Hash = ComputeHash(text),
+                Behavior = addOptions.Behavior,
+                MemoryType = addOptions.MemoryType ?? "image_memory"
+            };
+
+            var history = CreateHistoryEntry(memory, MemoryHistoryEvent.Add, null, memory.Text);
+            await store.SaveBatchAsync([new MemoryWriteRecord(memory, vector, history!)], cancellationToken);
+
+            await indexLock.WaitAsync(cancellationToken);
+            try { vectors[memory.Id] = vector.ToArray(); }
+            finally { indexLock.Release(); }
+
+            return new AddResult([memory], [new MemoryActionResult(memory.Id, memory.Text, MemoryAction.Add)]);
+        }
+
+        var fallbackMsg = new Message("user", string.Empty, [image]);
+        return await AddAsync([fallbackMsg], addOptions with { Metadata = metadata }, cancellationToken);
+    }
+
+    public Task<AddResult> AddAsync(ReadOnlyMemory<byte> imageData, string mediaType, MemoryAddOptions? options = null, CancellationToken cancellationToken = default) =>
+        AddAsync(new DataContent(imageData, mediaType), options, cancellationToken);
+
+    public Task<AddResult> AddAsync(Uri imageUri, string mediaType = "image/jpeg", MemoryAddOptions? options = null, CancellationToken cancellationToken = default) =>
+        AddAsync(Message.CreateDataContent(imageUri, mediaType), options, cancellationToken);
+
     public Task<IReadOnlyList<SearchResult>> SearchAsync(string query, MemorySearchOptions? searchOptions = null, CancellationToken cancellationToken = default)
     {
         Guard.NotNullOrWhiteSpace(query);
@@ -122,6 +183,35 @@ public sealed class MemoryService : IMemoryService
 
     public Task<IReadOnlyList<SearchResult>> SearchAsync(string query, MemoryFilter? filter, int? topK = null, CancellationToken cancellationToken = default) =>
         SearchAsync(query, new MemorySearchOptions { Filter = filter, TopK = topK ?? options.DefaultTopK }, cancellationToken);
+
+    public async Task<IReadOnlyList<SearchResult>> SearchAsync(DataContent image, MemorySearchOptions? searchOptions = null, CancellationToken cancellationToken = default)
+    {
+        Guard.NotNull(image);
+        if (imageEmbeddings is null)
+        {
+            throw new InvalidOperationException("An image embedding generator (IEmbeddingGenerator<DataContent, Embedding<float>>) is required to perform image searches.");
+        }
+        var effective = searchOptions ?? new MemorySearchOptions { TopK = options.DefaultTopK, Threshold = options.MinimumScore, Hybrid = false };
+        if (effective.TopK < 0) throw new ArgumentOutOfRangeException(nameof(searchOptions));
+
+        var effectiveOptions = effective with { Filter = ApplySearchFilter(effective) };
+        var queryVector = await imageEmbeddings.GenerateVectorCoreAsync(image, cancellationToken);
+        var candidateLimit = Math.Max(effective.TopK * 4, 60);
+        var semanticResults = await store.SearchAsync(queryVector, effectiveOptions.Filter, candidateLimit, cancellationToken);
+
+        return semanticResults
+            .Where(result => result.Score >= effective.Threshold)
+            .OrderByDescending(result => result.Score)
+            .Take(effective.TopK)
+            .Select(result => effective.Explain ? result with { ScoreDetails = new SearchScoreDetails(result.Score, Threshold: effective.Threshold) } : result with { ScoreDetails = null })
+            .ToArray();
+    }
+
+    public Task<IReadOnlyList<SearchResult>> SearchAsync(ReadOnlyMemory<byte> imageData, string mediaType, MemorySearchOptions? options = null, CancellationToken cancellationToken = default) =>
+        SearchAsync(new DataContent(imageData, mediaType), options, cancellationToken);
+
+    public Task<IReadOnlyList<SearchResult>> SearchAsync(Uri imageUri, string mediaType = "image/jpeg", MemorySearchOptions? options = null, CancellationToken cancellationToken = default) =>
+        SearchAsync(Message.CreateDataContent(imageUri, mediaType), options, cancellationToken);
 
     private async Task<IReadOnlyList<SearchResult>> SearchCoreAsync(string query, MemorySearchOptions searchOptions, CancellationToken cancellationToken)
     {

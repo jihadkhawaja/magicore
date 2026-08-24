@@ -1,3 +1,5 @@
+using Microsoft.Extensions.AI;
+
 namespace Mem0Sharp;
 
 public sealed class SynchronousMemoryService
@@ -9,7 +11,13 @@ public sealed class SynchronousMemoryService
     public AddResult Add(string text, MemoryAddOptions? options = null) => service.AddAsync(text, options).GetAwaiter().GetResult();
     public AddResult Add(IEnumerable<Message> messages, MemoryAddOptions? options = null) => service.AddAsync(messages, options).GetAwaiter().GetResult();
     public AddResult AddMany(IEnumerable<string> texts, MemoryAddOptions? options = null) => service.AddManyAsync(texts, options).GetAwaiter().GetResult();
+    public AddResult Add(DataContent image, MemoryAddOptions? options = null) => service.AddAsync(image, options).GetAwaiter().GetResult();
+    public AddResult Add(ReadOnlyMemory<byte> imageData, string mediaType, MemoryAddOptions? options = null) => service.AddAsync(imageData, mediaType, options).GetAwaiter().GetResult();
+    public AddResult Add(Uri imageUri, string mediaType = "image/jpeg", MemoryAddOptions? options = null) => service.AddAsync(imageUri, mediaType, options).GetAwaiter().GetResult();
     public IReadOnlyList<SearchResult> Search(string query, MemorySearchOptions? options = null) => service.SearchAsync(query, options).GetAwaiter().GetResult();
+    public IReadOnlyList<SearchResult> Search(DataContent image, MemorySearchOptions? options = null) => service.SearchAsync(image, options).GetAwaiter().GetResult();
+    public IReadOnlyList<SearchResult> Search(ReadOnlyMemory<byte> imageData, string mediaType, MemorySearchOptions? options = null) => service.SearchAsync(imageData, mediaType, options).GetAwaiter().GetResult();
+    public IReadOnlyList<SearchResult> Search(Uri imageUri, string mediaType = "image/jpeg", MemorySearchOptions? options = null) => service.SearchAsync(imageUri, mediaType, options).GetAwaiter().GetResult();
     public IReadOnlyList<IReadOnlyList<SearchResult>> SearchMany(IEnumerable<string> queries, MemorySearchOptions? options = null) => service.SearchManyAsync(queries, options).GetAwaiter().GetResult();
     public Memory? Get(string id) => service.GetAsync(id).GetAwaiter().GetResult();
     public IReadOnlyList<Memory> GetAll(MemoryFilter? filter = null) => service.GetAllAsync(filter).GetAwaiter().GetResult();

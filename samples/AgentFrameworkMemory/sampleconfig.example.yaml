@@ -1,4 +1,0 @@
-openAi:
-  endpoint: https://api.openai.com/v1/
-  apiKey: replace-with-an-openai-api-key
-  chatModel: gpt-5.6-luna

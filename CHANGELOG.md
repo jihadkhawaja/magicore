@@ -7,10 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [v0.3.0] - 2026-08-30
+
+### ⚠️ Breaking Changes
+- **Single-Package Architecture with `Microsoft.Extensions.VectorData` Consolidation**: Consolidated all storage and vector database operations directly into the core `Mem0Sharp` package. Removed legacy `Mem0Sharp.PostgreSQL`, `Mem0Sharp.SQLite`, and `Mem0Sharp.VectorData` satellite packages.
+- Any MEVD connector (`Microsoft.SemanticKernel.Connectors.*`, `CommunityToolkit.AI.VectorStore.*`) can now be plugged directly into `VectorDataMemoryStore` (built into `Mem0Sharp`) to support PostgreSQL/pgvector, SQLite, Azure AI Search, Redis, Qdrant, Milvus, Pinecone, and more.
+
+### Added
+- **Point-in-Time Memory Reads**: Added `SearchAtAsync`, `GetAllAtAsync`, and opt-in `ITemporalMemoryStore` support for non-destructive historical queries.
+- **Filtered Rollback**: Corrected `RollbackAsync` filtering so recovery can be limited to matching users, metadata subjects, and other memory scopes while preserving complete snapshots and embeddings.
+
+### Improved
+- **Single Unified Package**: Installing `dotnet add package Mem0Sharp` provides the full feature set without requiring additional provider packages.
+- Updated `samples/McpServer`, `samples/AgentFrameworkMemory`, and `evaluation/Mem0Sharp.Evaluation` to use `VectorDataMemoryStore`.
+
+---
+
 ## [v0.2.2] - 2026-08-22
 
 ### Added
-- Multi-targeted the core, PostgreSQL, and SQLite packages for .NET Standard 2.0, .NET 8, .NET 9, and .NET 10.
+- Multi-targeted the core package for .NET Standard 2.0, .NET 8, .NET 9, and .NET 10.
 - Added per-target test execution plus runtime smoke coverage for the .NET Standard 2.0 package assets.
 
 ---

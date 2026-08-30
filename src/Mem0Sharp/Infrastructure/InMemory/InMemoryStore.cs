@@ -3,7 +3,7 @@ using System.Numerics.Tensors;
 
 namespace Mem0Sharp;
 
-public sealed class InMemoryStore : IMemoryStore
+public sealed class InMemoryStore : IMemoryStore, ITemporalMemoryStore
 {
     private readonly ConcurrentDictionary<string, Memory> memories = new(StringComparer.Ordinal);
     private readonly ConcurrentDictionary<string, float[]> vectors = new(StringComparer.Ordinal);
@@ -152,6 +152,16 @@ public sealed class InMemoryStore : IMemoryStore
         return Task.FromResult<IReadOnlyList<MemoryHistoryEntry>>(all);
     }
 
+    public Task<IReadOnlyList<Memory>> GetAllAtAsync(DateTimeOffset pointInTime, MemoryFilter? filter = null, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        lock (sync)
+        {
+            var all = history.Values.SelectMany(queue => queue).ToArray();
+            return Task.FromResult(TemporalMemoryReconstructor.Reconstruct(all, pointInTime, filter));
+        }
+    }
+
     public Task<RollbackResult> RollbackAsync(DateTimeOffset pointInTime, MemoryFilter? filter = null, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
@@ -161,7 +171,6 @@ public sealed class InMemoryStore : IMemoryStore
             var deleted = 0;
             var affected = new HashSet<string>(StringComparer.Ordinal);
 
-            // Reconstruct state for all memory IDs in history
             foreach (var pair in history)
             {
                 var memoryId = pair.Key;
@@ -169,10 +178,19 @@ public sealed class InMemoryStore : IMemoryStore
                     .Where(e => e.UpdatedAt <= pointInTime)
                     .OrderBy(e => e.UpdatedAt)
                     .ToArray();
+                var targetEntry = entriesBefore.Length == 0 ? null : entriesBefore[entriesBefore.Length - 1];
+                var target = targetEntry is null || targetEntry.Event == MemoryHistoryEvent.Delete || targetEntry.IsDeleted
+                    ? null
+                    : targetEntry.Snapshot;
+                memories.TryGetValue(memoryId, out var current);
 
-                if (entriesBefore.Length == 0)
+                var matches = filter is null || (target is not null
+                    ? MemoryFilterEvaluator.Matches(target, filter, pointInTime)
+                    : entriesBefore.Length == 0 && current is not null && MemoryFilterEvaluator.Matches(current, filter));
+                if (!matches) continue;
+
+                if (target is null)
                 {
-                    // Memory was created after pointInTime -> remove if present
                     if (memories.TryRemove(memoryId, out _))
                     {
                         vectors.TryRemove(memoryId, out _);
@@ -180,49 +198,13 @@ public sealed class InMemoryStore : IMemoryStore
                         affected.Add(memoryId);
                     }
                 }
-                else
+                else if (current != target)
                 {
-                    var lastEntry = entriesBefore[entriesBefore.Length - 1];
-                    if (lastEntry.IsDeleted || lastEntry.Event == MemoryHistoryEvent.Delete || string.IsNullOrEmpty(lastEntry.NewMemory))
-                    {
-                        // Was deleted at pointInTime
-                        if (memories.TryRemove(memoryId, out _))
-                        {
-                            vectors.TryRemove(memoryId, out _);
-                            deleted++;
-                            affected.Add(memoryId);
-                        }
-                    }
-                    else
-                    {
-                        // Active at pointInTime
-                        var restoredText = lastEntry.NewMemory!;
-                        if (memories.TryGetValue(memoryId, out var current))
-                        {
-                            if (current.Text != restoredText)
-                            {
-                                memories[memoryId] = current with { Text = restoredText, UpdatedAt = lastEntry.UpdatedAt };
-                                restored++;
-                                affected.Add(memoryId);
-                            }
-                        }
-                        else
-                        {
-                            // Recreate
-                            memories[memoryId] = new Memory
-                            {
-                                Id = memoryId,
-                                Text = restoredText,
-                                UserId = filter?.UserId ?? "default_user",
-                                AgentId = filter?.AgentId,
-                                RunId = filter?.RunId,
-                                CreatedAt = lastEntry.CreatedAt,
-                                UpdatedAt = lastEntry.UpdatedAt
-                            };
-                            restored++;
-                            affected.Add(memoryId);
-                        }
-                    }
+                    memories[memoryId] = target;
+                    if (targetEntry?.Embedding is not null) vectors[memoryId] = targetEntry.Embedding.ToArray();
+                    else vectors.TryRemove(memoryId, out _);
+                    restored++;
+                    affected.Add(memoryId);
                 }
             }
 
@@ -237,7 +219,7 @@ public sealed class InMemoryStore : IMemoryStore
         {
             foreach (var pair in history)
             {
-                var target = pair.Value.FirstOrDefault(e => e.Id == historyEntryId);
+                var target = pair.Value.FirstOrDefault(entry => entry.Id == historyEntryId);
                 if (target is not null)
                 {
                     return RollbackAsync(target.UpdatedAt, cancellationToken: cancellationToken);
@@ -259,5 +241,8 @@ public sealed class InMemoryStore : IMemoryStore
         return Task.CompletedTask;
     }
 
-    private void SaveHistoryCore(MemoryHistoryEntry entry) => history.GetOrAdd(entry.MemoryId, static _ => new ConcurrentQueue<MemoryHistoryEntry>()).Enqueue(entry);
+    private void SaveHistoryCore(MemoryHistoryEntry entry)
+    {
+        history.GetOrAdd(entry.MemoryId, static _ => new ConcurrentQueue<MemoryHistoryEntry>()).Enqueue(entry);
+    }
 }

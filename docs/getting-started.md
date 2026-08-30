@@ -12,24 +12,15 @@ Install the NuGet package in a compatible .NET Standard 2.0 or .NET 8-10 applica
 dotnet add package Mem0Sharp
 ```
 
-The default in-memory path runs entirely in process. Install `Mem0Sharp.PostgreSQL`
-or `Mem0Sharp.SQLite` only when the application needs those persistence providers;
-they carry their own database dependencies.
+The single `Mem0Sharp` package includes in-memory storage, Qdrant, and standard `Microsoft.Extensions.VectorData` adapters (for Azure AI Search, PostgreSQL/pgvector, SQLite, Redis, Milvus, etc.).
 
-Reference the project instead when developing against a local checkout:
+Reference the project when developing against a local checkout:
 
 ```powershell
 dotnet add .\src\YourApp\YourApp.csproj reference .\src\Mem0Sharp\Mem0Sharp.csproj
 ```
 
-Optional provider packages:
-
-```powershell
-dotnet add package Mem0Sharp.PostgreSQL
-dotnet add package Mem0Sharp.SQLite
-```
-
-The package includes the PostgreSQL integration. Build the library with:
+Build the library with:
 
 ```powershell
 dotnet build .\src\Mem0Sharp\Mem0Sharp.csproj

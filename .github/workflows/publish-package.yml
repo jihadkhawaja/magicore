@@ -54,17 +54,12 @@ jobs:
         shell: bash
         run: |
           version="${GITHUB_REF_NAME#v}"
-          for project in \
-            src/Mem0Sharp/Mem0Sharp.csproj \
-            src/Mem0Sharp.PostgreSQL/Mem0Sharp.PostgreSQL.csproj \
-            src/Mem0Sharp.SQLite/Mem0Sharp.SQLite.csproj; do
-            dotnet pack "$project" \
-              --configuration Release \
-              --no-build \
-              --output ./artifacts/package \
-              -p:Version="$version" \
-              -p:PackageVersion="$version"
-          done
+          dotnet pack src/Mem0Sharp/Mem0Sharp.csproj \
+            --configuration Release \
+            --no-build \
+            --output ./artifacts/package \
+            -p:Version="$version" \
+            -p:PackageVersion="$version"
 
       - name: Verify package versions
         shell: bash

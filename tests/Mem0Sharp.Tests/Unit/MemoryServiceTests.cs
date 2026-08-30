@@ -125,6 +125,7 @@ public sealed class MemoryServiceTests
                 Assert.False(entry.IsDeleted);
                 Assert.Equal("assistant", entry.ActorId);
                 Assert.Equal("writer", entry.Role);
+                Assert.Equal(added.Memories[0], entry.Snapshot);
             },
             entry =>
             {
@@ -134,6 +135,7 @@ public sealed class MemoryServiceTests
                 Assert.Equal(added.Memories[0].CreatedAt, entry.CreatedAt);
                 Assert.True(entry.UpdatedAt >= entry.CreatedAt);
                 Assert.False(entry.IsDeleted);
+                Assert.Equal("new preference", entry.Snapshot?.Text);
             },
             entry =>
             {
@@ -143,6 +145,7 @@ public sealed class MemoryServiceTests
                 Assert.Equal(added.Memories[0].CreatedAt, entry.CreatedAt);
                 Assert.True(entry.UpdatedAt >= entry.CreatedAt);
                 Assert.True(entry.IsDeleted);
+                Assert.Equal("new preference", entry.Snapshot?.Text);
             });
     }
 

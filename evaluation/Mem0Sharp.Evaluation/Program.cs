@@ -125,7 +125,7 @@ catch (Exception exception) when (exception is FileNotFoundException or InvalidD
     return 2;
 }
 
-Console.WriteLine($"Running {selected.Count} scenario(s) against PostgreSQL at {configuration.Postgres.ConnectionString.Split(';')[0]}...");
+Console.WriteLine($"Running {selected.Count} scenario(s) against VectorData store...");
 Console.WriteLine();
 
 var reports = new List<ScenarioReport>();
@@ -165,11 +165,11 @@ foreach (var scenario in selected)
 var evaluationReport = new EvaluationReport
 {
     Timestamp = DateTimeOffset.UtcNow,
-    Mode = selfTest ? "self-test (deterministic local embeddings)" : "live (PostgreSQL + model)",
+    Mode = selfTest ? "self-test (deterministic local embeddings)" : "live (VectorData + model)",
     ChatModel = selfTest ? null : configuration.OpenAi.ChatModel,
     EmbeddingModel = selfTest ? null : configuration.OpenAi.EmbeddingModel,
     JudgeModel = selfTest ? null : configuration.OpenAi.JudgeModel,
-    Store = "PostgreSQL",
+    Store = "VectorData",
     Dataset = dataset.Name,
     ConversationCount = dataset.Conversations.Count,
     QuestionCount = dataset.Questions.Count,

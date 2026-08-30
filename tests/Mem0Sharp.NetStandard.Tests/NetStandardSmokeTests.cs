@@ -1,6 +1,6 @@
 using System.Runtime.Versioning;
 using Mem0Sharp;
-using Microsoft.Data.Sqlite;
+using Mem0Sharp.VectorData;
 using Xunit;
 
 namespace Mem0Sharp.NetStandard.Tests;
@@ -13,8 +13,7 @@ public sealed class NetStandardSmokeTests
     public void LoadsNetStandardAssetsForAllPackages()
     {
         Assert.Equal(NetStandardFrameworkName, FrameworkName(typeof(MemoryService)));
-        Assert.Equal(NetStandardFrameworkName, FrameworkName(typeof(PostgresMemoryStore)));
-        Assert.Equal(NetStandardFrameworkName, FrameworkName(typeof(SqliteMemoryStore)));
+        Assert.Equal(NetStandardFrameworkName, FrameworkName(typeof(VectorDataMemoryStore)));
     }
 
     [Fact]
@@ -29,24 +28,15 @@ public sealed class NetStandardSmokeTests
     }
 
     [Fact]
-    public async Task SqliteFlowRunsFromNetStandardAsset()
+    public async Task VectorDataFlowRunsFromNetStandardAsset()
     {
-        var databasePath = Path.Combine(Path.GetTempPath(), $"mem0sharp-netstandard-{Guid.NewGuid():N}.db");
-        try
-        {
-            await using var store = new SqliteMemoryStore(databasePath);
-            await store.InitializeAsync();
-            var service = new MemoryService(store);
+        var store = VectorDataMemoryStore.CreateInMemory();
+        await store.InitializeAsync();
+        var service = new MemoryService(store);
 
-            await service.AddAsync("portable SQLite memory", "alice");
+        await service.AddAsync("portable VectorData memory", "alice");
 
-            Assert.Equal("portable SQLite memory", Assert.Single(await service.GetAllAsync()).Text);
-        }
-        finally
-        {
-            SqliteConnection.ClearAllPools();
-            if (File.Exists(databasePath)) File.Delete(databasePath);
-        }
+        Assert.Equal("portable VectorData memory", Assert.Single(await service.GetAllAsync()).Text);
     }
 
     private static string? FrameworkName(Type type) => type.Assembly.GetCustomAttributes(typeof(TargetFrameworkAttribute), false)

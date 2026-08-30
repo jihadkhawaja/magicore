@@ -37,6 +37,7 @@ public interface IMemoryService
 #endif
 
     Task<IReadOnlyList<SearchResult>> SearchAsync(string query, MemorySearchOptions? options = null, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<SearchResult>> SearchAtAsync(string query, DateTimeOffset pointInTime, MemorySearchOptions? options = null, CancellationToken cancellationToken = default);
 #if NETSTANDARD2_0
     Task<IReadOnlyList<SearchResult>> SearchAsync(string query, MemoryFilter? filter, int? topK = null, CancellationToken cancellationToken = default);
 #else
@@ -65,6 +66,7 @@ public interface IMemoryService
 
     Task<Memory?> GetAsync(string id, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<Memory>> GetAllAsync(MemoryFilter? filter = null, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<Memory>> GetAllAtAsync(DateTimeOffset pointInTime, MemoryFilter? filter = null, CancellationToken cancellationToken = default);
     Task<MemoryPage> GetPageAsync(MemoryPageOptions options, MemoryFilter? filter = null, CancellationToken cancellationToken = default);
     Task<Memory> UpdateAsync(string id, MemoryUpdate update, CancellationToken cancellationToken = default);
 #if NETSTANDARD2_0

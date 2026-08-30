@@ -7,7 +7,6 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/Mem0Sharp/Mem0Sharp.csproj" />
-    <ProjectReference Include="../../src/Mem0Sharp.SQLite/Mem0Sharp.SQLite.csproj" />
     <PackageReference Include="ModelContextProtocol" Version="2.0.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0" />
   </ItemGroup>

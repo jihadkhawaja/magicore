@@ -16,9 +16,8 @@ For security vulnerabilities, follow the private reporting process in the reposi
 - .NET 10 SDK
 - .NET 8 and .NET 9 runtimes to execute the complete target-framework test matrix
 - Git
-- PostgreSQL with the `vector` extension only when working on the PostgreSQL provider or its integration scenarios
 
-The default in-memory service and unit tests do not require PostgreSQL or an external model provider.
+The default in-memory service and unit tests do not require an external vector database or model provider.
 
 ## Set up the repository
 
@@ -56,20 +55,18 @@ dotnet test .\tests\Mem0Sharp.NetStandard.Tests\Mem0Sharp.NetStandard.Tests.cspr
 
 When adding or changing behavior, add or update an xUnit test in `tests/Mem0Sharp.Tests`. Prefer tests that exercise the public service or contract involved in the change. Keep tests deterministic and avoid requiring network access or external services unless the scenario specifically covers an integration boundary.
 
-The tag-triggered publishing workflow packs `Mem0Sharp`, `Mem0Sharp.PostgreSQL`,
-and `Mem0Sharp.SQLite` from the same release tag and publishes all three with
-the tag version.
+The tag-triggered publishing workflow packs `Mem0Sharp`
+from the release tag and publishes it with the tag version.
 
 ## Code and architecture guidelines
 
 - Keep public types in the `Mem0Sharp` namespace; folder names describe architecture rather than namespace segments.
 - Put provider-neutral models in `src/Mem0Sharp/Domain` and provider-neutral interfaces in `src/Mem0Sharp/Contracts`.
 - Keep use-case orchestration in `src/Mem0Sharp/Application`.
-- Put HTTP and vendor-specific code under the core `src/Mem0Sharp/Infrastructure` folders; put database adapters in `src/Mem0Sharp.PostgreSQL` or `src/Mem0Sharp.SQLite`.
+- Put HTTP and vendor-specific code under the `src/Mem0Sharp/Infrastructure` folders.
 - Preserve dependency direction toward contracts and domain models. Do not make contracts depend on application services or concrete adapters.
 - Preserve existing public APIs and behavior unless a breaking change has been discussed and documented.
 - Keep changes focused. Avoid unrelated refactoring, formatting churn, or new dependencies when an existing .NET API or abstraction is sufficient.
-- Keep `Mem0Sharp` dependency-free. Add database dependencies only to the provider package that owns the corresponding adapter, and document the package dependency and consumer impact.
 
 Read [Architecture](docs/architecture.md) for the source layout and extension rules, and [API reference](docs/api-reference.md) before changing public contracts.
 

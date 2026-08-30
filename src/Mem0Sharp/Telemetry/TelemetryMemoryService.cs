@@ -49,6 +49,9 @@ public sealed class TelemetryMemoryService : IMemoryService
     public Task<IReadOnlyList<SearchResult>> SearchAsync(string query, MemoryFilter? filter, int? topK = null, CancellationToken cancellationToken = default) =>
         SearchAsync(query, new MemorySearchOptions { Filter = filter, TopK = topK ?? 5 }, cancellationToken);
 
+    public Task<IReadOnlyList<SearchResult>> SearchAtAsync(string query, DateTimeOffset pointInTime, MemorySearchOptions? options = null, CancellationToken cancellationToken = default) =>
+        CaptureAsync<IReadOnlyList<SearchResult>>("mem0.search_at", () => inner.SearchAtAsync(query, pointInTime, options, cancellationToken), new Dictionary<string, object?> { ["point_in_time"] = pointInTime, ["top_k"] = options?.TopK }, cancellationToken);
+
     public Task<IReadOnlyList<SearchResult>> SearchAsync(DataContent image, MemorySearchOptions? options = null, CancellationToken cancellationToken = default) =>
         CaptureAsync<IReadOnlyList<SearchResult>>("mem0.search_image", () => inner.SearchAsync(image, options, cancellationToken), new Dictionary<string, object?> { ["top_k"] = options?.TopK }, cancellationToken);
 
@@ -66,6 +69,7 @@ public sealed class TelemetryMemoryService : IMemoryService
 
     public Task<Memory?> GetAsync(string id, CancellationToken cancellationToken = default) => CaptureAsync<Memory?>("mem0.get", () => inner.GetAsync(id, cancellationToken), cancellationToken: cancellationToken);
     public Task<IReadOnlyList<Memory>> GetAllAsync(MemoryFilter? filter = null, CancellationToken cancellationToken = default) => CaptureAsync<IReadOnlyList<Memory>>("mem0.get_all", () => inner.GetAllAsync(filter, cancellationToken), cancellationToken: cancellationToken);
+    public Task<IReadOnlyList<Memory>> GetAllAtAsync(DateTimeOffset pointInTime, MemoryFilter? filter = null, CancellationToken cancellationToken = default) => CaptureAsync<IReadOnlyList<Memory>>("mem0.get_all_at", () => inner.GetAllAtAsync(pointInTime, filter, cancellationToken), new Dictionary<string, object?> { ["point_in_time"] = pointInTime }, cancellationToken);
     public Task<MemoryPage> GetPageAsync(MemoryPageOptions options, MemoryFilter? filter = null, CancellationToken cancellationToken = default) => CaptureAsync<MemoryPage>("mem0.get_page", () => inner.GetPageAsync(options, filter, cancellationToken), cancellationToken: cancellationToken);
     public Task<Memory> UpdateAsync(string id, MemoryUpdate update, CancellationToken cancellationToken = default) => CaptureAsync<Memory>("mem0.update", () => inner.UpdateAsync(id, update, cancellationToken), cancellationToken: cancellationToken);
     public Task<Memory> UpdateAsync(string id, string text, IReadOnlyDictionary<string, string>? metadata = null, CancellationToken cancellationToken = default) => UpdateAsync(id, new MemoryUpdate { Text = text, Metadata = metadata }, cancellationToken);

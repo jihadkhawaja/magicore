@@ -1,14 +1,14 @@
 using Mem0Sharp;
 using Mem0Sharp.McpSample;
+using Mem0Sharp.VectorData;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-var sampleDirectory = Directory.GetParent(AppContext.BaseDirectory)!.Parent!.Parent!.Parent!.FullName;
-var dataDirectory = Path.Combine(sampleDirectory, "data");
-Directory.CreateDirectory(dataDirectory);
-
-await using var store = new SqliteMemoryStore(Path.Combine(dataDirectory, "mem0sharp.db"));
+var store = VectorDataMemoryStore.CreateInMemory(new VectorDataMemoryStoreOptions
+{
+    CollectionName = "mcp_memories"
+});
 await store.InitializeAsync();
 
 var memory = new MemoryService(store);

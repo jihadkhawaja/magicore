@@ -1,29 +1,31 @@
 using Mem0Sharp;
+using Mem0Sharp.VectorData;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 using OpenAI;
 using OpenAI.Chat;
 
-var configuration = SampleConfiguration.Load(
-    Path.Combine(AppContext.BaseDirectory, "sampleconfig.local.yaml"));
+var apiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY")
+    ?? throw new InvalidOperationException("Set the OPENAI_API_KEY environment variable before running this sample.");
+var model = Environment.GetEnvironmentVariable("OPENAI_MODEL") ?? "gpt-5.6-luna";
 
-var openAiClient = new OpenAIClient(
-    new System.ClientModel.ApiKeyCredential(configuration.OpenAi.ApiKey),
-    new OpenAIClientOptions
-    {
-        Endpoint = new Uri(configuration.OpenAi.Endpoint)
-    });
-var memory = new MemoryService();
+var vectorMemoryStore = VectorDataMemoryStore.CreateInMemory(new VectorDataMemoryStoreOptions
+{
+    CollectionName = "agent_memories"
+});
+await vectorMemoryStore.InitializeAsync();
+
+IMemoryService memory = new MemoryService(store: vectorMemoryStore);
 
 var agent = new ChatClientAgent(
-    openAiClient.GetChatClient(configuration.OpenAi.ChatModel).AsIChatClient(),
+    new OpenAIClient(apiKey).GetChatClient(model).AsIChatClient(),
     new ChatClientAgentOptions
     {
-        ChatOptions = new Microsoft.Extensions.AI.ChatOptions
+        ChatOptions = new ChatOptions
         {
             Instructions = "You are a helpful assistant. Use remembered preferences when they are relevant, and do not invent memories."
         },
-        AIContextProviders = [new Mem0ContextProvider(memory, "alice")]
+        AIContextProviders = [new Mem0ContextProvider(memory, userId: "alice")]
     });
 
 var session = await agent.CreateSessionAsync();
@@ -39,38 +41,38 @@ while (true)
         continue;
 
     var response = await agent.RunAsync(input, session);
-    await memory.AddAsync(input, new MemoryAddOptions
-    {
-        UserId = "alice",
-        Infer = false
-    });
     Console.WriteLine($"Agent: {response}\n");
 }
 
-internal sealed class Mem0ContextProvider : AIContextProvider
+/// <summary>
+/// Bridges Microsoft Agent Framework's <see cref="AIContextProvider"/> with <see cref="MemoryService"/>.
+/// Automatically injects remembered context before invocation and stores turns after invocation.
+/// </summary>
+internal sealed class Mem0ContextProvider(IMemoryService memory, string userId) : AIContextProvider
 {
-    private readonly MemoryService _memory;
-    private readonly string _userId;
-
-    public Mem0ContextProvider(MemoryService memory, string userId)
-    {
-        _memory = memory;
-        _userId = userId;
-    }
-
-    protected override ValueTask StoreAIContextAsync(
+    protected override async ValueTask StoreAIContextAsync(
         InvokedContext context,
         CancellationToken cancellationToken = default)
     {
-        return ValueTask.CompletedTask;
+        var messages = context.RequestMessages.Concat(context.ResponseMessages ?? []);
+        var text = string.Join(Environment.NewLine, messages.Select(message => $"{message.Role}: {message.Text}"));
+
+        if (!string.IsNullOrWhiteSpace(text))
+        {
+            await memory.AddAsync(text, new MemoryAddOptions
+            {
+                UserId = userId,
+                Infer = false
+            }, cancellationToken: cancellationToken);
+        }
     }
 
     protected override async ValueTask<AIContext> ProvideAIContextAsync(
         InvokingContext context,
         CancellationToken cancellationToken = default)
     {
-        var memories = await _memory.GetAllAsync(
-            new MemoryFilter(UserId: _userId),
+        var memories = await memory.GetAllAsync(
+            new MemoryFilter(UserId: userId),
             cancellationToken: cancellationToken);
 
         if (memories.Count == 0)
@@ -78,7 +80,10 @@ internal sealed class Mem0ContextProvider : AIContextProvider
 
         var remembered = string.Join(
             Environment.NewLine,
-            memories.Select(memory => $"- {memory.Text}"));
+            memories
+                .OrderByDescending(item => item.UpdatedAt)
+                .Take(5)
+                .Select(item => $"- {item.Text}"));
 
         return new AIContext
         {

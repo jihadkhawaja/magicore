@@ -1,11 +1,12 @@
 using System.Diagnostics;
+using Mem0Sharp.VectorData;
 using Microsoft.Extensions.AI;
 
 namespace Mem0Sharp.Evaluation;
 
 /// <summary>
-/// Runs one scenario: fresh PostgreSQL tables, ingest all conversations with the
-/// scenario's add options, then search, answer, and judge every question.
+/// Runs one scenario: in-memory VectorData collection, ingests all conversations with the
+/// scenario's add options, then searches, answers, and judges every question.
 /// </summary>
 internal sealed class ScenarioRunner(
     EvaluationConfiguration configuration,
@@ -23,20 +24,16 @@ internal sealed class ScenarioRunner(
         var ingestWatch = Stopwatch.StartNew();
         var memoriesStored = 0;
 
-        await using var store = new PostgresMemoryStore(new PostgresMemoryStoreOptions
+        var store = VectorDataMemoryStore.CreateInMemory(new VectorDataMemoryStoreOptions
         {
-            ConnectionString = configuration.Postgres.ConnectionString,
-            EmbeddingDimensions = configuration.Postgres.EmbeddingDimensions,
-            TableName = scenario.TableName,
-            UseHnswIndex = true,
-            CreateExtension = true
+            CollectionName = scenario.TableName
         });
         await store.InitializeAsync(cancellationToken);
         await store.ResetAsync(cancellationToken);
 
         var memory = new MemoryService(
             store: store,
-            embeddings: retrievalOnly ? new LocalEmbeddingGenerator(configuration.Postgres.EmbeddingDimensions) : embeddingGenerator!,
+            embeddings: retrievalOnly ? new LocalEmbeddingGenerator(1536) : embeddingGenerator!,
             extractor: retrievalOnly ? new BasicMemoryExtractor() : new LlmMemoryExtractor(chatClient!),
             reranker: scenario.Rerank && !retrievalOnly ? new LlmReranker(chatClient!) : null,
             conflictResolver: scenario.UseConflictResolver && !retrievalOnly ? new LlmMemoryConflictResolver(chatClient!) : null);

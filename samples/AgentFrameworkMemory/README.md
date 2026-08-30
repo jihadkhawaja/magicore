@@ -1,38 +1,27 @@
-# Microsoft Agent Framework memory sample
+# Microsoft Agent Framework Memory Sample
 
-This sample connects Mem0Sharp to a Microsoft Agent Framework `AIAgent` through the `AIContextProvider` extension point. Mem0Sharp recalls relevant user memories before each agent invocation and stores new user messages after each invocation.
+This sample adds long-term memory to a Microsoft Agent Framework `ChatClientAgent` through `AIContextProvider`. It uses an in-memory `Microsoft.Extensions.VectorData` store for a self-contained example.
 
-The sample uses the in-memory store, so it needs no database. Replace `new MemoryService()` with a configured persistent store when moving the pattern into an application.
+- `StoreAIContextAsync` saves each completed user/assistant turn.
+- `ProvideAIContextAsync` injects up to five recent memories for the current user.
+- `MemoryFilter(UserId: ...)` keeps memories isolated between users.
 
 ## Prerequisites
 
 - .NET 10 SDK
-- An OpenAI API key, or an OpenAI-compatible endpoint
+- An OpenAI API key
 
-Copy the example configuration and add your API key:
-
-```powershell
-Copy-Item .\samples\AgentFrameworkMemory\sampleconfig.example.yaml .\samples\AgentFrameworkMemory\sampleconfig.local.yaml
-```
-
-Edit `sampleconfig.local.yaml` to set `openAi.apiKey`. The `openAi.endpoint` value can point to an OpenAI-compatible server and must include the provider root, for example `https://api.openai.com/v1/`.
-
-## Run it
+## Run
 
 From the repository root:
 
 ```powershell
+$env:OPENAI_API_KEY = "your-api-key"
+# Optional; defaults to gpt-5.6-luna
+$env:OPENAI_MODEL = "gpt-5.6-luna"
 dotnet run --project .\samples\AgentFrameworkMemory\AgentFrameworkMemory.csproj
 ```
 
-The program runs two turns for the same user. The second turn demonstrates that the agent can use a preference stored during the first turn. Type `exit` to stop.
+Tell the agent something it should remember (e.g., *"I love dark mode and C#"*), then ask about it in a subsequent turn (e.g., *"What language do I like?"*). Type `exit` to stop.
 
-## How it works
-
-`Mem0ContextProvider` implements Agent Framework's `AIContextProvider`:
-
-- `ProvideAIContextAsync` searches Mem0Sharp before the model is invoked.
-- The host stores the latest user message after the model responds.
-- The memory filter scopes records to the sample user.
-
-This is an integration sample, not an official Microsoft or Mem0-supported adapter.
+The in-memory store is reset when the process exits. Replace `VectorDataMemoryStore.CreateInMemory` with a persistent MEVD connector for production applications.

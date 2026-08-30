@@ -15,7 +15,7 @@
 Mem0Sharp is an independent, standalone C#/.NET implementation of the open-source [Mem0 project](https://github.com/mem0ai/mem0). It delivers a unified service API for saving, searching, updating, and consolidating semantic memories with modular embedding and vector storage providers.
 
 - 🔒 **100% Standalone & Local-First**: Runs entirely in-process in .NET with zero telemetry or third-party cloud service requirements.
-- 🪶 **Broad Runtime Support**: NuGet packages target .NET Standard 2.0, .NET 8, .NET 9, and .NET 10. Persistence providers (PostgreSQL/pgvector, SQLite, Qdrant) are modular add-ons.
+- 🪶 **Broad Runtime Support**: Targets .NET Standard 2.0, .NET 8, .NET 9, and .NET 10 with built-in in-memory, Qdrant, and universal `Microsoft.Extensions.VectorData` persistence in a single package.
 - 🧠 **Cognitive Memory Behaviors**: Goes beyond raw vector storage with autonomous behaviors (dreaming/consolidation, spontaneous associations, and personality-shaped first-person recall).
 - 🔌 **Native Model Context Protocol (MCP)**: Includes 9 local MCP tools out of the box for agentic developer tools (Cursor, Claude Desktop, Copilot).
 
@@ -51,7 +51,7 @@ Console.WriteLine(results[0].Memory.Text); // I prefer C# over Python.
 | **Cognitive Behaviors** *(Dreaming, Identity)* | **Built-in** | ❌ (Static) | ❌ (Static) | ❌ (Raw vectors) | ❌ |
 | **Model Context Protocol (MCP)** | **9 Built-in Tools** | Separate repo | ❌ Cloud only | ❌ | ❌ |
 | **Hybrid Search + Cross-Encoder Reranking** | **Built-in (BM25 + Dense)** | Basic | Proprietary | ❌ Manual setup | ❌ |
-| **Audit History & Temporal Tracking** | **Built-in** | Basic | Proprietary | ❌ Manual setup | ❌ |
+| **Audit History & Temporal Tracking** | **Built-in for supported stores** | Basic | Proprietary | ❌ Manual setup | ❌ |
 
 ---
 
@@ -72,7 +72,7 @@ flowchart LR
     end
 
     subgraph Storage["3. Modular Persistence"]
-        Normal & Dream & Assoc & Identity --> Store["Storage Engine<br/>(InMemory / SQLite / PostgreSQL pgvector / Qdrant)"]
+        Normal & Dream & Assoc & Identity --> Store["Storage Engine<br/>(InMemory / Qdrant / Microsoft.Extensions.VectorData)"]
     end
 
     subgraph Retrieval["4. Context Retrieval"]
@@ -87,17 +87,10 @@ flowchart LR
 
 ## Installation
 
-Install the dependency-free core package:
+Install the package via NuGet:
 
 ```powershell
 dotnet add package Mem0Sharp
-```
-
-For persistent database backends, install the optional provider packages:
-
-```powershell
-dotnet add package Mem0Sharp.PostgreSQL
-dotnet add package Mem0Sharp.SQLite
 ```
 
 ---
@@ -112,7 +105,7 @@ dotnet add package Mem0Sharp.SQLite
   - `Dreaming`: Background memory consolidation, compressing repeated facts into long-term insights.
   - `Random Thoughts`: Spontaneous associations and creative prompt injections.
   - `Personal/Identity`: First-person perspective memory shaping.
-- **Audit & History**: Persistent `ADD`, `UPDATE`, and `DELETE` history with audit timestamps, actor, and role tracking.
+- **Audit, Temporal Reads & Recovery**: Track `ADD`, `UPDATE`, and `DELETE` events, query historical state without mutation, and perform filtered rollback with history-capable stores. See [Providers & Persistence](docs/providers-and-persistence.md#5-point-in-time-reads-and-rollback) for provider limitations.
 - **Scoped Organization**: User, session, and agent-level memory partitioning with run filters and metadata matching.
 - **Model Context Protocol (MCP)**: 9 built-in tools ready to plug into Claude Desktop, Cursor, and VS Code.
 - **Batch Operations**: High-throughput transactional batch embeddings and searches.
@@ -163,32 +156,24 @@ userId: "alice",
 scope: MemoryScope.User);
 ```
 
-### 3. Persistent PostgreSQL with pgvector
+### 3. Microsoft.Extensions.VectorData (MEVD) Store
 
 ```csharp
 using Mem0Sharp;
+using Mem0Sharp.VectorData;
+using Microsoft.Extensions.VectorData;
 
-var embeddings = new LocalEmbeddingGenerator(384);
-await using var store = new PostgresMemoryStore(new PostgresMemoryStoreOptions
+// Use any MEVD-compatible vector store (Azure AI Search, PostgreSQL/pgvector, SQLite, Redis, Qdrant, Milvus, Pinecone, etc.)
+VectorStore vectorStore = GetVectorStore();
+var store = new VectorDataMemoryStore(vectorStore, new VectorDataMemoryStoreOptions
 {
-    ConnectionString = Environment.GetEnvironmentVariable("MEM0_POSTGRES")!,
-    EmbeddingDimensions = 384,
-    TableName = "mem0_memories"
+    CollectionName = "user_memories",
+    VectorDimensions = 384,
+    AutoCreateCollection = true
 });
 await store.InitializeAsync();
 
-var memory = new MemoryService(store, embeddings);
-```
-
-### 4. Portable SQLite Store
-
-```csharp
-using Mem0Sharp;
-
-await using var store = new SqliteMemoryStore("data/mem0sharp.db");
-await store.InitializeAsync();
-
-var memory = new MemoryService(store, new LocalEmbeddingGenerator(384));
+var memory = new MemoryService(store: store);
 ```
 
 ---
@@ -198,10 +183,11 @@ var memory = new MemoryService(store, new LocalEmbeddingGenerator(384));
 Explore practical runnable examples in the [`samples/`](samples/) folder:
 
 - **[Getting Started](samples/GettingStarted/README.md)**: Zero-setup CRUD, search, and history tracking.
+- **[SQLite Vector Store](samples/VectorDataSqlite/README.md)**: Local embedded persistence with `Microsoft.Extensions.VectorData` and `sqlite-vec`.
+- **[PostgreSQL pgvector](samples/VectorDataPostgres/README.md)**: Enterprise persistent vector storage with `Microsoft.Extensions.VectorData` and `pgvector`.
 - **[Memory Behaviors](samples/MemoryBehaviors/README.md)**: Fact extraction, dreaming/consolidation, spontaneous associations, and personality-shaped memory.
 - **[Ollama Integration](samples/Ollama/README.md)**: Fully offline local LLM extraction and embeddings.
-- **[PostgreSQL + OpenAI](samples/PostgresOpenAI/README.md)**: Enterprise persistent pgvector storage with OpenAI models.
-- **[Agent Framework Memory](samples/AgentFrameworkMemory/README.md)**: Cross-session persistent memory for Microsoft Agent Framework.
+- **[Agent Framework Memory](samples/AgentFrameworkMemory/README.md)**: Cross-session persistent memory with `Microsoft.Extensions.VectorData` for Microsoft Agent Framework.
 - **[MCP Server](samples/McpServer/README.md)**: Standalone Model Context Protocol server exposing Mem0Sharp tools to Claude Desktop & Cursor.
 
 ---

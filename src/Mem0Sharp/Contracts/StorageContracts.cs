@@ -6,6 +6,11 @@ public sealed record MemoryWriteRecord(Memory Memory, IReadOnlyList<float>? Embe
 
 public sealed record MemoryDeleteRecord(Memory Memory, MemoryHistoryEntry History);
 
+public interface ITemporalMemoryStore
+{
+    Task<IReadOnlyList<Memory>> GetAllAtAsync(DateTimeOffset pointInTime, MemoryFilter? filter = null, CancellationToken cancellationToken = default);
+}
+
 public interface IMemoryStore
 {
     Task SaveAsync(Memory memory, IReadOnlyList<float>? embedding = null, CancellationToken cancellationToken = default);

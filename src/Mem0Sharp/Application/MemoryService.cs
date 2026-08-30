@@ -184,6 +184,38 @@ public sealed class MemoryService : IMemoryService
     public Task<IReadOnlyList<SearchResult>> SearchAsync(string query, MemoryFilter? filter, int? topK = null, CancellationToken cancellationToken = default) =>
         SearchAsync(query, new MemorySearchOptions { Filter = filter, TopK = topK ?? options.DefaultTopK }, cancellationToken);
 
+    public async Task<IReadOnlyList<SearchResult>> SearchAtAsync(string query, DateTimeOffset pointInTime, MemorySearchOptions? searchOptions = null, CancellationToken cancellationToken = default)
+    {
+        Guard.NotNullOrWhiteSpace(query);
+        var effective = searchOptions ?? new MemorySearchOptions { TopK = options.DefaultTopK, Threshold = options.MinimumScore, Hybrid = options.EnableHybridSearch };
+        if (effective.TopK < 0) throw new ArgumentOutOfRangeException(nameof(searchOptions));
+        if (effective.TopK == 0) return [];
+
+        var memoriesAtPoint = await GetAllAtAsync(pointInTime, ApplySearchFilter(effective), cancellationToken);
+        if (memoriesAtPoint.Count == 0) return [];
+
+        var queryVector = await embeddings.GenerateVectorCoreAsync(query, cancellationToken);
+        var memoryVectors = await embeddings.GenerateVectorBatchCoreAsync(memoriesAtPoint.Select(memory => memory.Text).ToArray(), cancellationToken);
+        if (memoryVectors.Count != memoriesAtPoint.Count) throw new InvalidOperationException("The embedding provider returned a different number of vectors than historical memories.");
+
+        var semanticResults = memoriesAtPoint
+            .Select((memory, index) => new SearchResult(memory, CosineSimilarity(queryVector, memoryVectors[index])))
+            .ToArray();
+        IReadOnlyList<SearchResult> ranked = effective.Hybrid
+            ? HybridSearchScorer.ScoreAndRank(query, semanticResults, new Dictionary<string, double>(StringComparer.Ordinal), effective.Threshold, effective.TopK, effective.Explain)
+            : semanticResults.Where(result => result.Score >= effective.Threshold)
+                .OrderByDescending(result => result.Score)
+                .Take(effective.TopK)
+                .Select(result => effective.Explain ? result with { ScoreDetails = new SearchScoreDetails(result.Score, Threshold: effective.Threshold) } : result with { ScoreDetails = null })
+                .ToArray();
+
+        if (effective.Rerank && reranker is not null)
+        {
+            ranked = await reranker.RerankAsync(query, ranked, effective.TopK, cancellationToken);
+        }
+        return effective.RecencyBias > 0 ? ApplyRecencyBias(ranked, effective, pointInTime) : ranked;
+    }
+
     public async Task<IReadOnlyList<SearchResult>> SearchAsync(DataContent image, MemorySearchOptions? searchOptions = null, CancellationToken cancellationToken = default)
     {
         Guard.NotNull(image);
@@ -248,18 +280,17 @@ public sealed class MemoryService : IMemoryService
         }
         if (searchOptions.RecencyBias > 0)
         {
-            ranked = ApplyRecencyBias(ranked, searchOptions);
+            ranked = ApplyRecencyBias(ranked, searchOptions, DateTimeOffset.UtcNow);
         }
         return ranked;
     }
 
-    private static IReadOnlyList<SearchResult> ApplyRecencyBias(IReadOnlyList<SearchResult> ranked, MemorySearchOptions searchOptions)
+    private static IReadOnlyList<SearchResult> ApplyRecencyBias(IReadOnlyList<SearchResult> ranked, MemorySearchOptions searchOptions, DateTimeOffset now)
     {
         var recencyBias = Compatibility.Clamp(searchOptions.RecencyBias, 0d, 1d);
         if (recencyBias <= 0) return ranked;
         var window = searchOptions.FreshnessWindow ?? TimeSpan.FromDays(30);
         if (window <= TimeSpan.Zero) window = TimeSpan.FromDays(30);
-        var now = DateTimeOffset.UtcNow;
 
         return ranked
             .Select(result =>
@@ -314,6 +345,11 @@ public sealed class MemoryService : IMemoryService
         await foreach (var memory in store.GetAllAsync(filter, cancellationToken)) result.Add(memory);
         return result;
     }
+
+    public Task<IReadOnlyList<Memory>> GetAllAtAsync(DateTimeOffset pointInTime, MemoryFilter? filter = null, CancellationToken cancellationToken = default) =>
+        store is ITemporalMemoryStore temporalStore
+            ? temporalStore.GetAllAtAsync(pointInTime, filter, cancellationToken)
+            : throw new NotSupportedException($"The configured memory store '{store.GetType().Name}' does not support point-in-time reads.");
 
     public async Task<MemoryPage> GetPageAsync(MemoryPageOptions pageOptions, MemoryFilter? filter = null, CancellationToken cancellationToken = default)
     {
@@ -462,7 +498,7 @@ public sealed class MemoryService : IMemoryService
         };
         var updatedVector = await embeddings.GenerateVectorCoreAsync(updated.Text, cancellationToken);
         var enrichment = update.Text is null ? null : await PrepareEnrichmentAsync(updated.Text, cancellationToken);
-        var history = CreateHistoryEntry(updated, MemoryHistoryEvent.Update, existing.Text, updated.Text);
+        var history = CreateHistoryEntry(updated, MemoryHistoryEvent.Update, existing.Text, updated.Text, embedding: updatedVector);
 
         await store.SaveBatchAsync([new MemoryWriteRecord(updated, updatedVector, history!)], cancellationToken);
 
@@ -605,7 +641,7 @@ public sealed class MemoryService : IMemoryService
         var records = pending.Select((memory, index) => new MemoryVectorRecord(memory, generatedVectors[index])).ToArray();
         var enrichments = new Dictionary<string, MemoryEnrichment>(StringComparer.Ordinal);
         foreach (var record in records) enrichments[record.Memory.Id] = await PrepareEnrichmentAsync(record.Memory.Text, cancellationToken);
-        var historyEntries = records.Select(record => CreateHistoryEntry(record.Memory, MemoryHistoryEvent.Add, null, record.Memory.Text)).ToArray();
+        var historyEntries = records.Select(record => CreateHistoryEntry(record.Memory, MemoryHistoryEvent.Add, null, record.Memory.Text, embedding: record.Embedding)).ToArray();
 
         var writeRecords = records.Select((record, index) => new MemoryWriteRecord(record.Memory, record.Embedding, historyEntries[index]!)).ToArray();
         await store.SaveBatchAsync(writeRecords, cancellationToken);
@@ -718,13 +754,15 @@ public sealed class MemoryService : IMemoryService
 
     private sealed record MemoryEnrichment(IReadOnlyList<ExtractedEntity> Entities, IReadOnlyList<ExtractedRelation> Relations);
 
-    private static MemoryHistoryEntry? CreateHistoryEntry(Memory memory, MemoryHistoryEvent eventType, string? oldMemory, string? newMemory, DateTimeOffset? updatedAt = null, bool isDeleted = false)
+    private static MemoryHistoryEntry? CreateHistoryEntry(Memory memory, MemoryHistoryEvent eventType, string? oldMemory, string? newMemory, DateTimeOffset? updatedAt = null, bool isDeleted = false, IReadOnlyList<float>? embedding = null)
     {
         return new MemoryHistoryEntry
         {
             Id = Guid.NewGuid().ToString("N"),
             MemoryId = memory.Id,
             Event = eventType,
+            Snapshot = memory,
+            Embedding = embedding,
             OldMemory = oldMemory,
             NewMemory = newMemory,
             CreatedAt = memory.CreatedAt,

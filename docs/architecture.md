@@ -35,13 +35,9 @@ Dependencies point toward contracts and domain models. Contracts never depend on
 | `Intelligence` | Provider-neutral LLM extraction, conflict resolution, procedural memory, graph extraction, and reranking policies. |
 | `Telemetry` | Telemetry decorators and collectors. |
 | `Facades` | Alternative API façades, including the synchronous wrapper. |
-| `src/Mem0Sharp.PostgreSQL` | Optional PostgreSQL/pgvector persistence package and relationship stores. |
-| `src/Mem0Sharp.SQLite` | Optional SQLite persistence package. |
+| `Infrastructure/VectorData` | Standard `Microsoft.Extensions.VectorData` persistence provider for any MEVD vector database. |
 
-All public types currently remain in `namespace Mem0Sharp`. Folder names and
-provider assemblies are architectural boundaries, not namespace segments, so
-this refactor does not require consumer source changes beyond adding the
-provider package reference.
+All public types currently remain in `namespace Mem0Sharp` (and `namespace Mem0Sharp.VectorData` for MEVD extensions). Folder names are architectural boundaries, not namespace segments.
 
 ## Composition
 
@@ -51,9 +47,9 @@ The parameterless `MemoryService` path composes deterministic in-memory defaults
 
 ## Consistency boundaries
 
-Built-in in-memory, SQLite, and PostgreSQL stores implement `IAtomicMemoryStore`.
+Built-in in-memory and VectorData stores implement `IAtomicMemoryStore`.
 When available, `MemoryService` commits a memory row and its `ADD`, `UPDATE`, or
-`DELETE` history event in the same backend transaction, including filtered bulk
+`DELETE` history event in the same transaction, including filtered bulk
 deletes. Custom stores retain the basic `IMemoryStore` contract and can opt into
 the stronger boundary when their backend supports it.
 
@@ -74,8 +70,4 @@ aggregate store instead of relying on distributed transactions.
 5. Put protocol concerns under `Transports` and cross-cutting decorators under their dedicated folder.
 6. Preserve the public `Mem0Sharp` namespace unless a planned major version explicitly introduces namespace migration.
 
-PostgreSQL and SQLite are isolated in `Mem0Sharp.PostgreSQL` and
-`Mem0Sharp.SQLite`; both reference the core and add only their own storage
-dependencies. MCP hosting is kept in `samples/McpServer` and uses the official
-`ModelContextProtocol` SDK, leaving the core package independent of protocol
-hosting dependencies.
+Vector database integrations are standardized via `Microsoft.Extensions.VectorData.Abstractions` inside core `Mem0Sharp`. MCP hosting is kept in `samples/McpServer` and uses the official `ModelContextProtocol` SDK, leaving the core package independent of protocol hosting dependencies.

@@ -37,7 +37,7 @@ Dependencies point toward contracts and domain models. Contracts never depend on
 | `Facades` | Alternative API façades, including the synchronous wrapper. |
 | `Infrastructure/VectorData` | Standard `Microsoft.Extensions.VectorData` persistence provider for any MEVD vector database. |
 
-All public types currently remain in `namespace Mem0Sharp` (and `namespace Mem0Sharp.VectorData` for MEVD extensions). Folder names are architectural boundaries, not namespace segments.
+All public types remain in `namespace Mem0Sharp`. Folder names are architectural boundaries, not namespace segments.
 
 ## Composition
 

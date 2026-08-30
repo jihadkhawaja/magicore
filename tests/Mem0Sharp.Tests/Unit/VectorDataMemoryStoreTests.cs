@@ -2,7 +2,6 @@ using System.Collections.Concurrent;
 using System.Linq.Expressions;
 using System.Numerics.Tensors;
 using Mem0Sharp;
-using Mem0Sharp.VectorData;
 using Microsoft.Extensions.VectorData;
 using Xunit;
 

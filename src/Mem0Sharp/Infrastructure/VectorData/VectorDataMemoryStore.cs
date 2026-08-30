@@ -2,7 +2,7 @@ using System.Collections.Concurrent;
 using System.Linq.Expressions;
 using Microsoft.Extensions.VectorData;
 
-namespace Mem0Sharp.VectorData;
+namespace Mem0Sharp;
 
 public sealed class VectorDataMemoryStore : IMemoryStore, ITemporalMemoryStore
 {

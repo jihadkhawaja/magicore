@@ -4,7 +4,7 @@ This sample exposes Mem0Sharp's local MCP tools over stdio for the VS Code works
 
 It uses the official `ModelContextProtocol` .NET SDK for tool discovery, JSON-RPC handling, lifecycle messages, and stdio transport. The core `Mem0Sharp` library remains independent of MCP hosting dependencies.
 
-Memories are stored in-memory using `Mem0Sharp.VectorData` or can be connected to any `Microsoft.Extensions.VectorData` persistent vector store.
+Memories are stored in-memory using the core `VectorDataMemoryStore` or can be connected to any `Microsoft.Extensions.VectorData` persistent vector store.
 
 Run it manually from the repository root:
 

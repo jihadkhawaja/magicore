@@ -1,7 +1,7 @@
 using System.Text.Json;
 using Microsoft.Extensions.VectorData;
 
-namespace Mem0Sharp.VectorData;
+namespace Mem0Sharp;
 
 public sealed class VectorDataMemoryRecord
 {

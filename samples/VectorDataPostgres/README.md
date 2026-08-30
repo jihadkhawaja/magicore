@@ -5,7 +5,7 @@ This sample demonstrates how to use **Mem0Sharp** with **PostgreSQL** and **pgve
 ## Features Demonstrated
 
 - Instantiating a `PostgresVectorStore` from `Microsoft.SemanticKernel.Connectors.PgVector`
-- Wrapping it in `VectorDataMemoryStore` from `Mem0Sharp.VectorData`
+- Wrapping it in the core `Mem0Sharp.VectorDataMemoryStore`
 - Auto-creating vector and audit history tables in PostgreSQL
 - Storing memories with user identity, metadata, and deterministic local embeddings
 - Executing semantic vector similarity search

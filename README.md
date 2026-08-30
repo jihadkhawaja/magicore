@@ -160,7 +160,6 @@ scope: MemoryScope.User);
 
 ```csharp
 using Mem0Sharp;
-using Mem0Sharp.VectorData;
 using Microsoft.Extensions.VectorData;
 
 // Use any MEVD-compatible vector store (Azure AI Search, PostgreSQL/pgvector, SQLite, Redis, Qdrant, Milvus, Pinecone, etc.)

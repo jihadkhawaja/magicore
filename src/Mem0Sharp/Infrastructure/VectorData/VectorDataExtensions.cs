@@ -1,6 +1,6 @@
 using Microsoft.Extensions.VectorData;
 
-namespace Mem0Sharp.VectorData;
+namespace Mem0Sharp;
 
 public static class VectorDataExtensions
 {

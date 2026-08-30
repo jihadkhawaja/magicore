@@ -3,7 +3,7 @@ using System.Linq.Expressions;
 using System.Numerics.Tensors;
 using Microsoft.Extensions.VectorData;
 
-namespace Mem0Sharp.VectorData;
+namespace Mem0Sharp;
 
 /// <summary>
 /// A lightweight, in-memory implementation of <see cref="VectorStoreCollection{TKey, TRecord}"/>

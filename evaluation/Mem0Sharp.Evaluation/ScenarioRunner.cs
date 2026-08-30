@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using Mem0Sharp.VectorData;
 using Microsoft.Extensions.AI;
 
 namespace Mem0Sharp.Evaluation;

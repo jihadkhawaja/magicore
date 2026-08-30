@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using System.Runtime.InteropServices;
 using Mem0Sharp;
-using Mem0Sharp.VectorData;
 using Microsoft.SemanticKernel.Connectors.SqliteVec;
 
 Console.WriteLine("=== Mem0Sharp with SQLite Vector Store (MEVD) ===");

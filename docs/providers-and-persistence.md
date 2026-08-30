@@ -9,7 +9,7 @@ Mem0Sharp standardizes entirely on **`Microsoft.Extensions.AI`** (`IChatClient` 
 | **Chat & Extraction** | Any `Microsoft.Extensions.AI.IChatClient` (OpenAI, Azure, [OllamaSharp](https://github.com/awaescher/OllamaSharp), Google Gemini, ONNX Runtime GenAI, Anthropic, Mistral) |
 | **Text Embeddings** | Any `Microsoft.Extensions.AI.IEmbeddingGenerator<string, Embedding<float>>` (OpenAI, OllamaSharp, ONNX embeddings, deterministic local) |
 | **Image Embeddings** | Any `Microsoft.Extensions.AI.IEmbeddingGenerator<DataContent, Embedding<float>>` / `IImageEmbeddingGenerator` (LocalImageEmbeddingGenerator, ONNX vision models, CLIP) |
-| **Vector storage** | In-memory and Qdrant in core; any vector database via `Mem0Sharp.VectorData` (Azure AI Search, PostgreSQL/pgvector, SQLite, Redis, Milvus, Pinecone, etc.) |
+| **Vector storage** | In-memory and Qdrant in core; any vector database via `VectorDataMemoryStore` (Azure AI Search, PostgreSQL/pgvector, SQLite, Redis, Milvus, Pinecone, etc.) |
 | **Reranking** | Any `IChatClient` (via `LlmReranker`), Cohere, ZeroEntropy, local cross-encoders |
 | **Security & Governance** | `IAdmissionGate` (Prompt injection filter, scope authority, novelty gate) |
 | **Anti-Drift Verifier** | `IConsolidationVerifier` (`LlmConsolidationVerifier`, `HeuristicConsolidationVerifier`) |
@@ -85,7 +85,6 @@ var memory = new MemoryService(
 
 ```csharp
 using Mem0Sharp;
-using Mem0Sharp.VectorData;
 using Microsoft.Extensions.VectorData;
 
 // Example: Any VectorStore instance (Azure AI Search, Postgres/pgvector, SQLite, Redis, Qdrant, Milvus)

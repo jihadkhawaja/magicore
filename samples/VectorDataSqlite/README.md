@@ -5,7 +5,7 @@ This sample demonstrates how to use **Mem0Sharp** with a local embedded **SQLite
 ## Features Demonstrated
 
 - Instantiating a local embedded `SqliteVectorStore` from `Microsoft.SemanticKernel.Connectors.SqliteVec`
-- Wrapping it in `VectorDataMemoryStore` from `Mem0Sharp.VectorData`
+- Wrapping it in the core `Mem0Sharp.VectorDataMemoryStore`
 - Auto-creating vector virtual tables and audit history tables in a local SQLite file (`memories_sample.db`)
 - Storing memories with user identity, metadata, and deterministic local embeddings
 - Executing semantic vector similarity search

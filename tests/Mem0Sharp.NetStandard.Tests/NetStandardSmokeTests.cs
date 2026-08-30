@@ -1,6 +1,5 @@
 using System.Runtime.Versioning;
 using Mem0Sharp;
-using Mem0Sharp.VectorData;
 using Xunit;
 
 namespace Mem0Sharp.NetStandard.Tests;

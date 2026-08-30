@@ -170,11 +170,11 @@ public sealed class AgentFrameworkContextProviderTests
     [Fact]
     public async Task Mem0ContextProvider_BackedByVectorDataMemoryStore_WorksAsExpected()
     {
-        var collection = new Mem0Sharp.Tests.Unit.VectorDataMemoryStoreTests.InMemoryTestRecordCollection<VectorData.VectorDataMemoryRecord>(
+        var collection = new Mem0Sharp.Tests.Unit.VectorDataMemoryStoreTests.InMemoryTestRecordCollection<VectorDataMemoryRecord>(
             "agent_memories",
             r => r.Id,
             r => r.Vector);
-        var store = new VectorData.VectorDataMemoryStore(collection);
+        var store = new VectorDataMemoryStore(collection);
         await store.InitializeAsync();
 
         var memory = new MemoryService(store: store);

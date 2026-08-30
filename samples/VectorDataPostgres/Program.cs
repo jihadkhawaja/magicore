@@ -1,5 +1,4 @@
 using Mem0Sharp;
-using Mem0Sharp.VectorData;
 using Microsoft.SemanticKernel.Connectors.PgVector;
 using Npgsql;
 

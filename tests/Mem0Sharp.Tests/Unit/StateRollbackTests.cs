@@ -156,7 +156,7 @@ public sealed class StateRollbackTests
     [Fact]
     public async Task VectorDataStoreRollbackRestoresPreviousMemoryState()
     {
-        var store = Mem0Sharp.VectorData.VectorDataMemoryStore.CreateInMemory();
+        var store = VectorDataMemoryStore.CreateInMemory();
         await store.InitializeAsync();
         var service = new MemoryService(store);
 
@@ -187,7 +187,7 @@ public sealed class StateRollbackTests
     [Fact]
     public async Task VectorDataStoreSearchesAndRollsBackHistoricalUserSubjectState()
     {
-        var store = Mem0Sharp.VectorData.VectorDataMemoryStore.CreateInMemory();
+        var store = VectorDataMemoryStore.CreateInMemory();
         await store.InitializeAsync();
         var service = new MemoryService(store);
         var alice = (await service.AddAsync("Alice likes tea", new MemoryAddOptions

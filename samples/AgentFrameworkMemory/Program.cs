@@ -1,5 +1,4 @@
 using Mem0Sharp;
-using Mem0Sharp.VectorData;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 using OpenAI;

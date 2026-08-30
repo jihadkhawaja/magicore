@@ -8,6 +8,7 @@ using OpenAI;
 var scenarioFilter = new List<string>();
 var selfTest = false;
 var listOnly = false;
+var validateDatasetOnly = false;
 var configPath = Path.Combine(AppContext.BaseDirectory, "evalconfig.local.yaml");
 string? datasetPath = null;
 
@@ -30,6 +31,9 @@ for (var index = 0; index < args.Length; index++)
         case "--list":
             listOnly = true;
             break;
+        case "--validate-dataset":
+            validateDatasetOnly = true;
+            break;
         case "--help" or "-h":
             Console.WriteLine("""
                 Mem0Sharp LOCOMO Benchmark Evaluation Harness
@@ -42,6 +46,7 @@ for (var index = 0; index < args.Length; index++)
                   --scenario <names>    Run specific scenario(s) by name, comma-separated.
                   --config <path>       Path to evaluation YAML config (default: evalconfig.local.yaml).
                   --dataset <path>      Path to dataset JSON/JSONL (default: bundled snapshot).
+                  --validate-dataset    Validate the selected dataset and exit.
                   --list                List registered scenarios and exit.
                 """);
             return 0;
@@ -67,6 +72,16 @@ catch (Exception exception)
 {
     Console.Error.WriteLine($"Failed to load dataset: {exception.Message}");
     return 1;
+}
+
+if (validateDatasetOnly)
+{
+    var sessionCount = dataset.Conversations.Sum(conversation => conversation.Sessions.Count);
+    var turnCount = dataset.Conversations.Sum(conversation => conversation.Sessions.Sum(session => session.Turns.Count));
+    Console.WriteLine($"Dataset valid: {dataset.Name}");
+    Console.WriteLine($"  conversations: {dataset.Conversations.Count} | sessions: {sessionCount} | turns: {turnCount} | questions: {dataset.Questions.Count}");
+    Console.WriteLine($"  categories: {string.Join(", ", dataset.Categories)}");
+    return 0;
 }
 
 var selected = scenarioFilter.Count == 0
@@ -128,6 +143,11 @@ catch (Exception exception) when (exception is FileNotFoundException or InvalidD
 Console.WriteLine($"Running {selected.Count} scenario(s) against VectorData store...");
 Console.WriteLine();
 
+Console.WriteLine("[capabilities] Exercising deterministic public API contracts...");
+var capabilities = await CapabilityRunner.RunAsync(!selfTest, CancellationToken.None);
+Console.WriteLine($"  passed: {capabilities.Passed} | failed: {capabilities.Failed} | skipped: {capabilities.Skipped}");
+Console.WriteLine();
+
 var reports = new List<ScenarioReport>();
 foreach (var scenario in selected)
 {
@@ -174,6 +194,7 @@ var evaluationReport = new EvaluationReport
     ConversationCount = dataset.Conversations.Count,
     QuestionCount = dataset.Questions.Count,
     SyntheticDataset = true,
+    Capabilities = capabilities,
     ScenarioReports = reports
 };
 

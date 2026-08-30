@@ -1,8 +1,8 @@
 namespace Mem0Sharp.Evaluation;
 
 /// <summary>
-/// One configuration of Mem0Sharp under test. Every scenario uses PostgreSQL/pgvector
-/// for storage; the scenario varies extraction behavior and search options.
+/// One configuration of Mem0Sharp under test. Every scenario uses an isolated in-memory
+/// VectorData collection; the scenario varies extraction behavior and search options.
 /// </summary>
 internal sealed record ScenarioDefinition
 {

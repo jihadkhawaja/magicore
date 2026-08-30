@@ -5,7 +5,7 @@ This folder holds committed raw reports from evaluation runs (Markdown + JSON), 
 Naming: `evaluation-<yyyyMMdd>-<HHmmss>.{md,json}` (UTC, from the run start).
 
 Current published run:
-- [evaluation-20260815-100116.md](evaluation-20260815-100116.md)
-- [evaluation-20260815-100116.json](evaluation-20260815-100116.json)
+- [evaluation-20260830-203014.md](evaluation-20260830-203014.md)
+- [evaluation-20260830-203014.json](evaluation-20260830-203014.json)
 
 When you publish a new run, copy both files here and update the "Raw report" link and run date in [docs/evaluation.md](../../docs/evaluation.md). Fresh runs always write to `evaluation/Mem0Sharp.Evaluation/bin/<configuration>/net10.0/results/`, which stays gitignored.

@@ -1,0 +1,298 @@
+{
+  "name": "Real-world longitudinal memory benchmark v1",
+  "conversations": [
+    {
+      "id": "northstar-enterprise-rollout",
+      "speakerA": "Priya",
+      "speakerB": "Sam",
+      "sessions": [
+        {
+          "date": "2025-01-09",
+          "turns": [
+            { "speaker": "Priya", "text": "Northstar Health is moving 2,400 staff to our platform. Their tenant code is NSH-417, and the rollout owner is Dana Cho, not Dan Cole from procurement." },
+            { "speaker": "Sam", "text": "I will keep Dana Cho as the operational owner and Dan Cole only as procurement." },
+            { "speaker": "Priya", "text": "They require SAML SSO, EU data residency, and a seven-year audit-log retention period. The security review is the critical path." },
+            { "speaker": "Sam", "text": "Which region and launch date should I track?" },
+            { "speaker": "Priya", "text": "Use West Europe. The original target is March 3, with a 200-person pilot two weeks earlier." },
+            { "speaker": "Sam", "text": "Understood: West Europe, February pilot, and March 3 full rollout." }
+          ]
+        },
+        {
+          "date": "2025-02-04",
+          "turns": [
+            { "speaker": "Priya", "text": "Legal has not approved the data-processing addendum, so March 3 is no longer realistic. Move the full rollout to April 14." },
+            { "speaker": "Sam", "text": "Does the pilot move as well?" },
+            { "speaker": "Priya", "text": "Yes. Run a 75-person clinical-operations pilot on March 24. Do not include payroll in the pilot." },
+            { "speaker": "Sam", "text": "I saw a note about Northstar Dental launching March 3. Is that related?" },
+            { "speaker": "Priya", "text": "No, Northstar Dental is a different customer. This account is Northstar Health, tenant NSH-417." },
+            { "speaker": "Sam", "text": "I will keep those similarly named accounts separate." }
+          ]
+        },
+        {
+          "date": "2025-03-27",
+          "turns": [
+            { "speaker": "Priya", "text": "The 75-person pilot finished. SSO worked, but audit exports timed out for files over 500 megabytes." },
+            { "speaker": "Sam", "text": "Was the timeout a region or permissions issue?" },
+            { "speaker": "Priya", "text": "Neither. Engineering traced it to synchronous archive creation and assigned fix ENG-8821." },
+            { "speaker": "Sam", "text": "Should April 14 remain the launch target?" },
+            { "speaker": "Priya", "text": "Keep April 14 for now, but Dana wants a successful large export by April 7 as the go/no-go check." },
+            { "speaker": "Sam", "text": "I will track ENG-8821 and the April 7 export check." }
+          ]
+        },
+        {
+          "date": "2025-04-10",
+          "turns": [
+            { "speaker": "Priya", "text": "ENG-8821 passed with a 1.2-gigabyte export. Dana approved launch, but hospital training conflicts pushed it from April 14 to April 21." },
+            { "speaker": "Sam", "text": "So the technical blocker is closed and only training changed the date." },
+            { "speaker": "Priya", "text": "Correct. Also, their billing contact changed from Dan Cole to Morgan Li, while Dana Cho remains rollout owner." },
+            { "speaker": "Sam", "text": "Should monthly invoices still go to procurement?" },
+            { "speaker": "Priya", "text": "Send invoices to Morgan Li and copy procurement. Never put patient identifiers in support tickets." },
+            { "speaker": "Sam", "text": "Recorded: April 21 launch, Morgan on billing, and no patient identifiers in tickets." }
+          ]
+        },
+        {
+          "date": "2025-06-18",
+          "turns": [
+            { "speaker": "Priya", "text": "Northstar Health launched on April 21 and adoption reached 86 percent after eight weeks." },
+            { "speaker": "Sam", "text": "Any post-launch changes to their requirements?" },
+            { "speaker": "Priya", "text": "They kept SAML and West Europe. Audit-log retention is still seven years, but exports now run weekly instead of monthly." },
+            { "speaker": "Sam", "text": "Who owns the weekly export review?" },
+            { "speaker": "Priya", "text": "Morgan reviews billing only. Dana assigned the export review to security analyst Luis Ortega." },
+            { "speaker": "Sam", "text": "I will route export issues to Luis and rollout questions to Dana." }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "family-care-coordination",
+      "speakerA": "Elena",
+      "speakerB": "Care Assistant",
+      "sessions": [
+        {
+          "date": "2025-01-16",
+          "turns": [
+            { "speaker": "Elena", "text": "I coordinate appointments for my father, Roberto Alvarez. He prefers Spanish for medical conversations, though routine reminders can be in English." },
+            { "speaker": "Care Assistant", "text": "I will use Spanish for clinical discussions and English for simple reminders." },
+            { "speaker": "Elena", "text": "His cardiology clinic is Lakeside Heart, and Dr. Mehta sees him on Tuesday afternoons. He is allergic to penicillin." },
+            { "speaker": "Care Assistant", "text": "I will keep the penicillin allergy prominent. How does he get to appointments?" },
+            { "speaker": "Elena", "text": "Usually I drive him. If I cannot, book CityRide at least 48 hours ahead; do not use QuickCab because they missed two pickups." },
+            { "speaker": "Care Assistant", "text": "Understood: Elena first, CityRide backup, and no QuickCab." }
+          ]
+        },
+        {
+          "date": "2025-02-11",
+          "turns": [
+            { "speaker": "Elena", "text": "The February 18 cardiology visit moved to February 20 at 10:30 in the morning because Dr. Mehta is covering the hospital." },
+            { "speaker": "Care Assistant", "text": "That is a Thursday morning instead of the usual Tuesday afternoon." },
+            { "speaker": "Elena", "text": "Right. I cannot drive that day, so CityRide confirmation CR-9082 is booked for 9:40." },
+            { "speaker": "Care Assistant", "text": "Should I remind Roberto about fasting?" },
+            { "speaker": "Elena", "text": "No fasting was requested. The clinic only asked him to bring his medication list and home blood-pressure log." },
+            { "speaker": "Care Assistant", "text": "I will not invent a fasting requirement." }
+          ]
+        },
+        {
+          "date": "2025-03-06",
+          "turns": [
+            { "speaker": "Elena", "text": "Roberto's pharmacy changed from Green Cross on Oak Street to Harbor Pharmacy on Pine Avenue." },
+            { "speaker": "Care Assistant", "text": "Is Harbor Pharmacy the one near the marina?" },
+            { "speaker": "Elena", "text": "No, that is Harbor Drugs. Use Harbor Pharmacy on Pine Avenue, phone ending 4419." },
+            { "speaker": "Care Assistant", "text": "I will distinguish Harbor Pharmacy from Harbor Drugs." },
+            { "speaker": "Elena", "text": "They deliver on Wednesdays. Leave packages with the front desk, not outside apartment 6B." },
+            { "speaker": "Care Assistant", "text": "Wednesday delivery to the front desk for apartment 6B." }
+          ]
+        },
+        {
+          "date": "2025-04-22",
+          "turns": [
+            { "speaker": "Elena", "text": "We tried text reminders, but Roberto ignored the short code because it looked like spam." },
+            { "speaker": "Care Assistant", "text": "Would a phone call work better?" },
+            { "speaker": "Elena", "text": "Yes. Call in Spanish the evening before, then send me an English text as backup." },
+            { "speaker": "Care Assistant", "text": "Does that replace the old reminder preference?" },
+            { "speaker": "Elena", "text": "It does. Do not send Roberto automated text reminders anymore." },
+            { "speaker": "Care Assistant", "text": "Updated to Spanish phone calls for Roberto and backup texts only to Elena." }
+          ]
+        },
+        {
+          "date": "2025-07-03",
+          "turns": [
+            { "speaker": "Elena", "text": "The June follow-up went well. Dr. Mehta moved routine visits from every three months to every six months." },
+            { "speaker": "Care Assistant", "text": "Should transportation and reminder rules stay the same?" },
+            { "speaker": "Elena", "text": "Yes: I drive when possible, CityRide otherwise, Spanish phone reminder the night before, and an English backup text to me." },
+            { "speaker": "Care Assistant", "text": "Any change to pharmacy delivery?" },
+            { "speaker": "Elena", "text": "Harbor Pharmacy still delivers Wednesday, but packages now go to the parcel room because the front desk stopped accepting medicine." },
+            { "speaker": "Care Assistant", "text": "I updated only the delivery location to the parcel room." }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "household-and-travel-planning",
+      "speakerA": "Marcus",
+      "speakerB": "Avery",
+      "sessions": [
+        {
+          "date": "2025-01-28",
+          "turns": [
+            { "speaker": "Marcus", "text": "Our family is planning a summer trip. Jo wants beaches, our son Eli gets carsick on winding roads, and I need reliable Wi-Fi for one work call." },
+            { "speaker": "Avery", "text": "So direct transport, beach access, and dependable internet matter." },
+            { "speaker": "Marcus", "text": "We first considered Madeira from July 12 to July 19, but the mountain drives may be hard for Eli." },
+            { "speaker": "Avery", "text": "Would a flatter destination work better?" },
+            { "speaker": "Marcus", "text": "Probably. Jo is vegetarian but eats dairy, and Eli has a serious cashew allergy. Peanuts are fine." },
+            { "speaker": "Avery", "text": "I will not conflate the cashew allergy with a general nut or peanut allergy." }
+          ]
+        },
+        {
+          "date": "2025-02-19",
+          "turns": [
+            { "speaker": "Marcus", "text": "We dropped Madeira and reserved Valencia for July 13 through July 20. The apartment is near Malvarrosa Beach." },
+            { "speaker": "Avery", "text": "Does the Valencia apartment meet the work requirement?" },
+            { "speaker": "Marcus", "text": "The listing says fiber internet, but I want the host to run a speed test before the cancellation deadline on June 1." },
+            { "speaker": "Avery", "text": "How will you get from the airport?" },
+            { "speaker": "Marcus", "text": "Metro if everyone feels well; otherwise a licensed taxi. Avoid the scenic mountain day trip because of Eli's carsickness." },
+            { "speaker": "Avery", "text": "Valencia replaced Madeira, with flat transit and no mountain excursion." }
+          ]
+        },
+        {
+          "date": "2025-04-05",
+          "turns": [
+            { "speaker": "Marcus", "text": "Separate household update: the kitchen contractor, Blue Finch Renovations, starts May 6." },
+            { "speaker": "Avery", "text": "Is that the same company as Bluebird Plumbing?" },
+            { "speaker": "Marcus", "text": "No. Bluebird only fixed the sink last year. Blue Finch is replacing cabinet doors and counters for 8,700 dollars." },
+            { "speaker": "Avery", "text": "Who needs access during the work?" },
+            { "speaker": "Marcus", "text": "Site lead Noor Patel has the lockbox code. The dog walker should use the side door and must not enter the kitchen." },
+            { "speaker": "Avery", "text": "I will keep contractor access separate from travel plans." }
+          ]
+        },
+        {
+          "date": "2025-05-29",
+          "turns": [
+            { "speaker": "Marcus", "text": "The Valencia host sent a 310 megabit speed test, so keep the booking." },
+            { "speaker": "Avery", "text": "And did the kitchen finish on schedule?" },
+            { "speaker": "Marcus", "text": "Mostly. A cracked counter delayed completion from May 17 to May 24, but Blue Finch did not charge extra." },
+            { "speaker": "Avery", "text": "Any trip schedule changes?" },
+            { "speaker": "Marcus", "text": "My work call moved from July 16 to July 17 at 15:00 Central European Summer Time. The family will visit the aquarium then." },
+            { "speaker": "Avery", "text": "I will reserve July 17 for your call and the aquarium outing." }
+          ]
+        },
+        {
+          "date": "2025-07-25",
+          "turns": [
+            { "speaker": "Marcus", "text": "Valencia worked well. We used the metro, Eli was not carsick, and the apartment internet handled my call." },
+            { "speaker": "Avery", "text": "Did the food allergy plan work?" },
+            { "speaker": "Marcus", "text": "Yes. Restaurants understood the cashew allergy. One waiter initially heard peanut, but we corrected him before ordering." },
+            { "speaker": "Avery", "text": "What should I remember for the next trip?" },
+            { "speaker": "Marcus", "text": "Choose flatter cities with transit, verify Wi-Fi, keep a written cashew-allergy card in the local language, and find vegetarian options for Jo." },
+            { "speaker": "Avery", "text": "Those are now the durable family travel preferences." }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "neighborhood-cafe-operations",
+      "speakerA": "Nia",
+      "speakerB": "Owen",
+      "sessions": [
+        {
+          "date": "2025-01-07",
+          "turns": [
+            { "speaker": "Nia", "text": "Cedar & Steam is opening a second cafe at 18 Willow Market. The first shop is on Cedar Street, so reports must keep the locations separate." },
+            { "speaker": "Owen", "text": "Willow Market will be location two and Cedar Street remains location one." },
+            { "speaker": "Nia", "text": "The target opening is April 5. We budgeted 42,000 dollars for equipment and 18,000 for the fit-out." },
+            { "speaker": "Owen", "text": "Who supplies the new espresso machine?" },
+            { "speaker": "Nia", "text": "Roastline Equipment supplies the machine. Roastline Coffee is an unrelated bean subscription we canceled last year." },
+            { "speaker": "Owen", "text": "I will distinguish the equipment vendor from the former coffee subscription." }
+          ]
+        },
+        {
+          "date": "2025-02-13",
+          "turns": [
+            { "speaker": "Nia", "text": "The city permit review is three weeks late, so April 5 is at risk." },
+            { "speaker": "Owen", "text": "Should staffing interviews pause?" },
+            { "speaker": "Nia", "text": "No. Continue interviews for one manager and four baristas, but make offers conditional on the permit." },
+            { "speaker": "Owen", "text": "What hours are planned?" },
+            { "speaker": "Nia", "text": "Weekdays 7 to 6, weekends 8 to 4. Do not copy Cedar Street's 6 a.m. opening because the market building stays locked." },
+            { "speaker": "Owen", "text": "Willow Market starts at 7 on weekdays and 8 on weekends." }
+          ]
+        },
+        {
+          "date": "2025-03-21",
+          "turns": [
+            { "speaker": "Nia", "text": "The permit arrived, but the electrician found an undersized panel. Opening moves from April 5 to April 26." },
+            { "speaker": "Owen", "text": "Does the electrical work change the budget?" },
+            { "speaker": "Nia", "text": "Yes, add 6,400 dollars. To compensate, lease the second grinder instead of buying it this quarter." },
+            { "speaker": "Owen", "text": "Any supplier changes?" },
+            { "speaker": "Nia", "text": "Roastline Equipment is still delivering the espresso machine April 15. Mina Shah accepted the manager role." },
+            { "speaker": "Owen", "text": "I recorded April 26, the panel cost, grinder lease, and Mina as manager." }
+          ]
+        },
+        {
+          "date": "2025-05-12",
+          "turns": [
+            { "speaker": "Nia", "text": "The Willow Market cafe opened April 26. The first weekend was busy, but oat milk ran out by noon." },
+            { "speaker": "Owen", "text": "Was that a forecasting or supplier problem?" },
+            { "speaker": "Nia", "text": "Forecasting. We ordered based on Cedar Street's mix, but Willow sells 40 percent more oat-milk drinks." },
+            { "speaker": "Owen", "text": "How should ordering change?" },
+            { "speaker": "Nia", "text": "Raise the Willow oat-milk par from 12 to 20 cases and review it every Monday. Cedar Street stays at 12." },
+            { "speaker": "Owen", "text": "Only Willow changes to 20 cases with Monday review." }
+          ]
+        },
+        {
+          "date": "2025-08-01",
+          "turns": [
+            { "speaker": "Nia", "text": "After three months, Willow Market is profitable, but weekday afternoons are quiet." },
+            { "speaker": "Owen", "text": "Are you reducing hours?" },
+            { "speaker": "Nia", "text": "Not yet. Starting August 11, test a 3-to-5 p.m. study special before changing the 7-to-6 weekday schedule." },
+            { "speaker": "Owen", "text": "Did the oat-milk adjustment hold?" },
+            { "speaker": "Nia", "text": "Yes. Twenty cases is slightly high, so lower Willow to 18. Keep the Monday review and leave Cedar Street at 12." },
+            { "speaker": "Owen", "text": "I updated Willow to 18 cases and kept the location-specific controls." }
+          ]
+        }
+      ]
+    }
+  ],
+  "questions": [
+    { "id": "ns-sh-1", "conversationId": "northstar-enterprise-rollout", "category": "single-hop", "question": "What is Northstar Health's tenant code?", "expectedAnswer": "NSH-417.", "evidence": ["NSH-417"] },
+    { "id": "ns-sh-2", "conversationId": "northstar-enterprise-rollout", "category": "single-hop", "question": "Which cloud region does Northstar Health require?", "expectedAnswer": "West Europe for EU data residency.", "evidence": ["West Europe", "EU data residency"] },
+    { "id": "ns-sh-3", "conversationId": "northstar-enterprise-rollout", "category": "single-hop", "question": "Who became the billing contact?", "expectedAnswer": "Morgan Li became the billing contact, replacing Dan Cole.", "evidence": ["Morgan Li", "billing contact"] },
+    { "id": "ns-mh-1", "conversationId": "northstar-enterprise-rollout", "category": "multi-hop", "question": "What delayed the rollout, and how was the technical risk cleared?", "expectedAnswer": "Legal delayed the data-processing addendum, then large audit exports timed out; engineering fixed synchronous archive creation under ENG-8821 and passed a 1.2-gigabyte export.", "evidence": ["data-processing addendum", "ENG-8821", "1.2-gigabyte"] },
+    { "id": "ns-mh-2", "conversationId": "northstar-enterprise-rollout", "category": "multi-hop", "question": "How are Dana Cho, Morgan Li, and Luis Ortega responsible for different parts of the account?", "expectedAnswer": "Dana owns rollout, Morgan handles billing, and Luis reviews weekly audit exports.", "evidence": ["Dana", "Morgan", "Luis"] },
+    { "id": "ns-t-1", "conversationId": "northstar-enterprise-rollout", "category": "temporal", "question": "Trace the full rollout date changes for Northstar Health.", "expectedAnswer": "The target moved from March 3 to April 14 because of legal approval, then to April 21 because of training conflicts; it launched April 21.", "evidence": ["March 3", "April 14", "April 21"] },
+    { "id": "ns-t-2", "conversationId": "northstar-enterprise-rollout", "category": "temporal", "question": "How did the audit-export process change after launch?", "expectedAnswer": "Large-export reliability was fixed before launch, and after launch exports changed from monthly to weekly with Luis Ortega reviewing them.", "evidence": ["weekly", "Luis Ortega", "monthly"] },
+    { "id": "ns-c-1", "conversationId": "northstar-enterprise-rollout", "category": "contradiction", "question": "Is Dan Cole still both rollout owner and billing contact?", "expectedAnswer": "No. Dana Cho is the rollout owner, and Morgan Li replaced Dan Cole as billing contact.", "evidence": ["Dana Cho", "Morgan Li"] },
+    { "id": "ns-a-1", "conversationId": "northstar-enterprise-rollout", "category": "adversarial", "question": "What encryption key does Northstar Health use?", "expectedAnswer": "No encryption key is provided in the conversations.", "evidence": [] },
+    { "id": "ns-a-2", "conversationId": "northstar-enterprise-rollout", "category": "adversarial", "question": "Which patients were included in the clinical pilot?", "expectedAnswer": "No patient identities are given; the conversations explicitly say not to place patient identifiers in support tickets.", "evidence": [] },
+
+    { "id": "care-sh-1", "conversationId": "family-care-coordination", "category": "single-hop", "question": "What medication allergy must be kept prominent for Roberto?", "expectedAnswer": "Roberto is allergic to penicillin.", "evidence": ["penicillin"] },
+    { "id": "care-sh-2", "conversationId": "family-care-coordination", "category": "single-hop", "question": "Which transportation company is the approved backup?", "expectedAnswer": "CityRide, booked at least 48 hours ahead; QuickCab should not be used.", "evidence": ["CityRide", "QuickCab"] },
+    { "id": "care-sh-3", "conversationId": "family-care-coordination", "category": "single-hop", "question": "Which pharmacy currently delivers Roberto's medicine?", "expectedAnswer": "Harbor Pharmacy on Pine Avenue, not Harbor Drugs.", "evidence": ["Harbor Pharmacy", "Pine Avenue"] },
+    { "id": "care-mh-1", "conversationId": "family-care-coordination", "category": "multi-hop", "question": "What complete reminder workflow should be used for Roberto now?", "expectedAnswer": "Call Roberto in Spanish the evening before, then send Elena an English backup text; do not send Roberto automated text reminders.", "evidence": ["Spanish", "English backup text", "automated text"] },
+    { "id": "care-mh-2", "conversationId": "family-care-coordination", "category": "multi-hop", "question": "Summarize the current transport, reminder, and delivery arrangements.", "expectedAnswer": "Elena drives when possible, CityRide is backup, Roberto receives a Spanish phone reminder with an English text to Elena, and Harbor Pharmacy delivers Wednesday to the parcel room.", "evidence": ["CityRide", "Spanish phone", "parcel room"] },
+    { "id": "care-t-1", "conversationId": "family-care-coordination", "category": "temporal", "question": "How did the February cardiology appointment change?", "expectedAnswer": "It moved from February 18 to Thursday February 20 at 10:30 a.m., with CityRide pickup at 9:40 under confirmation CR-9082.", "evidence": ["February 20", "10:30", "CR-9082"] },
+    { "id": "care-t-2", "conversationId": "family-care-coordination", "category": "temporal", "question": "How did Roberto's visit frequency and pharmacy drop-off location change by July?", "expectedAnswer": "Routine visits changed from every three months to every six months, and pharmacy deliveries moved from the front desk to the parcel room.", "evidence": ["six months", "parcel room", "front desk"] },
+    { "id": "care-c-1", "conversationId": "family-care-coordination", "category": "contradiction", "question": "Should medicine still be left at the front desk and reminders texted directly to Roberto?", "expectedAnswer": "No. Medicine now goes to the parcel room, and Roberto should receive a Spanish phone call rather than automated texts.", "evidence": ["parcel room", "Spanish phone", "not send Roberto"] },
+    { "id": "care-a-1", "conversationId": "family-care-coordination", "category": "adversarial", "question": "What is Roberto's insurance policy number?", "expectedAnswer": "The conversations never provide an insurance policy number.", "evidence": [] },
+    { "id": "care-a-2", "conversationId": "family-care-coordination", "category": "adversarial", "question": "What diagnosis did Dr. Mehta give Roberto?", "expectedAnswer": "No diagnosis is stated in the conversations.", "evidence": [] },
+
+    { "id": "home-sh-1", "conversationId": "household-and-travel-planning", "category": "single-hop", "question": "Which food allergy does Eli have?", "expectedAnswer": "Eli has a serious cashew allergy; peanuts are fine.", "evidence": ["cashew allergy", "Peanuts are fine"] },
+    { "id": "home-sh-2", "conversationId": "household-and-travel-planning", "category": "single-hop", "question": "Where did the family ultimately book their summer trip?", "expectedAnswer": "Valencia, near Malvarrosa Beach, from July 13 through July 20.", "evidence": ["Valencia", "Malvarrosa Beach"] },
+    { "id": "home-sh-3", "conversationId": "household-and-travel-planning", "category": "single-hop", "question": "Which contractor renovated the kitchen?", "expectedAnswer": "Blue Finch Renovations, not Bluebird Plumbing.", "evidence": ["Blue Finch", "Bluebird"] },
+    { "id": "home-mh-1", "conversationId": "household-and-travel-planning", "category": "multi-hop", "question": "Why was Valencia a better fit than Madeira for this family?", "expectedAnswer": "Valencia offered flatter transit and beach access, reducing Eli's carsickness risk, while verified fiber internet supported Marcus's work call and vegetarian options suited Jo.", "evidence": ["carsick", "fiber internet", "vegetarian"] },
+    { "id": "home-mh-2", "conversationId": "household-and-travel-planning", "category": "multi-hop", "question": "What durable rules emerged from the trip for future planning?", "expectedAnswer": "Choose flatter transit-friendly cities, verify Wi-Fi, carry a locally translated cashew-allergy card, and ensure vegetarian food for Jo.", "evidence": ["flatter cities", "verify Wi-Fi", "cashew-allergy card"] },
+    { "id": "home-t-1", "conversationId": "household-and-travel-planning", "category": "temporal", "question": "How did the destination and dates change from the first idea to the final booking?", "expectedAnswer": "The family replaced Madeira, July 12-19, with Valencia, July 13-20.", "evidence": ["Madeira", "Valencia", "July 13"] },
+    { "id": "home-t-2", "conversationId": "household-and-travel-planning", "category": "temporal", "question": "How did the kitchen completion and Marcus's work call dates change?", "expectedAnswer": "The cracked counter delayed kitchen completion from May 17 to May 24, and the work call moved from July 16 to July 17 at 15:00 CEST.", "evidence": ["May 24", "July 17", "15:00"] },
+    { "id": "home-c-1", "conversationId": "household-and-travel-planning", "category": "contradiction", "question": "Should future planners treat Eli as allergic to peanuts and use winding scenic routes?", "expectedAnswer": "No. Eli is allergic to cashews, not peanuts, and winding or mountain routes should be avoided because he gets carsick.", "evidence": ["cashew", "Peanuts are fine", "mountain"] },
+    { "id": "home-a-1", "conversationId": "household-and-travel-planning", "category": "adversarial", "question": "What is the kitchen lockbox code?", "expectedAnswer": "The conversations say Noor has the code but never reveal the code itself.", "evidence": [] },
+    { "id": "home-a-2", "conversationId": "household-and-travel-planning", "category": "adversarial", "question": "What airline and flight number did the family use?", "expectedAnswer": "No airline or flight number is mentioned.", "evidence": [] },
+
+    { "id": "cafe-sh-1", "conversationId": "neighborhood-cafe-operations", "category": "single-hop", "question": "What is the address of the second cafe?", "expectedAnswer": "18 Willow Market.", "evidence": ["18 Willow Market"] },
+    { "id": "cafe-sh-2", "conversationId": "neighborhood-cafe-operations", "category": "single-hop", "question": "Who manages the Willow Market location?", "expectedAnswer": "Mina Shah.", "evidence": ["Mina Shah"] },
+    { "id": "cafe-sh-3", "conversationId": "neighborhood-cafe-operations", "category": "single-hop", "question": "What are Willow Market's planned weekday hours?", "expectedAnswer": "7 a.m. to 6 p.m.; the study special does not yet change those hours.", "evidence": ["7 to 6", "Not yet"] },
+    { "id": "cafe-mh-1", "conversationId": "neighborhood-cafe-operations", "category": "multi-hop", "question": "What caused the opening delay and how did Nia contain the budget impact?", "expectedAnswer": "A late permit put the date at risk, then an undersized electrical panel moved opening to April 26 and added $6,400; Nia leased the second grinder instead of buying it.", "evidence": ["undersized panel", "6,400", "lease the second grinder"] },
+    { "id": "cafe-mh-2", "conversationId": "neighborhood-cafe-operations", "category": "multi-hop", "question": "Why could Cedar Street's operating assumptions not simply be copied to Willow Market?", "expectedAnswer": "The market building opens later and Willow sells 40 percent more oat-milk drinks, so Willow needs later opening hours and its own higher inventory level.", "evidence": ["market building", "40 percent", "oat-milk"] },
+    { "id": "cafe-t-1", "conversationId": "neighborhood-cafe-operations", "category": "temporal", "question": "How did the opening date evolve?", "expectedAnswer": "The original April 5 target became risky due to permit delay, then moved to April 26 after the electrical-panel issue; the cafe opened April 26.", "evidence": ["April 5", "April 26", "permit"] },
+    { "id": "cafe-t-2", "conversationId": "neighborhood-cafe-operations", "category": "temporal", "question": "How did Willow Market's oat-milk inventory rule change?", "expectedAnswer": "The par rose from 12 to 20 cases after the opening shortage, then fell to 18 while retaining Monday review; Cedar Street stayed at 12.", "evidence": ["12", "20", "18"] },
+    { "id": "cafe-c-1", "conversationId": "neighborhood-cafe-operations", "category": "contradiction", "question": "Does Roastline Coffee still supply the new espresso machine, and should both cafes stock 18 oat-milk cases?", "expectedAnswer": "No. Roastline Equipment supplies the machine; Roastline Coffee was canceled. Willow stocks 18 cases, while Cedar Street remains at 12.", "evidence": ["Roastline Equipment", "18", "Cedar Street at 12"] },
+    { "id": "cafe-a-1", "conversationId": "neighborhood-cafe-operations", "category": "adversarial", "question": "What is Mina Shah's salary?", "expectedAnswer": "Mina's salary is not mentioned.", "evidence": [] },
+    { "id": "cafe-a-2", "conversationId": "neighborhood-cafe-operations", "category": "adversarial", "question": "What secret recipe does Cedar & Steam use for oat milk?", "expectedAnswer": "No recipe is provided; the conversations only discuss inventory quantities.", "evidence": [] }
+  ]
+}

@@ -1,5 +1,22 @@
 namespace Mem0Sharp.Evaluation;
 
+internal sealed record CapabilityCheckResult
+{
+    public required string Feature { get; init; }
+    public required string Category { get; init; }
+    public required string Status { get; init; }
+    public required string Evidence { get; init; }
+    public double DurationMs { get; init; }
+}
+
+internal sealed record CapabilityReport
+{
+    public int Passed => Checks.Count(check => check.Status == "PASS");
+    public int Failed => Checks.Count(check => check.Status == "FAIL");
+    public int Skipped => Checks.Count(check => check.Status == "SKIP");
+    public required IReadOnlyList<CapabilityCheckResult> Checks { get; init; }
+}
+
 internal sealed record QuestionResult
 {
     public required string QuestionId { get; init; }
@@ -70,5 +87,6 @@ internal sealed record EvaluationReport
     public int ConversationCount { get; init; }
     public int QuestionCount { get; init; }
     public bool SyntheticDataset { get; init; }
+    public CapabilityReport? Capabilities { get; init; }
     public required IReadOnlyList<ScenarioReport> ScenarioReports { get; init; }
 }

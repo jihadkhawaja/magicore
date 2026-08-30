@@ -25,98 +25,103 @@
     'single-hop': '#38bdf8',
     'multi-hop': '#a855f7',
     temporal: '#f59e0b',
+    contradiction: '#ec4899',
     adversarial: '#94a3b8'
   };
 
   const CLUSTER_CENTERS = {
-    mara: { x: -380, y: 0, label: 'MARA EVALUATION CLUSTER', color: 'rgba(56, 189, 248, 0.15)' },
-    leo: { x: 380, y: 0, label: 'LEO EVALUATION CLUSTER', color: 'rgba(168, 85, 247, 0.15)' }
+    northstar: { x: -420, y: -260, label: 'NORTHSTAR ENTERPRISE ROLLOUT', color: 'rgba(56, 189, 248, 0.15)', borderColor: 'rgba(56, 189, 248, 0.25)' },
+    care: { x: 420, y: -260, label: 'FAMILY CARE COORDINATION', color: 'rgba(236, 72, 153, 0.15)', borderColor: 'rgba(236, 72, 153, 0.25)' },
+    household: { x: -420, y: 260, label: 'HOUSEHOLD & TRAVEL PLANNING', color: 'rgba(245, 158, 11, 0.15)', borderColor: 'rgba(245, 158, 11, 0.25)' },
+    cafe: { x: 420, y: 260, label: 'NEIGHBORHOOD CAFE OPERATIONS', color: 'rgba(168, 85, 247, 0.15)', borderColor: 'rgba(168, 85, 247, 0.25)' }
   };
 
-  const LEO_KEYWORDS = ['leo', 'ramona', 'marathon', 'shin', 'bike', 'route', 'seattle', 'runner', 'race', 'interval', 'knee'];
+  const DOMAIN_KEYWORDS = {
+    northstar: ['northstar', 'priya', 'sam', 'dana', 'cho', 'morgan', 'luis', 'ortega', 'nsh-417', 'sso', 'residency', 'audit', 'export', 'eng-8821', 'ns-'],
+    care: ['care', 'elena', 'roberto', 'alvarez', 'mehta', 'lakeside', 'penicillin', 'cityride', 'cr-9082', 'quickcab', 'harbor pharmacy', 'pine avenue', 'parcel room', 'care-'],
+    household: ['home', 'household', 'marcus', 'jo', 'eli', 'avery', 'valencia', 'malvarrosa', 'madeira', 'cashew', 'allergy', 'blue finch', 'noor', 'patel', 'lockbox', 'home-'],
+    cafe: ['cafe', 'cedar', 'steam', 'nia', 'owen', 'mina', 'shah', 'willow', 'market', 'grinder', 'roastline', 'espresso', 'oat milk', 'cafe-']
+  };
 
   // --- Available Benchmark Evaluation Run Paths ---
   const AVAILABLE_RUNS = [
     {
-      id: 'evaluation-20260815-100116',
-      label: '2026-08-15 10:01 UTC (Latest 12 Scenarios)',
-      path: '../results/evaluation-20260815-100116.json'
-    },
-    {
-      id: 'evaluation-20260815-065918',
-      label: '2026-08-15 06:59 UTC (Full 12 Scenarios)',
-      path: '../results/evaluation-20260815-065918.json'
-    },
-    {
-      id: 'evaluation-20260811-035035',
-      label: '2026-08-11 03:50 UTC (10 Scenarios)',
-      path: '../results/evaluation-20260811-035035.json'
-    },
-    {
-      id: 'evaluation-20260809-131747',
-      label: '2026-08-09 13:17 UTC (Initial Run)',
-      path: '../results/evaluation-20260809-131747.json'
+      id: 'evaluation-20260830-203014',
+      label: '2026-08-30 20:30 UTC (Authoritative 12 Scenarios Benchmark)',
+      path: '../results/evaluation-20260830-203014.json'
     }
   ];
 
   // --- Extracted Domain Ontology ---
   const ONTOLOGY = {
     entities: [
-      { id: 'ent-mara', name: 'Mara', type: 'Person', description: 'Remote-first knowledge worker, deep work advocate, adopted rescue dog Biscuit.' },
-      { id: 'ent-jules', name: 'Jules', type: 'Person', description: "Mara's close friend and conversation partner." },
-      { id: 'ent-biscuit', name: 'Biscuit', type: 'Pet', description: "Rescue dog adopted by Mara; steals socks/pens and sleeps under her desk." },
-      { id: 'ent-northwind', name: 'Northwind Labs', type: 'Organization', description: "Remote-first company where Mara works." },
-      { id: 'ent-bakery-apt', name: 'Bakery Apartment (2nd floor)', type: 'Location', description: "Mara's quiet second-floor flat by a bakery with morning light and desk by window." },
-      { id: 'ent-plant-diet', name: 'Mostly Plant-based Diet', type: 'Habit', description: "Mara's diet for energy and digestion; lighter afternoon slump." },
-      { id: 'ent-tofu-bowl', name: 'Tofu Grain Bowl', type: 'Diet', description: "Mara's go-to quick lunch with roasted carrots and tahini." },
-      { id: 'ent-friday-pizza', name: 'Friday Pizza Cheat Meal', type: 'Diet', description: "Mara's weekly cheat meal tradition." },
-      { id: 'ent-portland', name: 'Portland Trip', type: 'Location', description: "Trip planned by Mara and kept for July/August." },
-      { id: 'ent-lisbon', name: 'Lisbon Trip', type: 'Location', description: "Originally planned slow travel with balcony hotel; canceled due to work busyness." },
-      { id: 'ent-morning-routine', name: 'Morning 2-Hour Deep Work', type: 'Habit', description: "Protected morning schedule without early/breakfast meetings for focused writing/design." },
-      { id: 'ent-leo', name: 'Leo', type: 'Person', description: "Runner training for spring half-marathon, deliberate fitness and recovery planner." },
-      { id: 'ent-ramona', name: 'Ramona', type: 'Person', description: "Leo's training confidante and conversation partner." },
-      { id: 'ent-half-marathon', name: 'Spring Half-Marathon (May)', type: 'Event', description: "Goal race for Leo with consistent 3 morning runs + Saturday long run." },
-      { id: 'ent-river-route', name: 'River Route', type: 'Location', description: "Leo's training route easier on knees." },
-      { id: 'ent-shin-splints', name: 'Shin Pain / Injury Recovery', type: 'Habit', description: "Occurred at 10k test mile 6; prompted bike intervals and mobility work." },
-      { id: 'ent-bike-intervals', name: 'Bike Intervals & Mobility', type: 'Habit', description: "Cross-training adaptation twice a week to protect race readiness." },
-      { id: 'ent-recovery-diet', name: 'Lighter Recovery Diet', type: 'Diet', description: "Reduced red meat, rice bowls, fruit, and more vegetables." },
-      { id: 'ent-seattle', name: 'Seattle Post-Race Trip (June)', type: 'Location', description: "Post-race family visit by train with cousins barbecue and sister snacks." }
+      { id: 'ent-northstar', name: 'Northstar Health', type: 'Organization', description: 'Tenant NSH-417, 2,400 staff, EU West Europe residency, SAML SSO, 7-year audit retention.' },
+      { id: 'ent-priya', name: 'Priya', type: 'Person', description: 'Project director and rollout co-lead for Northstar Health.' },
+      { id: 'ent-sam', name: 'Sam', type: 'Person', description: 'Technical operations lead managing rollout milestones.' },
+      { id: 'ent-dana', name: 'Dana Cho', type: 'Person', description: 'Operational rollout owner at Northstar Health.' },
+      { id: 'ent-morgan', name: 'Morgan Li', type: 'Person', description: 'Billing contact replacing Dan Cole on monthly invoices.' },
+      { id: 'ent-luis', name: 'Luis Ortega', type: 'Person', description: 'Security analyst reviewing weekly audit-log exports.' },
+      { id: 'ent-eng8821', name: 'Fix ENG-8821', type: 'Event', description: 'Engineering fix resolving 1.2GB large export archive timeouts.' },
+      { id: 'ent-elena', name: 'Elena', type: 'Person', description: "Daughter and care coordinator managing Roberto's medical appointments." },
+      { id: 'ent-roberto', name: 'Roberto Alvarez', type: 'Person', description: 'Father and patient, prefers Spanish for clinical conversations, allergic to penicillin.' },
+      { id: 'ent-dr-mehta', name: 'Dr. Mehta', type: 'Person', description: 'Cardiologist at Lakeside Heart clinic.' },
+      { id: 'ent-penicillin', name: 'Penicillin Allergy', type: 'Concept', description: 'Prominent patient medical allergy constraint.' },
+      { id: 'ent-cityride', name: 'CityRide Transport', type: 'Organization', description: 'Approved backup transportation company (booking CR-9082); QuickCab prohibited.' },
+      { id: 'ent-harbor-pharmacy', name: 'Harbor Pharmacy', type: 'Organization', description: 'Pine Avenue pharmacy delivering Wednesdays to parcel room (not Harbor Drugs).' },
+      { id: 'ent-marcus', name: 'Marcus', type: 'Person', description: 'Family travel planner with remote work call requirement.' },
+      { id: 'ent-jo', name: 'Jo', type: 'Person', description: 'Vegetarian family member.' },
+      { id: 'ent-eli', name: 'Eli', type: 'Person', description: 'Son with severe cashew allergy (peanuts fine) and carsickness on winding roads.' },
+      { id: 'ent-valencia', name: 'Valencia Trip', type: 'Location', description: 'Summer trip July 13-20 near Malvarrosa Beach with verified 310 Mbps fiber Wi-Fi.' },
+      { id: 'ent-blue-finch', name: 'Blue Finch Renovations', type: 'Organization', description: '$8,700 kitchen contractor led by Noor Patel, completed May 24 (not Bluebird Plumbing).' },
+      { id: 'ent-cashew-allergy', name: 'Cashew Allergy', type: 'Concept', description: 'Severe food allergy; distinct from general nut or peanut allergies.' },
+      { id: 'ent-nia', name: 'Nia', type: 'Person', description: 'Cedar & Steam owner managing second location expansion.' },
+      { id: 'ent-owen', name: 'Owen', type: 'Person', description: 'Operations assistant tracking schedules and supplier inventory.' },
+      { id: 'ent-mina', name: 'Mina Shah', type: 'Person', description: 'Store manager for Willow Market cafe location.' },
+      { id: 'ent-cedar-steam', name: 'Cedar & Steam (Willow Market)', type: 'Location', description: 'Second shop at 18 Willow Market opening 7am weekdays, 8am weekends.' },
+      { id: 'ent-roastline-equip', name: 'Roastline Equipment', type: 'Organization', description: 'Espresso machine supplier (distinct from canceled Roastline Coffee subscription).' },
+      { id: 'ent-oat-milk', name: 'Oat Milk Par (18 cases)', type: 'Habit', description: 'Willow Market inventory par set to 18 cases with weekly Monday review.' }
     ],
     triples: [
-      { source: 'ent-mara', relation: 'lives_in', target: 'ent-bakery-apt', session: '2025-01-08' },
-      { source: 'ent-mara', relation: 'adopted', target: 'ent-biscuit', session: '2025-01-08' },
-      { source: 'ent-mara', relation: 'works_at', target: 'ent-northwind', session: '2025-01-08' },
-      { source: 'ent-mara', relation: 'protects_routine', target: 'ent-morning-routine', session: '2025-01-08' },
-      { source: 'ent-mara', relation: 'adopts_diet', target: 'ent-plant-diet', session: '2025-02-14' },
-      { source: 'ent-mara', relation: 'eats_lunch', target: 'ent-tofu-bowl', session: '2025-02-14' },
-      { source: 'ent-mara', relation: 'maintains_cheat_meal', target: 'ent-friday-pizza', session: '2025-02-14' },
-      { source: 'ent-mara', relation: 'planned_travel', target: 'ent-portland', session: '2025-04-02' },
-      { source: 'ent-mara', relation: 'planned_travel', target: 'ent-lisbon', session: '2025-04-02' },
-      { source: 'ent-mara', relation: 'canceled_travel', target: 'ent-lisbon', session: '2025-06-18' },
-      { source: 'ent-biscuit', relation: 'sleeps_under_desk', target: 'ent-bakery-apt', session: '2025-06-18' },
-      { source: 'ent-leo', relation: 'training_for', target: 'ent-half-marathon', session: '2025-01-27' },
-      { source: 'ent-leo', relation: 'runs_on', target: 'ent-river-route', session: '2025-01-27' },
-      { source: 'ent-leo', relation: 'planned_travel', target: 'ent-seattle', session: '2025-01-27' },
-      { source: 'ent-leo', relation: 'experienced_pain', target: 'ent-shin-splints', session: '2025-03-16' },
-      { source: 'ent-leo', relation: 'adapted_training_to', target: 'ent-bike-intervals', session: '2025-03-16' },
-      { source: 'ent-leo', relation: 'switched_diet_to', target: 'ent-recovery-diet', session: '2025-03-16' },
-      { source: 'ent-leo', relation: 'completed_race_trip', target: 'ent-seattle', session: '2025-05-11' }
+      { source: 'ent-northstar', relation: 'has_rollout_owner', target: 'ent-dana', session: '2025-01-09' },
+      { source: 'ent-northstar', relation: 'has_billing_contact', target: 'ent-morgan', session: '2025-04-10' },
+      { source: 'ent-dana', relation: 'assigned_audit_review', target: 'ent-luis', session: '2025-06-18' },
+      { source: 'ent-northstar', relation: 'resolved_blocker', target: 'ent-eng8821', session: '2025-04-10' },
+      { source: 'ent-roberto', relation: 'has_caregiver', target: 'ent-elena', session: '2025-01-16' },
+      { source: 'ent-roberto', relation: 'has_cardiologist', target: 'ent-dr-mehta', session: '2025-01-16' },
+      { source: 'ent-roberto', relation: 'has_allergy', target: 'ent-penicillin', session: '2025-01-16' },
+      { source: 'ent-elena', relation: 'booked_backup_transit', target: 'ent-cityride', session: '2025-02-11' },
+      { source: 'ent-roberto', relation: 'receives_delivery_from', target: 'ent-harbor-pharmacy', session: '2025-03-06' },
+      { source: 'ent-marcus', relation: 'planned_travel_to', target: 'ent-valencia', session: '2025-02-19' },
+      { source: 'ent-eli', relation: 'has_allergy', target: 'ent-cashew-allergy', session: '2025-01-28' },
+      { source: 'ent-marcus', relation: 'contracted', target: 'ent-blue-finch', session: '2025-04-05' },
+      { source: 'ent-nia', relation: 'opened_location', target: 'ent-cedar-steam', session: '2025-01-07' },
+      { source: 'ent-mina', relation: 'manages_location', target: 'ent-cedar-steam', session: '2025-03-21' },
+      { source: 'ent-cedar-steam', relation: 'sourced_machine_from', target: 'ent-roastline-equip', session: '2025-01-07' },
+      { source: 'ent-cedar-steam', relation: 'manages_inventory', target: 'ent-oat-milk', session: '2025-08-01' }
     ]
   };
 
   function detectCluster(text, id) {
     const lower = ((text || '') + ' ' + (id || '')).toLowerCase();
-    for (let k of LEO_KEYWORDS) {
-      if (lower.includes(k)) return 'leo';
+    if (id) {
+      if (id.startsWith('ns-') || id.includes('northstar')) return 'northstar';
+      if (id.startsWith('care-') || id.includes('care')) return 'care';
+      if (id.startsWith('home-') || id.includes('household') || id.includes('travel')) return 'household';
+      if (id.startsWith('cafe-') || id.includes('cafe')) return 'cafe';
     }
-    return 'mara';
+    for (const [domain, keywords] of Object.entries(DOMAIN_KEYWORDS)) {
+      for (const kw of keywords) {
+        if (lower.includes(kw)) return domain;
+      }
+    }
+    return 'northstar';
   }
 
   // --- Application State ---
   const state = {
     runs: {},
     ontology: ONTOLOGY,
-    activeRunKey: 'evaluation-20260815-100116',
+    activeRunKey: 'evaluation-20260830-203014',
     activeScenarioName: 'baseline',
     activeViewMode: 'retrieval', // 'retrieval', 'knowledge', 'reasoning'
     
@@ -133,7 +138,7 @@
     
     // Filters
     filters: {
-      categories: new Set(['single-hop', 'multi-hop', 'temporal', 'adversarial']),
+      categories: new Set(['single-hop', 'multi-hop', 'temporal', 'contradiction', 'adversarial']),
       verdict: 'all', // 'all', 'correct', 'incorrect', 'hit', 'miss'
       nodeTypes: new Set(['question', 'memory', 'entity'])
     },
@@ -231,13 +236,32 @@
       const name = ent.name.toLowerCase();
       const cleanName = name.replace(/\([^)]*\)/g, '').trim();
       if (
-        lower.includes(cleanName.toLowerCase()) ||
-        (ent.id === 'ent-mara' && lower.includes('mara')) ||
-        (ent.id === 'ent-leo' && lower.includes('leo')) ||
-        (ent.id === 'ent-biscuit' && lower.includes('biscuit')) ||
-        (ent.id === 'ent-portland' && lower.includes('portland')) ||
-        (ent.id === 'ent-lisbon' && lower.includes('lisbon')) ||
-        (ent.id === 'ent-seattle' && lower.includes('seattle'))
+        (cleanName.length > 2 && lower.includes(cleanName.toLowerCase())) ||
+        (ent.id === 'ent-northstar' && (lower.includes('northstar') || lower.includes('nsh-417'))) ||
+        (ent.id === 'ent-dana' && lower.includes('dana')) ||
+        (ent.id === 'ent-morgan' && lower.includes('morgan')) ||
+        (ent.id === 'ent-luis' && lower.includes('luis')) ||
+        (ent.id === 'ent-priya' && lower.includes('priya')) ||
+        (ent.id === 'ent-sam' && lower.includes('sam')) ||
+        (ent.id === 'ent-eng8821' && lower.includes('eng-8821')) ||
+        (ent.id === 'ent-elena' && lower.includes('elena')) ||
+        (ent.id === 'ent-roberto' && lower.includes('roberto')) ||
+        (ent.id === 'ent-dr-mehta' && lower.includes('mehta')) ||
+        (ent.id === 'ent-penicillin' && lower.includes('penicillin')) ||
+        (ent.id === 'ent-cityride' && lower.includes('cityride')) ||
+        (ent.id === 'ent-harbor-pharmacy' && lower.includes('harbor pharmacy')) ||
+        (ent.id === 'ent-marcus' && lower.includes('marcus')) ||
+        (ent.id === 'ent-jo' && lower.includes('jo')) ||
+        (ent.id === 'ent-eli' && lower.includes('eli')) ||
+        (ent.id === 'ent-valencia' && lower.includes('valencia')) ||
+        (ent.id === 'ent-blue-finch' && lower.includes('blue finch')) ||
+        (ent.id === 'ent-cashew-allergy' && lower.includes('cashew')) ||
+        (ent.id === 'ent-nia' && lower.includes('nia')) ||
+        (ent.id === 'ent-owen' && lower.includes('owen')) ||
+        (ent.id === 'ent-mina' && (lower.includes('mina') || lower.includes('shah'))) ||
+        (ent.id === 'ent-cedar-steam' && (lower.includes('cedar') || lower.includes('willow'))) ||
+        (ent.id === 'ent-roastline-equip' && lower.includes('roastline')) ||
+        (ent.id === 'ent-oat-milk' && lower.includes('oat milk'))
       ) {
         matches.push(ent);
       }
@@ -292,46 +316,42 @@
 
     // 1. Build Entity Nodes from Ontology
     if (state.activeViewMode === 'knowledge' || state.activeViewMode === 'retrieval' || state.activeViewMode === 'reasoning') {
-      const maraEntities = [];
-      const leoEntities = [];
+      const domainEntities = {};
+      Object.keys(CLUSTER_CENTERS).forEach(k => { domainEntities[k] = []; });
 
       state.ontology.entities.forEach(ent => {
         const cluster = detectCluster(ent.name + ' ' + ent.description, ent.id);
-        if (cluster === 'leo') leoEntities.push(ent);
-        else maraEntities.push(ent);
+        (domainEntities[cluster] || domainEntities.northstar).push(ent);
       });
 
-      [...maraEntities, ...leoEntities].forEach((ent) => {
-        const entTypeKey = ent.type.toLowerCase();
-        if (!state.filters.nodeTypes.has('entity') && state.activeViewMode !== 'knowledge') return;
+      Object.entries(domainEntities).forEach(([cluster, ents]) => {
+        const center = CLUSTER_CENTERS[cluster] || CLUSTER_CENTERS.northstar;
+        ents.forEach((ent, groupIndex) => {
+          const entTypeKey = ent.type.toLowerCase();
+          if (!state.filters.nodeTypes.has('entity') && state.activeViewMode !== 'knowledge') return;
 
-        const cluster = detectCluster(ent.name + ' ' + ent.description, ent.id);
-        const center = CLUSTER_CENTERS[cluster];
-        const isLeo = cluster === 'leo';
-        const groupIndex = isLeo ? leoEntities.indexOf(ent) : maraEntities.indexOf(ent);
-        const totalInGroup = isLeo ? leoEntities.length : maraEntities.length;
-        const angle = (groupIndex / Math.max(1, totalInGroup)) * Math.PI * 2;
-
-        const node = {
-          id: ent.id,
-          type: 'entity',
-          entityType: ent.type,
-          label: ent.name,
-          description: ent.description,
-          cluster: cluster,
-          clusterCenter: center,
-          radius: 18,
-          color: COLORS[entTypeKey] || COLORS.concept,
-          x: center.x + Math.cos(angle) * (140 + (groupIndex % 2) * 40),
-          y: center.y + Math.sin(angle) * (140 + (groupIndex % 2) * 40),
-          vx: 0,
-          vy: 0,
-          degree: 0,
-          connectedMemories: [],
-          triples: []
-        };
-        nodes.push(node);
-        nodeMap.set(node.id, node);
+          const angle = (groupIndex / Math.max(1, ents.length)) * Math.PI * 2;
+          const node = {
+            id: ent.id,
+            type: 'entity',
+            entityType: ent.type,
+            label: ent.name,
+            description: ent.description,
+            cluster: cluster,
+            clusterCenter: center,
+            radius: 18,
+            color: COLORS[entTypeKey] || COLORS.concept,
+            x: center.x + Math.cos(angle) * (130 + (groupIndex % 2) * 35),
+            y: center.y + Math.sin(angle) * (130 + (groupIndex % 2) * 35),
+            vx: 0,
+            vy: 0,
+            degree: 0,
+            connectedMemories: [],
+            triples: []
+          };
+          nodes.push(node);
+          nodeMap.set(node.id, node);
+        });
       });
 
       // Semantic Triples
@@ -359,8 +379,8 @@
 
     // 2. Build Question Nodes & Retrieval Links
     if (state.activeViewMode !== 'knowledge') {
-      const maraQuestions = [];
-      const leoQuestions = [];
+      const domainQuestions = {};
+      Object.keys(CLUSTER_CENTERS).forEach(k => { domainQuestions[k] = []; });
 
       report.Results.forEach(res => {
         if (!state.filters.categories.has(res.Category)) return;
@@ -371,52 +391,51 @@
         if (state.filters.verdict === 'hit' && !isHit) return;
         if (state.filters.verdict === 'miss' && isHit) return;
 
-        if (res.QuestionId.startsWith('leo-')) leoQuestions.push(res);
-        else maraQuestions.push(res);
+        const cluster = detectCluster(res.Question, res.QuestionId);
+        (domainQuestions[cluster] || domainQuestions.northstar).push(res);
       });
 
-      [...maraQuestions, ...leoQuestions].forEach((res) => {
-        if (!state.filters.nodeTypes.has('question')) return;
+      Object.entries(domainQuestions).forEach(([cluster, questions]) => {
+        const center = CLUSTER_CENTERS[cluster] || CLUSTER_CENTERS.northstar;
+        questions.forEach((res, groupIndex) => {
+          if (!state.filters.nodeTypes.has('question')) return;
 
-        const isCorrect = res.Correct === true;
-        const isHit = res.RetrievalHit === true;
-        const cluster = res.QuestionId.startsWith('leo-') ? 'leo' : 'mara';
-        const center = CLUSTER_CENTERS[cluster];
-        const isLeo = cluster === 'leo';
-        const groupIndex = isLeo ? leoQuestions.indexOf(res) : maraQuestions.indexOf(res);
-        const totalInGroup = isLeo ? leoQuestions.length : maraQuestions.length;
-        const angle = (groupIndex / Math.max(1, totalInGroup)) * Math.PI * 2;
+          const isCorrect = res.Correct === true;
+          const isHit = res.RetrievalHit === true;
+          const angle = (groupIndex / Math.max(1, questions.length)) * Math.PI * 2;
 
-        const qNode = {
-          id: `q-${res.QuestionId}`,
-          questionId: res.QuestionId,
-          type: 'question',
-          category: res.Category,
-          label: res.QuestionId,
-          title: res.Question,
-          expectedAnswer: res.ExpectedAnswer,
-          generatedAnswer: res.GeneratedAnswer,
-          judgeVerdict: res.JudgeVerdict,
-          judgeReasoning: res.JudgeReasoning,
-          isCorrect: isCorrect,
-          retrievalHit: isHit,
-          f1: res.F1,
-          bleu1: res.Bleu1,
-          latency: res.SearchLatencyMs,
-          retrievedMemories: res.RetrievedMemories || [],
-          cluster: cluster,
-          clusterCenter: center,
-          radius: 22,
-          color: isCorrect ? COLORS.correct : COLORS.incorrect,
-          categoryColor: COLORS[res.Category] || COLORS.question,
-          x: center.x + Math.cos(angle) * 310,
-          y: center.y + Math.sin(angle) * 310,
-          vx: 0,
-          vy: 0,
-          degree: 0
-        };
-        nodes.push(qNode);
-        nodeMap.set(qNode.id, qNode);
+          const qNode = {
+            id: `q-${res.QuestionId}`,
+            questionId: res.QuestionId,
+            type: 'question',
+            category: res.Category,
+            label: res.QuestionId,
+            title: res.Question,
+            expectedAnswer: res.ExpectedAnswer,
+            generatedAnswer: res.GeneratedAnswer,
+            judgeVerdict: res.JudgeVerdict,
+            judgeReasoning: res.JudgeReasoning,
+            isCorrect: isCorrect,
+            retrievalHit: isHit,
+            f1: res.F1,
+            bleu1: res.Bleu1,
+            latency: res.SearchLatencyMs,
+            retrievedMemories: res.RetrievedMemories || [],
+            cluster: cluster,
+            clusterCenter: center,
+            radius: 22,
+            color: isCorrect ? COLORS.correct : COLORS.incorrect,
+            categoryColor: COLORS[res.Category] || COLORS.question,
+            x: center.x + Math.cos(angle) * 290,
+            y: center.y + Math.sin(angle) * 290,
+            vx: 0,
+            vy: 0,
+            degree: 0
+          };
+          nodes.push(qNode);
+          nodeMap.set(qNode.id, qNode);
+        });
+      });
 
         // 3. Process Retrieved Memories
         if (state.filters.nodeTypes.has('memory')) {
@@ -845,23 +864,23 @@
       const cluster = CLUSTER_CENTERS[key];
       c.save();
 
-      const grad = c.createRadialGradient(cluster.x, cluster.y, 40, cluster.x, cluster.y, 380);
-      grad.addColorStop(0, key === 'mara' ? 'rgba(56, 189, 248, 0.06)' : 'rgba(168, 85, 247, 0.06)');
-      grad.addColorStop(0.85, key === 'mara' ? 'rgba(56, 189, 248, 0.015)' : 'rgba(168, 85, 247, 0.015)');
+      const grad = c.createRadialGradient(cluster.x, cluster.y, 40, cluster.x, cluster.y, 360);
+      grad.addColorStop(0, cluster.color || 'rgba(56, 189, 248, 0.06)');
+      grad.addColorStop(0.85, (cluster.color || 'rgba(56, 189, 248, 0.015)').replace('0.15', '0.02'));
       grad.addColorStop(1, 'rgba(15, 23, 42, 0)');
 
       c.fillStyle = grad;
       c.beginPath();
-      c.arc(cluster.x, cluster.y, 380, 0, Math.PI * 2);
+      c.arc(cluster.x, cluster.y, 360, 0, Math.PI * 2);
       c.fill();
 
-      c.strokeStyle = key === 'mara' ? 'rgba(56, 189, 248, 0.18)' : 'rgba(168, 85, 247, 0.18)';
+      c.strokeStyle = cluster.borderColor || 'rgba(56, 189, 248, 0.18)';
       c.lineWidth = 1;
       c.setLineDash([6, 6]);
       c.stroke();
 
       c.setLineDash([]);
-      drawTextPill(c, cluster.label, cluster.x, cluster.y - 360, false);
+      drawTextPill(c, cluster.label, cluster.x, cluster.y - 330, false);
 
       c.restore();
     });
@@ -987,7 +1006,7 @@
         c.font = 'bold 10px monospace';
         c.textAlign = 'center';
         c.textBaseline = 'middle';
-        const labelText = n.label.replace('mara-', 'M-').replace('leo-', 'L-');
+        const labelText = n.label;
         c.fillText(labelText, n.x, n.y);
 
         if (isSelected || isHovered || state.camera.scale > 1.25) {

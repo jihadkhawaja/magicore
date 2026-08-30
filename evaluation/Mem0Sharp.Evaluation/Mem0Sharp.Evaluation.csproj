@@ -12,5 +12,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Update="evalconfig.local.yaml" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="evaldataset.realworld.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

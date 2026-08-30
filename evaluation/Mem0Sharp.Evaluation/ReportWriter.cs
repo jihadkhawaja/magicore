@@ -34,6 +34,22 @@ internal static class ReportWriter
         builder.AppendLine("- Confidence intervals: Wilson 95% question-level intervals; they do not measure provider or model variance.");
         builder.AppendLine();
 
+        if (report.Capabilities is not null)
+        {
+            builder.AppendLine("## Feature capability evaluation");
+            builder.AppendLine();
+            builder.AppendLine($"**{report.Capabilities.Passed} passed, {report.Capabilities.Failed} failed, {report.Capabilities.Skipped} skipped**");
+            builder.AppendLine();
+            builder.AppendLine("| Feature | Category | Status | Duration (ms) | Evidence |");
+            builder.AppendLine("| --- | --- | --- | ---: | --- |");
+            foreach (var check in report.Capabilities.Checks)
+            {
+                var evidence = check.Evidence.Replace("|", "\\|").Replace("\n", " ");
+                builder.AppendLine($"| {check.Feature} | {check.Category} | {check.Status} | {check.DurationMs:F1} | {evidence} |");
+            }
+            builder.AppendLine();
+        }
+
         builder.AppendLine("## Scenario summary");
         builder.AppendLine();
         builder.AppendLine("| Scenario | Accuracy (J) | Mean F1 | Mean BLEU-1 | Retrieval hit rate | Memories | Mean search (ms) | Ingest (s) |");

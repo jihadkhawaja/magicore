@@ -4,7 +4,7 @@ using Microsoft.Extensions.AI;
 namespace Mem0Sharp.Evaluation;
 
 /// <summary>
-/// Runs one scenario: in-memory VectorData collection, ingests all conversations with the
+/// Runs one scenario: creates an in-memory VectorData collection, ingests all conversations with the
 /// scenario's add options, then searches, answers, and judges every question.
 /// </summary>
 internal sealed class ScenarioRunner(
@@ -52,6 +52,8 @@ internal sealed class ScenarioRunner(
                     UserId = userId,
                     Infer = scenario.Infer,
                     Deduplicate = scenario.Deduplicate,
+                    Behavior = scenario.Behavior,
+                    Prompt = scenario.BehaviorPersona,
                     Metadata = new Dictionary<string, string>
                     {
                         ["session_date"] = session.Date
@@ -61,31 +63,51 @@ internal sealed class ScenarioRunner(
                 var addResult = await memory.AddAsync(sessionMessages, addOptions, cancellationToken);
                 memoriesStored += addResult.Memories.Count;
             }
+
+            if (scenario.ForgetStaleAfterDays is > 0)
+            {
+                await memory.ForgetStaleAsync(TimeSpan.FromDays(scenario.ForgetStaleAfterDays.Value), new MemoryFilter(UserId: userId), cancellationToken);
+            }
         }
 
         ingestWatch.Stop();
-        var results = new List<QuestionResult>();
 
-        foreach (var question in dataset.Questions)
+        var questions = dataset.Questions;
+        var results = new QuestionResult[questions.Count];
+        var gate = new SemaphoreSlim(Math.Max(1, configuration.Evaluation.Concurrency));
+        var workers = questions.Select(async (question, index) =>
         {
-            var userId = $"{scenario.Name}_{question.ConversationId}";
-            var searchWatch = Stopwatch.StartNew();
-            var searchResults = await memory.SearchAsync(
-                question.Question,
-                new MemorySearchOptions
-                {
-                    Filter = new MemoryFilter(UserId: userId),
-                    TopK = topK,
-                    Hybrid = scenario.Hybrid,
-                    Rerank = scenario.Rerank && !retrievalOnly,
-                    RecencyBias = scenario.RecencyBias
-                },
-                cancellationToken);
-            searchWatch.Stop();
+            await gate.WaitAsync(cancellationToken);
+            try
+            {
+                var userId = $"{scenario.Name}_{question.ConversationId}";
+                var searchWatch = Stopwatch.StartNew();
+                var searchResults = await memory.SearchAsync(
+                    question.Question,
+                    new MemorySearchOptions
+                    {
+                        Filter = new MemoryFilter(UserId: userId),
+                        TopK = topK,
+                        Threshold = scenario.Threshold,
+                        Hybrid = scenario.Hybrid,
+                        Rerank = scenario.Rerank && !retrievalOnly,
+                        RecencyBias = scenario.RecencyBias,
+                        FreshnessWindow = scenario.FreshnessWindowDays is null ? null : TimeSpan.FromDays(scenario.FreshnessWindowDays.Value),
+                        Behavior = scenario.Behavior
+                    },
+                    cancellationToken);
+                searchWatch.Stop();
 
-            var result = await EvaluateQuestionAsync(question, searchResults, searchWatch, cancellationToken);
-            results.Add(result);
-        }
+                var result = await EvaluateQuestionAsync(question, searchResults, searchWatch, cancellationToken);
+                results[index] = result;
+            }
+            finally
+            {
+                gate.Release();
+            }
+        });
+
+        await Task.WhenAll(workers);
 
         return BuildReport(memoriesStored, ingestWatch.Elapsed, results);
     }

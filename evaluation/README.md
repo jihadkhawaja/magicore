@@ -7,6 +7,25 @@ This console application evaluates Mem0Sharp in two complementary layers:
 
 Each quality scenario gets an isolated in-memory `VectorDataMemoryStore` collection. The default corpus is self-contained and fictional, so no database or dataset download is required.
 
+```mermaid
+flowchart TD
+    subgraph L1["Layer 1: Feature Capability Verification (Deterministic)"]
+        direction LR
+        C1[25 Feature Area Checks<br/>CRUD, AST Filters, Rollback, Graph, Multimodal] --> C2[In-Memory VectorStore & Doubles] --> C3[Deterministic Pass/Fail/Skip Verification]
+    end
+
+    subgraph L2["Layer 2: Longitudinal Quality Matrix (Model-Judged)"]
+        direction LR
+        A[120 conversation turns<br/>4 real-world domains] --> B[Ingest with scenario options<br/>behavior, infer, dedup, conflict resolution]
+        B --> C[(In-Memory VectorData Store<br/>fresh collection per scenario)]
+        D[40 questions<br/>5 LOCOMO categories] --> E[Search with scenario options<br/>hybrid, rerank, threshold, recency]
+        C --> E
+        E --> F[Answer generation<br/>from retrieved memories]
+        F --> G[LLM judge vs<br/>reference answer]
+        G --> H[Accuracy, retrieval hit rate,<br/>F1, BLEU-1, latency]
+    end
+```
+
 ## What it measures
 
 The default [`evaldataset.realworld.json`](Mem0Sharp.Evaluation/evaldataset.realworld.json) corpus models enterprise rollout, family care coordination, household and travel planning, and small-business operations. It includes corrections, preference drift, delayed plans, distractors, similar names, negation, sensitive-information boundaries, and facts spread across sessions.

@@ -20,7 +20,7 @@ internal sealed record ScenarioDefinition
     public int? FreshnessWindowDays { get; init; }
     public int? ForgetStaleAfterDays { get; init; }
 
-    /// <summary>PostgreSQL-safe table suffix for this scenario.</summary>
+    /// <summary>Safe collection name for this scenario.</summary>
     internal string TableName => "eval_" + Name.Replace('-', '_');
 }
 

@@ -6,7 +6,6 @@ namespace Mem0Sharp.Evaluation;
 internal sealed class EvaluationConfiguration
 {
     public EvalOpenAiSettings OpenAi { get; init; } = new();
-    public EvalPostgresSettings Postgres { get; init; } = new();
     public EvalRunSettings Evaluation { get; init; } = new();
 
     public static EvaluationConfiguration Load(string path)
@@ -45,11 +44,6 @@ internal sealed class EvalOpenAiSettings
     public string JudgeModel { get; init; } = "gpt-5.6-luna";
 }
 
-internal sealed class EvalPostgresSettings
-{
-    public string ConnectionString { get; init; } = "Host=localhost;Port=5433;Database=mem0eval;Username=postgres;Password=postgres";
-    public int EmbeddingDimensions { get; init; } = 1536;
-}
 
 internal sealed class EvalRunSettings
 {

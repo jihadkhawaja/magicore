@@ -85,10 +85,10 @@ if (validateDatasetOnly)
 }
 
 var selected = scenarioFilter.Count == 0
-    ? Scenarios.All
+    ? Scenarios.All.Where(scenario => scenario.IncludeInDefaultRun).ToArray()
     : Scenarios.All.Where(s => scenarioFilter.Contains(s.Name, StringComparer.OrdinalIgnoreCase)).ToArray();
 
-if (selected.Count == 0)
+if (selected.Length == 0)
 {
     Console.Error.WriteLine($"No scenarios matched: {string.Join(", ", scenarioFilter)}");
     return 1;
@@ -140,7 +140,7 @@ catch (Exception exception) when (exception is FileNotFoundException or InvalidD
     return 2;
 }
 
-Console.WriteLine($"Running {selected.Count} scenario(s) against VectorData store...");
+Console.WriteLine($"Running {selected.Length} scenario(s) against VectorData store...");
 Console.WriteLine();
 
 Console.WriteLine("[capabilities] Exercising deterministic public API contracts...");
@@ -159,7 +159,7 @@ foreach (var scenario in selected)
         reports.Add(report);
         var accuracy = report.Accuracy is null ? "n/a (retrieval-only)" : $"{report.Accuracy.Value:P0} ({report.Correct}/{report.Judged})";
         var f1 = report.MeanF1 is null ? "" : $" | F1: {report.MeanF1.Value:F2}";
-        Console.WriteLine($"  memories: {report.MemoriesStored} | accuracy: {accuracy}{f1} | retrieval hit rate: {report.RetrievalHitRate:P0} | mean search: {report.MeanSearchLatencyMs:F0} ms");
+        Console.WriteLine($"  memories: {report.MemoriesStored} | accuracy: {accuracy}{f1} | retrieval hit rate: {report.RetrievalHitRate:P0} | mean retrieved: {report.MeanRetrievedCount:F1} | mean search: {report.MeanSearchLatencyMs:F0} ms");
     }
     catch (Exception exception)
     {

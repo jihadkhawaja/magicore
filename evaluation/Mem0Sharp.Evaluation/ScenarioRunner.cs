@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Globalization;
 using Microsoft.Extensions.AI;
 
 namespace Mem0Sharp.Evaluation;
@@ -54,6 +55,7 @@ internal sealed class ScenarioRunner(
                     Deduplicate = scenario.Deduplicate,
                     Behavior = scenario.Behavior,
                     Prompt = scenario.BehaviorPersona,
+                    ReferenceTime = scenario.UseSessionReferenceTime ? ParseSessionDate(session.Date) : null,
                     Metadata = new Dictionary<string, string>
                     {
                         ["session_date"] = session.Date
@@ -93,7 +95,9 @@ internal sealed class ScenarioRunner(
                         Rerank = scenario.Rerank && !retrievalOnly,
                         RecencyBias = scenario.RecencyBias,
                         FreshnessWindow = scenario.FreshnessWindowDays is null ? null : TimeSpan.FromDays(scenario.FreshnessWindowDays.Value),
-                        Behavior = scenario.Behavior
+                        Behavior = scenario.Behavior,
+                        EnableTemporalSearch = scenario.EnableTemporalSearch,
+                        IncludeUndatedMemories = scenario.IncludeUndatedMemories
                     },
                     cancellationToken);
                 searchWatch.Stop();
@@ -110,6 +114,15 @@ internal sealed class ScenarioRunner(
         await Task.WhenAll(workers);
 
         return BuildReport(memoriesStored, ingestWatch.Elapsed, results);
+    }
+
+    private static DateTimeOffset ParseSessionDate(string value)
+    {
+        if (DateTimeOffset.TryParseExact(value, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var referenceTime))
+        {
+            return referenceTime;
+        }
+        throw new InvalidDataException($"Session date '{value}' must use yyyy-MM-dd format for event-time evaluation.");
     }
 
     private async Task<QuestionResult> EvaluateQuestionAsync(
@@ -205,6 +218,7 @@ internal sealed class ScenarioRunner(
                 : (double)answerable.Count(result => result.RetrievalHit) / answerable.Length,
             RetrievalHitRateLower95 = answerable.Length == 0 ? null : WilsonInterval(answerable.Count(result => result.RetrievalHit), answerable.Length).Lower,
             RetrievalHitRateUpper95 = answerable.Length == 0 ? null : WilsonInterval(answerable.Count(result => result.RetrievalHit), answerable.Length).Upper,
+            MeanRetrievedCount = results.Count == 0 ? 0 : results.Average(result => result.RetrievedCount),
             MeanSearchLatencyMs = results.Count == 0 ? 0 : results.Average(result => result.SearchLatencyMs),
             Categories = categories,
             Results = results

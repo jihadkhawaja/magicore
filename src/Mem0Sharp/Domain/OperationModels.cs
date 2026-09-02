@@ -7,6 +7,7 @@ public sealed record MemoryAddOptions
     public string? RunId { get; init; }
     public MemoryScope Scope { get; init; } = MemoryScope.User;
     public IReadOnlyDictionary<string, string>? Metadata { get; init; }
+    public DateTimeOffset? ReferenceTime { get; init; }
     public DateTimeOffset? ExpiresAt { get; init; }
     public bool Infer { get; init; } = true;
     public string? Prompt { get; init; }
@@ -27,6 +28,8 @@ public sealed record MemoryUpdate
 {
     public string? Text { get; init; }
     public IReadOnlyDictionary<string, string>? Metadata { get; init; }
+    public bool UpdateReferenceTime { get; init; }
+    public DateTimeOffset? ReferenceTime { get; init; }
     public bool UpdateExpiration { get; init; }
     public DateTimeOffset? ExpiresAt { get; init; }
 }

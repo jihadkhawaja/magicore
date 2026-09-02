@@ -19,11 +19,13 @@ public sealed record MemoryServiceConfiguration
     public IAdmissionGate? AdmissionGate { get; init; }
     public IConsolidationVerifier? ConsolidationVerifier { get; init; }
     public ITrajectoryStore? TrajectoryStore { get; init; }
+    public ITemporalQueryInterpreter? TemporalQueryInterpreter { get; init; }
     public IMemoryTelemetry? Telemetry { get; init; }
 
     public IMemoryService CreateService()
     {
         IMemoryService service = new MemoryService(
+            TemporalQueryInterpreter ?? new DeterministicTemporalQueryInterpreter(),
             Store,
             Embeddings,
             Extractor,

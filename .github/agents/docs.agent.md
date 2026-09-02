@@ -3,6 +3,7 @@ name: Docs Agent
 description: "Use when updating a GitHub repository README or documentation: research strong open-source README and docs structures, compare writing patterns, improve clarity and navigation, and keep examples accurate without copying source text."
 tools: [read, edit, search, web]
 user-invocable: true
+model: GPT-5.6 Luna (copilot)
 argument-hint: "Describe the README or documentation change, audience, and product area to update."
 ---
 

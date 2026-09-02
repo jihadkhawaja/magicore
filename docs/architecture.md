@@ -45,6 +45,8 @@ All public types remain in `namespace Mem0Sharp`. Folder names are architectural
 
 The parameterless `MemoryService` path composes deterministic in-memory defaults for local development. Production applications should compose persistent stores and model providers at their own startup boundary.
 
+Event-time retrieval is an additive projection over ordinary memory metadata. Ingestion records an optional canonical reference timestamp without replacing the memory's transaction timestamps. Search can apply an explicit range or use `ITemporalQueryInterpreter`; automatic interpretation is opt-in and fails open below its confidence threshold. This keeps persistence provider-neutral and distinct from point-in-time state reconstruction through `ITemporalMemoryStore`.
+
 ## Consistency boundaries
 
 Built-in in-memory and VectorData stores implement `IAtomicMemoryStore`.

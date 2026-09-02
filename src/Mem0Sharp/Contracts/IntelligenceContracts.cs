@@ -12,6 +12,14 @@ public interface IMemoryReranker
     Task<IReadOnlyList<SearchResult>> RerankAsync(string query, IReadOnlyList<SearchResult> candidates, int topK, CancellationToken cancellationToken = default);
 }
 
+public interface ITemporalQueryInterpreter
+{
+    Task<TemporalQueryInterpretation?> InterpretAsync(
+        string query,
+        DateTimeOffset referenceTime,
+        CancellationToken cancellationToken = default);
+}
+
 public interface ICrossEncoderScorer
 {
     Task<IReadOnlyList<double>> ScoreAsync(string query, IReadOnlyList<string> documents, CancellationToken cancellationToken = default);

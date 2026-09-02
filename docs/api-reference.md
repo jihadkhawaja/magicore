@@ -42,10 +42,10 @@ All methods are asynchronous and accept an optional `CancellationToken`.
 - `SearchResult` contains a `Memory` and its similarity `Score`.
 - `AddResult` contains the memories created by an add operation.
 - `MemoryHistoryEntry` contains the event type, old and new text, a complete memory snapshot and embedding, memory ID, event ID, original creation time, event update time, deletion state, actor ID, and role.
-- `MemoryAddOptions` controls identity, scope, inference, procedural memory, expiration, metadata, custom prompts, deduplication, and optional `MemoryBehavior` shaping.
+- `MemoryAddOptions` controls identity, scope, inference, procedural memory, expiration, metadata, custom prompts, deduplication, optional `MemoryBehavior` shaping, and an optional event `ReferenceTime`.
 - `MemoryBehavior` selects `Normal` (the unchanged default), `Dreaming`, `RandomThoughts`, or `PersonalMemory`. Non-normal modes require inference and an `IBehaviorAwareMemoryExtractor` such as `LlmMemoryExtractor`.
-- `MemorySearchOptions` controls filtering, top K, threshold, hybrid scoring, explanations, reranking, explicit behavior selection, and `IncludeNonFactual`. Searches default to `MemoryBehavior.Normal`; associative and agent-owned memories require an explicit behavior or `IncludeNonFactual = true`.
-- `MemoryUpdate` supports optional text, metadata, and expiration changes.
+- `MemorySearchOptions` controls filtering, top K, threshold, hybrid scoring, explanations, reranking, explicit behavior selection, `IncludeNonFactual`, and opt-in event-time retrieval. Searches default to `MemoryBehavior.Normal`; associative and agent-owned memories require an explicit behavior or `IncludeNonFactual = true`.
+- `MemoryUpdate` supports optional text, metadata, reference-time, and expiration changes. Set `UpdateReferenceTime = true` to replace or clear the event timestamp.
 - `MemoryPage` contains paged results and total count.
 - `SearchScoreDetails` separates semantic, keyword, entity/graph, and reranker signals.
 - `RollbackResult` reports the numbers of restored and deleted memories and the affected memory IDs.
@@ -84,6 +84,30 @@ the factual-only default described above.
 
 A vector store such as `VectorDataMemoryStore` applies similarity ordering and `topK` in the backend.
 
+### Event-time retrieval
+
+`SearchAtAsync` answers a transaction-time question: what did the store contain at a historical instant? Event-time retrieval answers a different question: which current memories describe events in a requested period?
+
+Supply `ReferenceTime` when the event or source conversation occurred. Mem0Sharp stores it as round-trip timestamp metadata under `TemporalMemoryMetadata.ReferenceTimeKey`, so existing persistence providers require no schema migration.
+
+```csharp
+await memory.AddAsync("The rollout moved to April 21.", new MemoryAddOptions
+{
+    UserId = "alice",
+    ReferenceTime = new DateTimeOffset(2025, 2, 10, 0, 0, 0, TimeSpan.Zero)
+});
+
+var results = await memory.SearchAsync("What changed in 2025?", new MemorySearchOptions
+{
+    Filter = new MemoryFilter(UserId: "alice"),
+    EnableTemporalSearch = true
+});
+```
+
+The built-in `DeterministicTemporalQueryInterpreter` recognizes ISO dates, years, `today`, `yesterday`, `last week`, `last month`, and `last year`. Relative expressions use `MemorySearchOptions.ReferenceTime`, or the current time when omitted. Automatic interpretation is disabled by default and applies only when confidence meets `MinimumTemporalConfidence` (default `0.8`). Low-confidence or unrecognized queries fail open without temporal filtering.
+
+Use `TimeRange` for an explicit range. `IncludeUndatedMemories` defaults to `true` to avoid dropping relevant legacy memories; set it to `false` when the result must contain only event-dated evidence. Applications can provide another `ITemporalQueryInterpreter` through `MemoryService` or `MemoryServiceConfiguration`.
+
 ## Extension points
 
 - `IEmbeddingGenerator` generates a vector for text.
@@ -94,6 +118,7 @@ A vector store such as `VectorDataMemoryStore` applies similarity ordering and `
 - `IBehaviorAwareMemoryExtractor` optionally adds behavior and persona-aware extraction without changing existing `IMemoryExtractor` implementations.
 - `IMemoryStore` provides persistence, vector search, batch operations, history, rollback, and reset.
 - `ITemporalMemoryStore` opts a store into reconstructed point-in-time reads through `GetAllAtAsync`.
+- `ITemporalQueryInterpreter` optionally converts a query into a confident event-time range; `DeterministicTemporalQueryInterpreter` is the local default.
 - `InMemoryStore` and `VectorDataMemoryStore` implement `ITemporalMemoryStore`; `QdrantMemoryStore` does not.
 - `IMemoryConflictResolver` produces structured memory actions.
 - `IEntityExtractor`/`IEntityStore` and `IGraphMemoryExtractor`/`IGraphMemoryStore` provide relationship memory.

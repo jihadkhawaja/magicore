@@ -19,6 +19,10 @@ internal sealed record ScenarioDefinition
     public double RecencyBias { get; init; }
     public int? FreshnessWindowDays { get; init; }
     public int? ForgetStaleAfterDays { get; init; }
+    public bool UseSessionReferenceTime { get; init; }
+    public bool EnableTemporalSearch { get; init; }
+    public bool IncludeUndatedMemories { get; init; } = true;
+    public bool IncludeInDefaultRun { get; init; } = true;
 
     /// <summary>Safe collection name for this scenario.</summary>
     internal string TableName => "eval_" + Name.Replace('-', '_');
@@ -83,6 +87,15 @@ internal static class Scenarios
             Name = "strict-threshold",
             Description = "Baseline with the search score threshold raised from 0.1 to 0.3.",
             Threshold = 0.3
+        },
+        new ScenarioDefinition
+        {
+            Name = "event-time",
+            Description = "Session-dated ingestion plus confidence-gated event-time retrieval for explicit dates and years.",
+            UseSessionReferenceTime = true,
+            EnableTemporalSearch = true,
+            IncludeUndatedMemories = false,
+            IncludeInDefaultRun = false
         },
         new ScenarioDefinition
         {

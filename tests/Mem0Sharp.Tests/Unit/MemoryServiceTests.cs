@@ -478,6 +478,150 @@ public sealed class MemoryServiceTests
     }
 
     [Fact]
+    public async Task SearchFiltersMemoriesByExplicitReferenceTimeRange()
+    {
+        var service = new MemoryService(embeddings: new ConstantEmbeddingGenerator());
+        var oldMemory = Assert.Single((await service.AddAsync("The launch was planned for spring.", new MemoryAddOptions
+        {
+            UserId = "alice",
+            ReferenceTime = new DateTimeOffset(2025, 3, 15, 0, 0, 0, TimeSpan.Zero)
+        })).Memories);
+        var currentMemory = Assert.Single((await service.AddAsync("The launch moved to autumn.", new MemoryAddOptions
+        {
+            UserId = "alice",
+            ReferenceTime = new DateTimeOffset(2025, 9, 20, 0, 0, 0, TimeSpan.Zero)
+        })).Memories);
+
+        var results = await service.SearchAsync("launch plan", new MemorySearchOptions
+        {
+            Filter = new MemoryFilter(UserId: "alice"),
+            TopK = 10,
+            Threshold = 0,
+            Hybrid = false,
+            TimeRange = new MemoryTimeRange(
+                new DateTimeOffset(2025, 7, 1, 0, 0, 0, TimeSpan.Zero),
+                new DateTimeOffset(2025, 12, 31, 23, 59, 59, TimeSpan.Zero)),
+            IncludeUndatedMemories = false
+        });
+
+        Assert.Equal("2025-03-15T00:00:00.0000000+00:00", oldMemory.Metadata[TemporalMemoryMetadata.ReferenceTimeKey]);
+        Assert.DoesNotContain(results, result => result.Memory.Id == oldMemory.Id);
+        Assert.Equal(currentMemory.Id, Assert.Single(results).Memory.Id);
+    }
+
+    [Fact]
+    public async Task TemporalSearchInterpretsExplicitYear()
+    {
+        var service = new MemoryService(embeddings: new ConstantEmbeddingGenerator());
+        await service.AddAsync("Alice worked in Berlin.", new MemoryAddOptions
+        {
+            UserId = "alice",
+            ReferenceTime = new DateTimeOffset(2024, 6, 1, 0, 0, 0, TimeSpan.Zero)
+        });
+        var expected = Assert.Single((await service.AddAsync("Alice moved to Lisbon.", new MemoryAddOptions
+        {
+            UserId = "alice",
+            ReferenceTime = new DateTimeOffset(2025, 4, 10, 0, 0, 0, TimeSpan.Zero)
+        })).Memories);
+
+        var results = await service.SearchAsync("Where did Alice live in 2025?", new MemorySearchOptions
+        {
+            Filter = new MemoryFilter(UserId: "alice"),
+            TopK = 10,
+            Threshold = 0,
+            Hybrid = false,
+            EnableTemporalSearch = true,
+            IncludeUndatedMemories = false
+        });
+
+        Assert.Equal(expected.Id, Assert.Single(results).Memory.Id);
+    }
+
+    [Fact]
+    public async Task TemporalSearchFailsOpenWhenInterpretationConfidenceIsLow()
+    {
+        var interpreter = new StubTemporalQueryInterpreter(new TemporalQueryInterpretation(
+            new MemoryTimeRange(
+                new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero),
+                new DateTimeOffset(2025, 12, 31, 23, 59, 59, TimeSpan.Zero)),
+            0.4));
+        var service = new MemoryService(interpreter, embeddings: new ConstantEmbeddingGenerator());
+        await service.AddAsync("Alice worked in Berlin.", new MemoryAddOptions
+        {
+            UserId = "alice",
+            ReferenceTime = new DateTimeOffset(2024, 6, 1, 0, 0, 0, TimeSpan.Zero)
+        });
+        await service.AddAsync("Alice moved to Lisbon.", new MemoryAddOptions
+        {
+            UserId = "alice",
+            ReferenceTime = new DateTimeOffset(2025, 4, 10, 0, 0, 0, TimeSpan.Zero)
+        });
+
+        var results = await service.SearchAsync("Where did Alice live?", new MemorySearchOptions
+        {
+            Filter = new MemoryFilter(UserId: "alice"),
+            TopK = 10,
+            Threshold = 0,
+            Hybrid = false,
+            EnableTemporalSearch = true,
+            MinimumTemporalConfidence = 0.8,
+            IncludeUndatedMemories = false
+        });
+
+        Assert.Equal(2, results.Count);
+    }
+
+    [Fact]
+    public async Task UpdatePreservesReferenceTimeUnlessExplicitlyChanged()
+    {
+        var service = new MemoryService();
+        var originalTime = new DateTimeOffset(2024, 6, 1, 0, 0, 0, TimeSpan.Zero);
+        var updatedTime = new DateTimeOffset(2025, 4, 10, 0, 0, 0, TimeSpan.Zero);
+        var memory = Assert.Single((await service.AddAsync("Alice worked in Berlin.", new MemoryAddOptions
+        {
+            UserId = "alice",
+            ReferenceTime = originalTime
+        })).Memories);
+
+        var metadataUpdate = await service.UpdateAsync(memory.Id, new MemoryUpdate
+        {
+            Metadata = new Dictionary<string, string> { ["source"] = "profile" }
+        });
+        var timeUpdate = await service.UpdateAsync(memory.Id, new MemoryUpdate
+        {
+            UpdateReferenceTime = true,
+            ReferenceTime = updatedTime
+        });
+
+        Assert.Equal(originalTime.ToString("O"), metadataUpdate.Metadata[TemporalMemoryMetadata.ReferenceTimeKey]);
+        Assert.Equal(updatedTime.ToString("O"), timeUpdate.Metadata[TemporalMemoryMetadata.ReferenceTimeKey]);
+    }
+
+    [Fact]
+    public async Task DeduplicationKeepsIdenticalEventsAtDifferentReferenceTimes()
+    {
+        var service = new MemoryService();
+        var firstOptions = new MemoryAddOptions
+        {
+            UserId = "alice",
+            ReferenceTime = new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero)
+        };
+        var secondOptions = firstOptions with
+        {
+            ReferenceTime = new DateTimeOffset(2025, 1, 2, 0, 0, 0, TimeSpan.Zero)
+        };
+
+        var first = await service.AddAsync("Alice completed the daily check-in.", firstOptions);
+        var duplicate = await service.AddAsync("Alice completed the daily check-in.", firstOptions);
+        var second = await service.AddAsync("Alice completed the daily check-in.", secondOptions);
+
+        Assert.Single(first.Memories);
+        Assert.Empty(duplicate.Memories);
+        Assert.Single(second.Memories);
+        Assert.Equal(2, (await service.GetAllAsync(new MemoryFilter(UserId: "alice"))).Count);
+    }
+
+    [Fact]
     public async Task ForgetStaleAsyncRemovesMemoriesPastRetentionWindow()
     {
         var store = new InMemoryStore();
@@ -563,6 +707,12 @@ public sealed class MemoryServiceTests
     private sealed class StubProcedureGenerator : IProceduralMemoryGenerator
     {
         public Task<string> GenerateAsync(IReadOnlyList<Message> messages, string? prompt = null, CancellationToken cancellationToken = default) => Task.FromResult("1. Validate. 2. Deploy.");
+    }
+
+    private sealed class StubTemporalQueryInterpreter(TemporalQueryInterpretation? interpretation) : ITemporalQueryInterpreter
+    {
+        public Task<TemporalQueryInterpretation?> InterpretAsync(string query, DateTimeOffset referenceTime, CancellationToken cancellationToken = default) =>
+            Task.FromResult(interpretation);
     }
 
     private sealed class StubGraphExtractor : IGraphMemoryExtractor

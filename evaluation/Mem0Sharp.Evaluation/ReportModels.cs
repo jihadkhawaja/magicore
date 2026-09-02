@@ -69,6 +69,7 @@ internal sealed record ScenarioReport
     public double RetrievalHitRate { get; init; }
     public double? RetrievalHitRateLower95 { get; init; }
     public double? RetrievalHitRateUpper95 { get; init; }
+    public double MeanRetrievedCount { get; init; }
     public double MeanSearchLatencyMs { get; init; }
     public IReadOnlyList<CategoryMetrics> Categories { get; init; } = [];
     public IReadOnlyList<QuestionResult> Results { get; init; } = [];

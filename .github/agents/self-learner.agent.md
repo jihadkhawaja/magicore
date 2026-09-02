@@ -3,6 +3,7 @@ name: Self Learner Agent
 description: "Use for coding tasks that benefit from remembered project conventions, prior debugging outcomes, iterative implementation, focused validation, and durable engineering lessons."
 tools: [vscode, execute, read, agent, edit, search, web, 'mem0sharp/*', 'github/*', browser, todo]
 user-invocable: true
+model: GPT-5.6 Luna (copilot)
 argument-hint: "Describe the coding task, failing behavior, or implementation goal."
 ---
 

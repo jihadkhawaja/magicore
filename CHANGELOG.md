@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### Added
+- **Event-Time Retrieval**: Added optional reference timestamps, explicit time ranges, and confidence-gated deterministic query interpretation without requiring persistence schema changes.
+
 ## [v0.3.0] - 2026-08-30
 
 ### ⚠️ Breaking Changes

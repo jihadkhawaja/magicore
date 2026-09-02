@@ -13,5 +13,6 @@
   <ItemGroup>
     <None Update="evalconfig.local.yaml" CopyToOutputDirectory="PreserveNewest" />
     <None Update="evaldataset.realworld.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="evaldataset.temporal.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

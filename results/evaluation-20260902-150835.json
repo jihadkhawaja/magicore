@@ -1,0 +1,600 @@
+{
+  "Timestamp": "2026-09-02T15:08:35.0299857+00:00",
+  "Mode": "live (VectorData \u002B model)",
+  "ChatModel": "gpt-5.6-luna",
+  "EmbeddingModel": "text-embedding-3-small",
+  "JudgeModel": "gpt-5.6-luna",
+  "Store": "VectorData",
+  "Dataset": "Mem0Sharp event-time benchmark v1",
+  "ConversationCount": 1,
+  "QuestionCount": 6,
+  "SyntheticDataset": true,
+  "Capabilities": {
+    "Passed": 22,
+    "Failed": 0,
+    "Skipped": 4,
+    "Checks": [
+      {
+        "Feature": "Raw text CRUD and history",
+        "Category": "Core API",
+        "Status": "PASS",
+        "Evidence": "Stored, updated, deleted, and preserved 3 chronological history events.",
+        "DurationMs": 53.2483
+      },
+      {
+        "Feature": "Conversation and ChatMessage ingestion",
+        "Category": "Core API",
+        "Status": "PASS",
+        "Evidence": "Validated Message and Microsoft.Extensions.AI ChatMessage overloads.",
+        "DurationMs": 10.5185
+      },
+      {
+        "Feature": "Batch add and deduplication",
+        "Category": "Core API",
+        "Status": "PASS",
+        "Evidence": "AddManyAsync stored 2 unique memories from 3 inputs.",
+        "DurationMs": 0.8914
+      },
+      {
+        "Feature": "Identity scopes and tenant isolation",
+        "Category": "Governance",
+        "Status": "PASS",
+        "Evidence": "User, agent, run, and session scope filters isolated one tenant record.",
+        "DurationMs": 2.0411
+      },
+      {
+        "Feature": "Nested metadata filters",
+        "Category": "Governance",
+        "Status": "PASS",
+        "Evidence": "Validated numeric comparison, case-insensitive containment, existence, and AND composition.",
+        "DurationMs": 2.4846
+      },
+      {
+        "Feature": "Paging and filtered bulk deletion",
+        "Category": "Core API",
+        "Status": "PASS",
+        "Evidence": "Returned a one-item page with total 3, then deleted exactly 3 filtered memories.",
+        "DurationMs": 4.3085
+      },
+      {
+        "Feature": "Hybrid search, thresholds, and explanations",
+        "Category": "Retrieval",
+        "Status": "PASS",
+        "Evidence": "Exact keyword ranked first with score details; strict threshold rejected all candidates.",
+        "DurationMs": 14.0871
+      },
+      {
+        "Feature": "Event-time retrieval",
+        "Category": "Retrieval",
+        "Status": "PASS",
+        "Evidence": "Stored canonical event timestamps and selected the 2025 fact through deterministic query interpretation.",
+        "DurationMs": 39.1727
+      },
+      {
+        "Feature": "Batch search",
+        "Category": "Retrieval",
+        "Status": "PASS",
+        "Evidence": "SearchManyAsync returned one independently ranked result for each of 2 queries.",
+        "DurationMs": 3.9948
+      },
+      {
+        "Feature": "Expiration and stale forgetting",
+        "Category": "Lifecycle",
+        "Status": "PASS",
+        "Evidence": "Expired data was hidden by default, visible by opt-in, and removed by retention pruning.",
+        "DurationMs": 2.8645
+      },
+      {
+        "Feature": "Point-in-time reads and rollback",
+        "Category": "Lifecycle",
+        "Status": "PASS",
+        "Evidence": "GetAllAtAsync, SearchAtAsync, and RollbackAsync restored the pre-update state.",
+        "DurationMs": 8.1233
+      },
+      {
+        "Feature": "Consolidation with anti-drift verification",
+        "Category": "Lifecycle",
+        "Status": "PASS",
+        "Evidence": "Verified and stored a consolidated memory with source-window provenance.",
+        "DurationMs": 5.293
+      },
+      {
+        "Feature": "Behavior provenance and retrieval policy",
+        "Category": "Memory intelligence",
+        "Status": "PASS",
+        "Evidence": "Dreaming provenance was excluded from factual search and returned with explicit opt-in.",
+        "DurationMs": 1.3117
+      },
+      {
+        "Feature": "Conflict actions",
+        "Category": "Memory intelligence",
+        "Status": "PASS",
+        "Evidence": "Applied a structured UPDATE decision to an existing memory.",
+        "DurationMs": 3.0572
+      },
+      {
+        "Feature": "Procedural memory",
+        "Category": "Memory intelligence",
+        "Status": "PASS",
+        "Evidence": "Generated and stored an agent-scoped procedural memory.",
+        "DurationMs": 0.8348
+      },
+      {
+        "Feature": "Entity linking and graph memory",
+        "Category": "Memory intelligence",
+        "Status": "PASS",
+        "Evidence": "Linked 2 entities and one graph triple, then validated lifecycle cleanup.",
+        "DurationMs": 5.4697
+      },
+      {
+        "Feature": "Admission gates",
+        "Category": "Safety",
+        "Status": "PASS",
+        "Evidence": "Composite admission gate rejected prompt-injection content before persistence.",
+        "DurationMs": 2.1698
+      },
+      {
+        "Feature": "Deferred trajectory extraction",
+        "Category": "Memory intelligence",
+        "Status": "PASS",
+        "Evidence": "Stored an episodic trajectory and extracted a durable memory on demand.",
+        "DurationMs": 4.4881
+      },
+      {
+        "Feature": "Multimodal image memory",
+        "Category": "Multimodal",
+        "Status": "PASS",
+        "Evidence": "Stored binary image metadata and retrieved the exact image with cosine score above 0.99.",
+        "DurationMs": 6.1843
+      },
+      {
+        "Feature": "Reset semantics",
+        "Category": "Lifecycle",
+        "Status": "PASS",
+        "Evidence": "Cleared memories, vectors, entities, graph state, and history.",
+        "DurationMs": 2.3769
+      },
+      {
+        "Feature": "OpenAI-compatible chat and embeddings",
+        "Category": "Provider",
+        "Status": "PASS",
+        "Evidence": "Exercised by the live quality matrix.",
+        "DurationMs": 0
+      },
+      {
+        "Feature": "LLM extraction, behavior shaping, reranking, and judging",
+        "Category": "Provider",
+        "Status": "PASS",
+        "Evidence": "Exercised by the live scenario matrix.",
+        "DurationMs": 0
+      },
+      {
+        "Feature": "Anthropic and Ollama chat protocols",
+        "Category": "Provider",
+        "Status": "SKIP",
+        "Evidence": "Require separately running/configured external providers.",
+        "DurationMs": 0
+      },
+      {
+        "Feature": "Cohere, ZeroEntropy, and cross-encoder rerankers",
+        "Category": "Provider",
+        "Status": "SKIP",
+        "Evidence": "Require provider credentials or a configured local model scorer.",
+        "DurationMs": 0
+      },
+      {
+        "Feature": "PostgreSQL, SQLite, and Qdrant persistence adapters",
+        "Category": "Persistence",
+        "Status": "SKIP",
+        "Evidence": "Require backend-specific integration environments; core store contracts are exercised in memory.",
+        "DurationMs": 0
+      },
+      {
+        "Feature": "MCP server transport",
+        "Category": "Integration",
+        "Status": "SKIP",
+        "Evidence": "Requires a separate stdio client process; the nine tools are covered by the MCP sample and tests.",
+        "DurationMs": 0
+      }
+    ]
+  },
+  "ScenarioReports": [
+    {
+      "Name": "baseline",
+      "Description": "Default pipeline: LLM extraction, hybrid search, deduplication on, no conflict resolution, no reranking.",
+      "MemoriesStored": 14,
+      "IngestSeconds": 22.0709828,
+      "Questions": 6,
+      "Judged": 6,
+      "Correct": 5,
+      "Accuracy": 0.8333333333333334,
+      "AccuracyLower95": 0.43649056343635395,
+      "AccuracyUpper95": 0.9699474141282697,
+      "MeanF1": 0.6613984674329502,
+      "MeanBleu1": 0.5659211159211159,
+      "RetrievalQuestions": 6,
+      "RetrievalHits": 5,
+      "RetrievalHitRate": 0.8333333333333334,
+      "RetrievalHitRateLower95": 0.43649056343635395,
+      "RetrievalHitRateUpper95": 0.9699474141282697,
+      "MeanRetrievedCount": 10,
+      "MeanSearchLatencyMs": 309.35545,
+      "Categories": [
+        {
+          "Category": "temporal",
+          "Questions": 3,
+          "Correct": 3,
+          "Accuracy": 1,
+          "AccuracyLower95": 0.43849391955098227,
+          "AccuracyUpper95": 1,
+          "RetrievalQuestions": 3,
+          "RetrievalHits": 3,
+          "RetrievalHitRate": 1,
+          "RetrievalHitRateLower95": null,
+          "RetrievalHitRateUpper95": null
+        },
+        {
+          "Category": "single-hop",
+          "Questions": 3,
+          "Correct": 2,
+          "Accuracy": 0.6666666666666666,
+          "AccuracyLower95": 0.20765495512648796,
+          "AccuracyUpper95": 0.9385096847238394,
+          "RetrievalQuestions": 3,
+          "RetrievalHits": 2,
+          "RetrievalHitRate": 0.6666666666666666,
+          "RetrievalHitRateLower95": null,
+          "RetrievalHitRateUpper95": null
+        }
+      ],
+      "Results": [
+        {
+          "QuestionId": "atlas-2024-timeline",
+          "Category": "temporal",
+          "Question": "How did the Atlas rollout target change during 2024?",
+          "ExpectedAnswer": "The target moved from May 6 to August 12 because of a permit delay, then the rollout was paused during the budget review.",
+          "GeneratedAnswer": "The 2024 Atlas rollout target changed from May 6 to August 12 due to a permit delay. The August 12 target was later abandoned when the rollout was restarted with a target of April 14.",
+          "JudgeVerdict": "CORRECT",
+          "JudgeReasoning": "The answer correctly states that the Atlas rollout target moved from May 6 to August 12 due to a permit delay, matching key gold information, despite adding an unsupported later restart detail.",
+          "Correct": true,
+          "F1": 0.5517241379310345,
+          "Bleu1": 0.45714285714285713,
+          "RetrievalHit": true,
+          "RetrievedCount": 10,
+          "SearchLatencyMs": 209.9609,
+          "RetrievedMemories": [
+            "The Atlas rollout target was revised from May 6 to August 12, 2024, due to a permit delay.",
+            "The 2025 Atlas rollout target is April 21.",
+            "The August 12 target for the Atlas rollout is no longer active.",
+            "The target date for the restarted Atlas rollout is April 14.",
+            "The initial Project Atlas rollout target is May 6.",
+            "Noor is the rollout owner for Atlas, replacing Mira.",
+            "The Atlas rollout is paused while the customer reviews its budget.",
+            "After launch, Atlas audit exports changed from monthly to weekly.",
+            "Mira owns the Project Atlas rollout.",
+            "Atlas launched successfully in West Europe on April 21."
+          ]
+        },
+        {
+          "QuestionId": "atlas-2025-timeline",
+          "Category": "temporal",
+          "Question": "How did the Atlas rollout target change during 2025?",
+          "ExpectedAnswer": "Atlas restarted with an April 14 target, moved to April 21 because of training conflicts, and launched on April 21.",
+          "GeneratedAnswer": "The 2025 Atlas rollout target was April 21, when Atlas successfully launched in West Europe. No other 2025 target change is recorded.",
+          "JudgeVerdict": "CORRECT",
+          "JudgeReasoning": "The answer correctly identifies April 21 as the Atlas launch date, which is a key item from the gold answer, though it omits the earlier April 14 target and the reason for the change.",
+          "Correct": true,
+          "F1": 0.23809523809523808,
+          "Bleu1": 0.22727272727272727,
+          "RetrievalHit": true,
+          "RetrievedCount": 10,
+          "SearchLatencyMs": 280.448,
+          "RetrievedMemories": [
+            "The 2025 Atlas rollout target is April 21.",
+            "The Atlas rollout target was revised from May 6 to August 12, 2024, due to a permit delay.",
+            "The August 12 target for the Atlas rollout is no longer active.",
+            "The initial Project Atlas rollout target is May 6.",
+            "The target date for the restarted Atlas rollout is April 14.",
+            "Noor is the rollout owner for Atlas, replacing Mira.",
+            "The Atlas rollout is paused while the customer reviews its budget.",
+            "After launch, Atlas audit exports changed from monthly to weekly.",
+            "Mira owns the Project Atlas rollout.",
+            "Atlas launched successfully in West Europe on April 21."
+          ]
+        },
+        {
+          "QuestionId": "atlas-exact-date",
+          "Category": "temporal",
+          "Question": "What happened to Atlas on 2025-04-21?",
+          "ExpectedAnswer": "Atlas launched successfully in West Europe.",
+          "GeneratedAnswer": "Atlas launched successfully in West Europe on April 21, 2025.",
+          "JudgeVerdict": "CORRECT",
+          "JudgeReasoning": "The generated answer correctly states that Atlas launched successfully in West Europe on the specified date.",
+          "Correct": true,
+          "F1": 0.7499999999999999,
+          "Bleu1": 0.6,
+          "RetrievalHit": true,
+          "RetrievedCount": 10,
+          "SearchLatencyMs": 383.3979,
+          "RetrievedMemories": [
+            "The 2025 Atlas rollout target is April 21.",
+            "The August 12 target for the Atlas rollout is no longer active.",
+            "The target date for the restarted Atlas rollout is April 14.",
+            "Atlas launched successfully in West Europe on April 21.",
+            "The Atlas rollout target was revised from May 6 to August 12, 2024, due to a permit delay.",
+            "After launch, Atlas audit exports changed from monthly to weekly.",
+            "The initial Project Atlas rollout target is May 6.",
+            "Noor is the rollout owner for Atlas, replacing Mira.",
+            "Project Atlas is hosted in West Europe.",
+            "Luis reviews the weekly Atlas audit exports."
+          ]
+        },
+        {
+          "QuestionId": "atlas-owner-2024",
+          "Category": "single-hop",
+          "Question": "Who owned the Atlas rollout in 2024?",
+          "ExpectedAnswer": "Mira owned the Atlas rollout.",
+          "GeneratedAnswer": "Noor owned the Atlas rollout in 2024, replacing Mira.",
+          "JudgeVerdict": "WRONG",
+          "JudgeReasoning": "The answer incorrectly identifies Noor as the owner and claims Mira was replaced, contradicting the gold answer that Mira owned the Atlas rollout in 2024.",
+          "Correct": false,
+          "F1": 0.7142857142857143,
+          "Bleu1": 0.5555555555555556,
+          "RetrievalHit": true,
+          "RetrievedCount": 10,
+          "SearchLatencyMs": 610.1784,
+          "RetrievedMemories": [
+            "The 2025 Atlas rollout target is April 21.",
+            "Mira owns the Project Atlas rollout.",
+            "Noor is the rollout owner for Atlas, replacing Mira.",
+            "The Atlas rollout target was revised from May 6 to August 12, 2024, due to a permit delay.",
+            "The target date for the restarted Atlas rollout is April 14.",
+            "The August 12 target for the Atlas rollout is no longer active.",
+            "The initial Project Atlas rollout target is May 6.",
+            "The Atlas rollout is paused while the customer reviews its budget.",
+            "Atlas support ownership moved from Noor to Imani in 2026.",
+            "Atlas launched successfully in West Europe on April 21."
+          ]
+        },
+        {
+          "QuestionId": "atlas-owner-2025",
+          "Category": "single-hop",
+          "Question": "Who owned the Atlas rollout in 2025?",
+          "ExpectedAnswer": "Noor owned the Atlas rollout.",
+          "GeneratedAnswer": "Noor owned the Atlas rollout in 2025, replacing Mira.",
+          "JudgeVerdict": "CORRECT",
+          "JudgeReasoning": "The generated answer correctly identifies Noor as the owner of the Atlas rollout, matching the gold answer.",
+          "Correct": true,
+          "F1": 0.7142857142857143,
+          "Bleu1": 0.5555555555555556,
+          "RetrievalHit": false,
+          "RetrievedCount": 10,
+          "SearchLatencyMs": 189.4374,
+          "RetrievedMemories": [
+            "The 2025 Atlas rollout target is April 21.",
+            "Mira owns the Project Atlas rollout.",
+            "Noor is the rollout owner for Atlas, replacing Mira.",
+            "The Atlas rollout target was revised from May 6 to August 12, 2024, due to a permit delay.",
+            "The August 12 target for the Atlas rollout is no longer active.",
+            "The target date for the restarted Atlas rollout is April 14.",
+            "The initial Project Atlas rollout target is May 6.",
+            "The Atlas rollout is paused while the customer reviews its budget.",
+            "Atlas support ownership moved from Noor to Imani in 2026.",
+            "Project Atlas is hosted in West Europe."
+          ]
+        },
+        {
+          "QuestionId": "atlas-region",
+          "Category": "single-hop",
+          "Question": "Which region hosts Project Atlas?",
+          "ExpectedAnswer": "Project Atlas is hosted in West Europe.",
+          "GeneratedAnswer": "Project Atlas is hosted in West Europe.",
+          "JudgeVerdict": "CORRECT",
+          "JudgeReasoning": "The generated answer exactly matches the gold answer, identifying West Europe as the host region for Project Atlas.",
+          "Correct": true,
+          "F1": 1,
+          "Bleu1": 1,
+          "RetrievalHit": true,
+          "RetrievedCount": 10,
+          "SearchLatencyMs": 182.7101,
+          "RetrievedMemories": [
+            "Project Atlas is hosted in West Europe.",
+            "The initial Project Atlas rollout target is May 6.",
+            "Mira owns the Project Atlas rollout.",
+            "The Atlas production region remains West Europe.",
+            "The Atlas rollout target was revised from May 6 to August 12, 2024, due to a permit delay.",
+            "The target date for the restarted Atlas rollout is April 14.",
+            "The August 12 target for the Atlas rollout is no longer active.",
+            "The Atlas rollout is paused while the customer reviews its budget.",
+            "Noor is the rollout owner for Atlas, replacing Mira.",
+            "Atlas launched successfully in West Europe on April 21."
+          ]
+        }
+      ],
+      "Error": null
+    },
+    {
+      "Name": "event-time",
+      "Description": "Session-dated ingestion plus confidence-gated event-time retrieval for explicit dates and years.",
+      "MemoriesStored": 12,
+      "IngestSeconds": 12.6348054,
+      "Questions": 6,
+      "Judged": 6,
+      "Correct": 5,
+      "Accuracy": 0.8333333333333334,
+      "AccuracyLower95": 0.43649056343635395,
+      "AccuracyUpper95": 0.9699474141282697,
+      "MeanF1": 0.5771138583638584,
+      "MeanBleu1": 0.5000081458318725,
+      "RetrievalQuestions": 6,
+      "RetrievalHits": 4,
+      "RetrievalHitRate": 0.6666666666666666,
+      "RetrievalHitRateLower95": 0.29998832134152864,
+      "RetrievalHitRateUpper95": 0.9032306674407831,
+      "MeanRetrievedCount": 5,
+      "MeanSearchLatencyMs": 287.9106166666666,
+      "Categories": [
+        {
+          "Category": "temporal",
+          "Questions": 3,
+          "Correct": 2,
+          "Accuracy": 0.6666666666666666,
+          "AccuracyLower95": 0.20765495512648796,
+          "AccuracyUpper95": 0.9385096847238394,
+          "RetrievalQuestions": 3,
+          "RetrievalHits": 2,
+          "RetrievalHitRate": 0.6666666666666666,
+          "RetrievalHitRateLower95": null,
+          "RetrievalHitRateUpper95": null
+        },
+        {
+          "Category": "single-hop",
+          "Questions": 3,
+          "Correct": 3,
+          "Accuracy": 1,
+          "AccuracyLower95": 0.43849391955098227,
+          "AccuracyUpper95": 1,
+          "RetrievalQuestions": 3,
+          "RetrievalHits": 2,
+          "RetrievalHitRate": 0.6666666666666666,
+          "RetrievalHitRateLower95": null,
+          "RetrievalHitRateUpper95": null
+        }
+      ],
+      "Results": [
+        {
+          "QuestionId": "atlas-2024-timeline",
+          "Category": "temporal",
+          "Question": "How did the Atlas rollout target change during 2024?",
+          "ExpectedAnswer": "The target moved from May 6 to August 12 because of a permit delay, then the rollout was paused during the budget review.",
+          "GeneratedAnswer": "The Atlas rollout target changed from May 6 to August 12, 2024, due to a permit delay. The August 12 target is no longer active.",
+          "JudgeVerdict": "CORRECT",
+          "JudgeReasoning": "The answer correctly states that the Atlas rollout target moved from May 6 to August 12 due to a permit delay, matching key gold details, though it omits the later budget-review pause.",
+          "Correct": true,
+          "F1": 0.5416666666666667,
+          "Bleu1": 0.52,
+          "RetrievalHit": true,
+          "RetrievedCount": 5,
+          "SearchLatencyMs": 182.1522,
+          "RetrievedMemories": [
+            "The Atlas rollout target was revised from May 6 to August 12, 2024, due to a permit delay.",
+            "The August 12 target for Atlas is no longer active.",
+            "Mira owns the Project Atlas rollout.",
+            "Atlas rollout work is paused while the customer reviews its budget.",
+            "Project Atlas is hosted in West Europe."
+          ]
+        },
+        {
+          "QuestionId": "atlas-2025-timeline",
+          "Category": "temporal",
+          "Question": "How did the Atlas rollout target change during 2025?",
+          "ExpectedAnswer": "Atlas restarted with an April 14 target, moved to April 21 because of training conflicts, and launched on April 21.",
+          "GeneratedAnswer": "The Atlas rollout target shifted from April 14 to April 21, 2025.",
+          "JudgeVerdict": "CORRECT",
+          "JudgeReasoning": "The generated answer correctly identifies the target shift from April 14 to April 21, matching key items in the gold answer.",
+          "Correct": true,
+          "F1": 0.4375,
+          "Bleu1": 0.2994933194356787,
+          "RetrievalHit": true,
+          "RetrievedCount": 5,
+          "SearchLatencyMs": 399.5745,
+          "RetrievedMemories": [
+            "The 2025 Atlas rollout target is April 21.",
+            "The Atlas rollout target is April 14.",
+            "Noor is the rollout owner for Atlas, replacing Mira.",
+            "Luis reviews the weekly Atlas audit exports.",
+            "Atlas audit exports changed from monthly to weekly after launch."
+          ]
+        },
+        {
+          "QuestionId": "atlas-exact-date",
+          "Category": "temporal",
+          "Question": "What happened to Atlas on 2025-04-21?",
+          "ExpectedAnswer": "Atlas launched successfully in West Europe.",
+          "GeneratedAnswer": "I don\u0027t have that information.",
+          "JudgeVerdict": "WRONG",
+          "JudgeReasoning": "The generated answer does not state that Atlas launched successfully in West Europe and instead claims the information is unavailable.",
+          "Correct": false,
+          "F1": 0,
+          "Bleu1": 0,
+          "RetrievalHit": false,
+          "RetrievedCount": 0,
+          "SearchLatencyMs": 483.994,
+          "RetrievedMemories": []
+        },
+        {
+          "QuestionId": "atlas-owner-2024",
+          "Category": "single-hop",
+          "Question": "Who owned the Atlas rollout in 2024?",
+          "ExpectedAnswer": "Mira owned the Atlas rollout.",
+          "GeneratedAnswer": "Mira owned the Project Atlas rollout in 2024.",
+          "JudgeVerdict": "CORRECT",
+          "JudgeReasoning": "The generated answer correctly identifies Mira as the owner of the Atlas rollout in 2024.",
+          "Correct": true,
+          "F1": 0.7692307692307693,
+          "Bleu1": 0.625,
+          "RetrievalHit": true,
+          "RetrievedCount": 5,
+          "SearchLatencyMs": 260.1021,
+          "RetrievedMemories": [
+            "Mira owns the Project Atlas rollout.",
+            "The Atlas rollout target was revised from May 6 to August 12, 2024, due to a permit delay.",
+            "The August 12 target for Atlas is no longer active.",
+            "Atlas rollout work is paused while the customer reviews its budget.",
+            "Project Atlas is hosted in West Europe."
+          ]
+        },
+        {
+          "QuestionId": "atlas-owner-2025",
+          "Category": "single-hop",
+          "Question": "Who owned the Atlas rollout in 2025?",
+          "ExpectedAnswer": "Noor owned the Atlas rollout.",
+          "GeneratedAnswer": "Noor owned the Atlas rollout in 2025, replacing Mira.",
+          "JudgeVerdict": "CORRECT",
+          "JudgeReasoning": "The generated answer correctly states that Noor owned the Atlas rollout in 2025.",
+          "Correct": true,
+          "F1": 0.7142857142857143,
+          "Bleu1": 0.5555555555555556,
+          "RetrievalHit": false,
+          "RetrievedCount": 5,
+          "SearchLatencyMs": 203.6443,
+          "RetrievedMemories": [
+            "The 2025 Atlas rollout target is April 21.",
+            "Noor is the rollout owner for Atlas, replacing Mira.",
+            "The Atlas rollout target is April 14.",
+            "Luis reviews the weekly Atlas audit exports.",
+            "Atlas audit exports changed from monthly to weekly after launch."
+          ]
+        },
+        {
+          "QuestionId": "atlas-region",
+          "Category": "single-hop",
+          "Question": "Which region hosts Project Atlas?",
+          "ExpectedAnswer": "Project Atlas is hosted in West Europe.",
+          "GeneratedAnswer": "Project Atlas is hosted in West Europe.",
+          "JudgeVerdict": "CORRECT",
+          "JudgeReasoning": "The generated answer exactly matches the gold answer.",
+          "Correct": true,
+          "F1": 1,
+          "Bleu1": 1,
+          "RetrievalHit": true,
+          "RetrievedCount": 10,
+          "SearchLatencyMs": 197.9966,
+          "RetrievedMemories": [
+            "Project Atlas is hosted in West Europe.",
+            "Mira owns the Project Atlas rollout.",
+            "The Atlas production region is West Europe.",
+            "The Atlas rollout target is April 14.",
+            "The Atlas rollout target was revised from May 6 to August 12, 2024, due to a permit delay.",
+            "The August 12 target for Atlas is no longer active.",
+            "Noor is the rollout owner for Atlas, replacing Mira.",
+            "The 2025 Atlas rollout target is April 21.",
+            "Luis reviews the weekly Atlas audit exports.",
+            "Atlas rollout work is paused while the customer reviews its budget."
+          ]
+        }
+      ],
+      "Error": null
+    }
+  ]
+}

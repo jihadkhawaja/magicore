@@ -119,6 +119,29 @@ internal static class CapabilityRunner
             return "Exact keyword ranked first with score details; strict threshold rejected all candidates.";
         });
 
+        await CheckAsync(checks, "Event-time retrieval", "Retrieval", async () =>
+        {
+            var service = new MemoryService();
+            await service.AddAsync("The rollout target was March 3.", Options("cap-event-time") with
+            {
+                ReferenceTime = new DateTimeOffset(2024, 11, 1, 0, 0, 0, TimeSpan.Zero)
+            }, cancellationToken);
+            var current = Single((await service.AddAsync("The rollout target moved to April 21.", Options("cap-event-time") with
+            {
+                ReferenceTime = new DateTimeOffset(2025, 2, 10, 0, 0, 0, TimeSpan.Zero)
+            }, cancellationToken)).Memories);
+            var results = await service.SearchAsync("What was the rollout target in 2025?", new MemorySearchOptions
+            {
+                Filter = new MemoryFilter(UserId: "cap-event-time"),
+                TopK = 5,
+                Threshold = 0,
+                EnableTemporalSearch = true,
+                IncludeUndatedMemories = false
+            }, cancellationToken);
+            Expect(results.Count == 1 && results[0].Memory.Id == current.Id, "Temporal search did not select the memory from the interpreted event year.");
+            return "Stored canonical event timestamps and selected the 2025 fact through deterministic query interpretation.";
+        });
+
         await CheckAsync(checks, "Batch search", "Retrieval", async () =>
         {
             var service = new MemoryService();

@@ -52,8 +52,8 @@ internal static class ReportWriter
 
         builder.AppendLine("## Scenario summary");
         builder.AppendLine();
-        builder.AppendLine("| Scenario | Accuracy (J) | Mean F1 | Mean BLEU-1 | Retrieval hit rate | Memories | Mean search (ms) | Ingest (s) |");
-        builder.AppendLine("| --- | --- | --- | --- | --- | --- | --- | --- |");
+        builder.AppendLine("| Scenario | Accuracy (J) | Mean F1 | Mean BLEU-1 | Retrieval hit rate | Mean retrieved | Memories | Mean search (ms) | Ingest (s) |");
+        builder.AppendLine("| --- | --- | --- | --- | --- | ---: | --- | --- | --- |");
         foreach (var scenario in report.ScenarioReports)
         {
             var accuracy = scenario.Accuracy is null
@@ -62,7 +62,7 @@ internal static class ReportWriter
             var f1 = scenario.MeanF1 is null ? "n/a" : $"{scenario.MeanF1.Value:F2}";
             var bleu = scenario.MeanBleu1 is null ? "n/a" : $"{scenario.MeanBleu1.Value:F2}";
             var retrieval = $"{scenario.RetrievalHitRate:P0} ({scenario.RetrievalHits}/{scenario.RetrievalQuestions}; {FormatInterval(scenario.RetrievalHitRateLower95, scenario.RetrievalHitRateUpper95)})";
-            builder.AppendLine($"| {scenario.Name} | {accuracy} | {f1} | {bleu} | {retrieval} | {scenario.MemoriesStored} | {scenario.MeanSearchLatencyMs:F0} | {scenario.IngestSeconds:F1} |");
+            builder.AppendLine($"| {scenario.Name} | {accuracy} | {f1} | {bleu} | {retrieval} | {scenario.MeanRetrievedCount:F1} | {scenario.MemoriesStored} | {scenario.MeanSearchLatencyMs:F0} | {scenario.IngestSeconds:F1} |");
         }
         builder.AppendLine();
 

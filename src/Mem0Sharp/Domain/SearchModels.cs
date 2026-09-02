@@ -8,6 +8,18 @@ public sealed record MemoryPageOptions
 
 public sealed record MemoryPage(IReadOnlyList<Memory> Results, int Total, int Offset, int Limit);
 
+public sealed record MemoryTimeRange(DateTimeOffset? Start = null, DateTimeOffset? End = null);
+
+public sealed record TemporalQueryInterpretation(
+    MemoryTimeRange Range,
+    double Confidence,
+    string? MatchedText = null);
+
+public static class TemporalMemoryMetadata
+{
+    public const string ReferenceTimeKey = "mem0.reference_time";
+}
+
 public sealed record MemorySearchOptions
 {
     public MemoryFilter? Filter { get; init; }
@@ -20,6 +32,11 @@ public sealed record MemorySearchOptions
     public bool IncludeNonFactual { get; init; }
     public double RecencyBias { get; init; }
     public TimeSpan? FreshnessWindow { get; init; }
+    public MemoryTimeRange? TimeRange { get; init; }
+    public bool EnableTemporalSearch { get; init; }
+    public DateTimeOffset? ReferenceTime { get; init; }
+    public double MinimumTemporalConfidence { get; init; } = 0.8;
+    public bool IncludeUndatedMemories { get; init; } = true;
 }
 
 public sealed record SearchScoreDetails(

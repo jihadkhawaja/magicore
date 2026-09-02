@@ -11,7 +11,7 @@ Each quality scenario gets an isolated in-memory `VectorDataMemoryStore` collect
 flowchart TD
     subgraph L1["Layer 1: Feature Capability Verification (Deterministic)"]
         direction LR
-        C1[25 Feature Area Checks<br/>CRUD, AST Filters, Rollback, Graph, Multimodal] --> C2[In-Memory VectorStore & Doubles] --> C3[Deterministic Pass/Fail/Skip Verification]
+        C1[26 Feature Area Checks<br/>CRUD, Event Time, Rollback, Graph, Multimodal] --> C2[In-Memory VectorStore & Doubles] --> C3[Deterministic Pass/Fail/Skip Verification]
     end
 
     subgraph L2["Layer 2: Longitudinal Quality Matrix (Model-Judged)"]
@@ -47,10 +47,11 @@ Metrics per quality scenario:
 - **Accuracy (J-score)**: share of answers judged correct against the reference answer.
 - **Mean F1 / BLEU-1**: token-overlap answer-quality metrics.
 - **Retrieval hit rate**: share of answerable questions with expected evidence in retrieved memories.
+- **Mean retrieved**: average candidate count returned per question; compare it with hit rate to measure retrieval selectivity.
 - **Memories stored**, **mean search latency**, and **ingest time**.
 - **Wilson 95% intervals** for accuracy and retrieval hit rate.
 
-The capability suite covers CRUD, raw and conversation ingestion, batching, deduplication, identity scopes, nested metadata filters, paging, bulk deletion, hybrid and batch search, score explanations, expiration, retention, temporal reads, rollback, consolidation verification, behavior retrieval policy, conflict actions, procedural memory, entity and graph lifecycle, admission gates, deferred trajectory extraction, image memory, and reset semantics.
+The capability suite covers CRUD, raw and conversation ingestion, batching, deduplication, identity scopes, nested metadata filters, paging, bulk deletion, hybrid and batch search, score explanations, expiration, retention, event-time retrieval, point-in-time reads, rollback, consolidation verification, behavior retrieval policy, conflict actions, procedural memory, entity and graph lifecycle, admission gates, deferred trajectory extraction, image memory, and reset semantics.
 
 Provider-specific integrations that cannot be validated without credentials, local models, external processes, or databases are reported as **SKIP** with a reason. A skip is not treated as a pass.
 
@@ -69,6 +70,7 @@ Provider-specific integrations that cannot be validated without credentials, loc
 | `no-dedup` | Disables deduplication |
 | `infer-off` | Stores raw messages without LLM extraction |
 | `strict-threshold` | Raises the search threshold to 0.3 |
+| `event-time` | Opt-in session-dated ingestion and confidence-gated temporal filtering; use with `evaldataset.temporal.json` |
 | `behavior-dreaming` | Dreaming behavior |
 | `behavior-random-thoughts` | Random-thoughts behavior |
 | `behavior-personal-memory` | Persona-shaped first-person memory |
@@ -112,6 +114,23 @@ dotnet run --project .\evaluation\Mem0Sharp.Evaluation\Mem0Sharp.Evaluation.cspr
 ```
 
 Reports are written as JSON and Markdown to the configured `resultsDirectory`. With the example configuration, this is `results/` relative to the working directory. Each scenario uses its own reset in-memory VectorData collection and scenario-scoped user IDs.
+
+## Evaluate event-time retrieval
+
+The default longitudinal matrix remains unchanged for comparison with published results. The `event-time` scenario is opt-in because it is designed for questions containing explicit ISO dates or years and should be compared on the dedicated cross-year dataset.
+
+```powershell
+# Validate the dedicated dataset
+dotnet run --project .\evaluation\Mem0Sharp.Evaluation\Mem0Sharp.Evaluation.csproj --configuration Release -- --dataset .\evaluation\Mem0Sharp.Evaluation\evaldataset.temporal.json --validate-dataset
+
+# Deterministic baseline-versus-event-time retrieval comparison
+dotnet run --project .\evaluation\Mem0Sharp.Evaluation\Mem0Sharp.Evaluation.csproj --configuration Release -- --self-test --dataset .\evaluation\Mem0Sharp.Evaluation\evaldataset.temporal.json --scenario baseline,event-time
+
+# Model-judged comparison using evalconfig.local.yaml
+dotnet run --project .\evaluation\Mem0Sharp.Evaluation\Mem0Sharp.Evaluation.csproj --configuration Release -- --dataset .\evaluation\Mem0Sharp.Evaluation\evaldataset.temporal.json --scenario baseline,event-time
+```
+
+The event-time scenario parses each session's `yyyy-MM-dd` date into `MemoryAddOptions.ReferenceTime`, enables temporal search, and excludes undated candidates. Compare retrieval hit rate and mean retrieved together: a useful result preserves evidence hits while returning fewer cross-year distractors. Also inspect the exact-date and non-temporal questions in the JSON report to confirm strict filtering and fail-open behavior respectively.
 
 ## Interactive graph memory visualizer
 

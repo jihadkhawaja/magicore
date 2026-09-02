@@ -7,13 +7,15 @@
     <Project Path="samples/GettingStarted/GettingStarted.csproj" />
     <Project Path="samples/McpServer/McpServer.csproj" />
     <Project Path="samples/MemoryBehaviors/MemoryBehaviors.csproj" />
+    <Project Path="samples/MultiAgentGroupChat/MultiAgentGroupChat.csproj" />
     <Project Path="samples/Ollama/Ollama.csproj" />
     <Project Path="samples/OnnxLocal/OnnxLocal.csproj" />
     <Project Path="samples/VectorDataPostgres/VectorDataPostgres.csproj" />
     <Project Path="samples/VectorDataSqlite/VectorDataSqlite.csproj" />
   </Folder>
-  <Folder Name="/tests/" />
+  <Folder Name="/tests/">
+    <Project Path="tests/Mem0Sharp.NetStandard.Tests/Mem0Sharp.NetStandard.Tests.csproj" />
+    <Project Path="tests/Mem0Sharp.Tests/Mem0Sharp.Tests.csproj" />
+  </Folder>
   <Project Path="src/Mem0Sharp/Mem0Sharp.csproj" />
-  <Project Path="tests/Mem0Sharp.NetStandard.Tests/Mem0Sharp.NetStandard.Tests.csproj" />
-  <Project Path="tests/Mem0Sharp.Tests/Mem0Sharp.Tests.csproj" />
 </Solution>

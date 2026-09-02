@@ -9,8 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.3.1] - 2026-09-02
+
 ### Added
 - **Event-Time Retrieval**: Added optional reference timestamps, explicit time ranges, and confidence-gated deterministic query interpretation without requiring persistence schema changes.
+- **Evaluation Harness**: Expanded the evaluation suite with deterministic capability checks, a self-contained four-domain longitudinal dataset, configurable quality scenarios, event-time comparisons, dataset validation, and JSON/Markdown reporting.
+- **Multi-Agent Group Chat Sample**: Added an Agent Framework sample with isolated per-agent long-term memories, personality-driven participants, temporal and point-in-time recall, strict isolated-memory testing, and private memory inspection.
 
 ## [v0.3.0] - 2026-08-30
 

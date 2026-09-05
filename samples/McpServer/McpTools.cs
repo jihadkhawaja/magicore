@@ -1,7 +1,7 @@
 using System.ComponentModel;
 using ModelContextProtocol.Server;
 
-namespace Mem0Sharp.McpSample;
+namespace MagiCore.McpSample;
 
 [McpServerToolType]
 public sealed class McpTools(IMemoryService memory)
@@ -151,7 +151,7 @@ public sealed class McpTools(IMemoryService memory)
 
     private static void Log(string action, IEnumerable<Memory> memories, string? query = null)
     {
-        var prefix = query is null ? $"[mem0sharp] {action}" : $"[mem0sharp] {action} for '{query}'";
+        var prefix = query is null ? $"[magicore] {action}" : $"[magicore] {action} for '{query}'";
         var entries = memories.Select(memory => $"{memory.Id} ({memory.UserId}): {memory.Text}").ToArray();
         Console.Error.WriteLine(entries.Length == 0 ? $"{prefix}: none" : $"{prefix}: {string.Join(" | ", entries)}");
     }

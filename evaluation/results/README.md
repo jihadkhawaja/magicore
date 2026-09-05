@@ -8,4 +8,4 @@ Current published run:
 - [evaluation-20260902-150733.md](evaluation-20260902-150733.md)
 - [evaluation-20260902-150733.json](evaluation-20260902-150733.json)
 
-When you publish a new run, copy both files here and update the "Raw report" link and run date in [docs/evaluation.md](../../docs/evaluation.md). Fresh runs always write to `evaluation/Mem0Sharp.Evaluation/bin/<configuration>/net10.0/results/`, which stays gitignored.
+When you publish a new run, copy both files here and update the "Raw report" link and run date in [docs/evaluation.md](../../docs/evaluation.md). Fresh runs always write to `evaluation/MagiCore.Evaluation/bin/<configuration>/net10.0/results/`, which stays gitignored.

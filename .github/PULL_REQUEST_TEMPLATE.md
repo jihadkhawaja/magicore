@@ -16,8 +16,8 @@
 
 ## Validation
 
-- [ ] `dotnet build .\Mem0Sharp.slnx`
-- [ ] `dotnet test .\tests\Mem0Sharp.Tests\Mem0Sharp.Tests.csproj`
+- [ ] `dotnet build .\MagiCore.slnx`
+- [ ] `dotnet test .\tests\MagiCore.Tests\MagiCore.Tests.csproj`
 - [ ] I added or updated tests where needed.
 - [ ] I updated documentation for user-visible changes.
 

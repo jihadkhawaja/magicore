@@ -1,5 +1,5 @@
 using Godot;
-using Mem0Sharp;
+using MagiCore;
 
 public partial class RobotLab
 {

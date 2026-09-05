@@ -1,6 +1,6 @@
 # Providers and persistence
 
-Mem0Sharp standardizes entirely on **`Microsoft.Extensions.AI`** (`IChatClient` and `IEmbeddingGenerator<string, Embedding<float>>`) for all intelligence and embedding operations, and **`Microsoft.Extensions.VectorData`** (`VectorStore` and `VectorStoreCollection<TKey, TRecord>`) for universal vector database persistence.
+MagiCore standardizes entirely on **`Microsoft.Extensions.AI`** (`IChatClient` and `IEmbeddingGenerator<string, Embedding<float>>`) for all intelligence and embedding operations, and **`Microsoft.Extensions.VectorData`** (`VectorStore` and `VectorStoreCollection<TKey, TRecord>`) for universal vector database persistence.
 
 ## Available model and storage ecosystems
 
@@ -23,7 +23,7 @@ Use the official `OpenAI` and `Microsoft.Extensions.AI.OpenAI` packages:
 
 ```csharp
 using System.ClientModel;
-using Mem0Sharp;
+using MagiCore;
 using Microsoft.Extensions.AI;
 using OpenAI;
 
@@ -49,7 +49,7 @@ dotnet add package OllamaSharp
 ```
 
 ```csharp
-using Mem0Sharp;
+using MagiCore;
 using Microsoft.Extensions.AI;
 using OllamaSharp;
 
@@ -68,7 +68,7 @@ var memory = new MemoryService(
 Run 100% private, on-device SLM extraction (Phi-3.5 / Phi-4 / Llama 3.2 ONNX) without daemons or cloud endpoints. See the official [Microsoft Agent Framework ONNX Guide](https://learn.microsoft.com/en-us/agent-framework/integrations/by-component/model-providers/onnx):
 
 ```csharp
-using Mem0Sharp;
+using MagiCore;
 using Microsoft.Extensions.AI;
 
 // Wrap onnx model in an IChatClient and embedding model in an IEmbeddingGenerator
@@ -81,10 +81,10 @@ var memory = new MemoryService(
 
 ## 4. Microsoft.Extensions.VectorData Persistence (PostgreSQL, SQLite, Azure AI Search, Redis, etc.)
 
-`VectorDataMemoryStore` is included directly in `Mem0Sharp`. Connect any `VectorStore` or `VectorStoreCollection` (e.g. from Semantic Kernel or CommunityToolkit.AI):
+`VectorDataMemoryStore` is included directly in `MagiCore`. Connect any `VectorStore` or `VectorStoreCollection` (e.g. from Semantic Kernel or CommunityToolkit.AI):
 
 ```csharp
-using Mem0Sharp;
+using MagiCore;
 using Microsoft.Extensions.VectorData;
 
 // Example: Any VectorStore instance (Azure AI Search, Postgres/pgvector, SQLite, Redis, Qdrant, Milvus)

@@ -1,5 +1,5 @@
 using Godot;
-using Mem0Sharp;
+using MagiCore;
 
 public partial class RobotLab : Node3D
 {
@@ -32,7 +32,8 @@ public partial class RobotLab : Node3D
         BuildRobot();
         BuildHud();
         if (OS.GetCmdlineUserArgs().Contains("--smoke-test") || OS.GetCmdlineUserArgs().Contains("--live-smoke")
-            || OS.GetCmdlineUserArgs().Contains("--robotics-test") || OS.GetCmdlineUserArgs().Contains("--robotics-replay"))
+            || OS.GetCmdlineUserArgs().Contains("--robotics-test") || OS.GetCmdlineUserArgs().Contains("--robotics-replay")
+            || OS.GetCmdlineUserArgs().Contains("--record-demo"))
             _ = SmokeTestAsync(OS.GetCmdlineUserArgs().Contains("--live-smoke"));
     }
 
@@ -130,7 +131,7 @@ public partial class RobotLab : Node3D
         }
         Box("RackPost", new Vector3(-9.5f, 1.5f, -6), new Vector3(0.12f, 3, 1.4f), "45535a");
         Box("RackPost", new Vector3(-6.5f, 1.5f, -6), new Vector3(0.12f, 3, 1.4f), "45535a");
-        Sign("MEM0 / SPATIAL LAB", new Vector3(0, 3, -11.8f), 90);
+        Sign("MAGICORE / SPATIAL LAB", new Vector3(0, 3, -11.8f), 90);
         Sign("01   STORAGE", new Vector3(-7.7f, 3.4f, -11.8f), 55);
         Sign("02   INSPECTION", new Vector3(7, 3.4f, -11.8f), 55);
     }
@@ -180,7 +181,7 @@ public partial class RobotLab : Node3D
         var row = new HBoxContainer();
         row.AddThemeConstantOverride("separation", 24);
         top.AddChild(row);
-        var title = new Label { Text = "MEM0  /  SPATIAL LAB", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+        var title = new Label { Text = "MAGICORE  /  SPATIAL LAB", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
         title.AddThemeColorOverride("font_color", new Color("1c4645"));
         title.AddThemeFontSizeOverride("font_size", 23);
         row.AddChild(title);

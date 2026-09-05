@@ -1,6 +1,6 @@
 using System.ClientModel;
 using System.Globalization;
-using Mem0Sharp;
+using MagiCore;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 using OpenAI;
@@ -196,7 +196,7 @@ static void PrintProviderActivity(string agentName, AgentMemoryContextProvider m
     Console.ForegroundColor = previousColor;
 }
 
-static string? GetReferenceTime(Mem0Sharp.Memory memory) =>
+static string? GetReferenceTime(MagiCore.Memory memory) =>
     memory.Metadata.TryGetValue(TemporalMemoryMetadata.ReferenceTimeKey, out var value) ? value : null;
 
 static async Task PrintMemoriesAsync(IMemoryService memory, string userId, IEnumerable<Persona> personas)
@@ -231,7 +231,7 @@ internal sealed class AgentMemoryContextProvider(
     private string? currentUserMessage;
     private bool storeCurrentTurn;
 
-    public IReadOnlyList<Mem0Sharp.Memory> LastSavedMemories { get; private set; } = [];
+    public IReadOnlyList<MagiCore.Memory> LastSavedMemories { get; private set; } = [];
 
     public IReadOnlyList<SearchResult> LastRecalledMemories { get; private set; } = [];
 
@@ -364,6 +364,6 @@ internal sealed class AgentMemoryContextProvider(
         return !string.IsNullOrWhiteSpace(query);
     }
 
-    private static string? GetMemoryReferenceTime(Mem0Sharp.Memory memory) =>
+    private static string? GetMemoryReferenceTime(MagiCore.Memory memory) =>
         memory.Metadata.TryGetValue(TemporalMemoryMetadata.ReferenceTimeKey, out var value) ? value : null;
 }

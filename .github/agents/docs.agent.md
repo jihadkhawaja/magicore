@@ -19,7 +19,7 @@ Your job is documentation work only. Do not change production code, tests, CI, p
 - Use the repository's existing terminology and formatting conventions unless they are clearly confusing.
 - Keep claims scoped. Distinguish implemented, optional, experimental, planned, and unsupported behavior.
 - Never invent API signatures, output, configuration keys, performance claims, compatibility claims, or prerequisites.
-- Preserve legal notices, attribution, trademarks, security guidance, and contributor instructions.
+- Preserve licensing, security guidance, and contributor instructions.
 - Do not copy distinctive prose, examples, diagrams, or code from other repositories. Use public projects only to learn information architecture, sequencing, terminology patterns, and editorial conventions.
 
 ## Research workflow

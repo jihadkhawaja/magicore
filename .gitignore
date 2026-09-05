@@ -409,5 +409,5 @@ sampleconfig.local.yaml
 
 # Local evaluation credentials and raw results
 evalconfig.local.yaml
-evaluation/Mem0Sharp.Evaluation/**/results/
+evaluation/MagiCore.Evaluation/**/results/
 samples/McpServer/data/*

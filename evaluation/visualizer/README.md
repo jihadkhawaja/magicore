@@ -1,6 +1,6 @@
-# Mem0Sharp Graph Memory Visualizer
+# MagiCore Graph Memory Visualizer
 
-An interactive, zero-dependency **Vanilla HTML/CSS/JS Graph Memory Nodes Visualizer** for Mem0Sharp evaluation results and long-term memory benchmarks.
+An interactive, zero-dependency **Vanilla HTML/CSS/JS Graph Memory Nodes Visualizer** for MagiCore evaluation results and long-term memory benchmarks.
 
 ## Overview
 

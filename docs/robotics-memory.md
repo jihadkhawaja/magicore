@@ -1,6 +1,6 @@
 # Robotics long-term memory
 
-Mem0Sharp can supply the persistent, queryable evidence layer between a robot's perception system and mission planner. It does not replace neural perception, SLAM, collision checking, motion generation, or a safety-rated controller. The implemented APIs are a research-informed prototype for object memory and action history, not a reproduction of Flexion Reflect or the papers below.
+MagiCore can supply the persistent, queryable evidence layer between a robot's perception system and mission planner. It does not replace neural perception, SLAM, collision checking, motion generation, or a safety-rated controller. The implemented APIs are a research-informed prototype for object memory and action history, not a reproduction of Flexion Reflect or the papers below.
 
 ## Research basis
 
@@ -21,7 +21,7 @@ The temporal replay, confidence aging and event-ID handling below are engineerin
 ```text
 RGB-D / LiDAR + localization + instance tracker
     -> map-frame observations + identity + capture time + error radius
-    -> RememberObjectAsync -> existing persistent Mem0Sharp store
+    -> RememberObjectAsync -> existing persistent MagiCore store
     -> RecallObjectsAsync -> object beliefs + history + observation requests
     -> mission planner + CURRENT sensors
     -> independent navigation / collision checks / controller
@@ -45,7 +45,7 @@ The [API reference](api-reference.md#robotics-object-evidence) describes signatu
 
 ## Real-world adapter requirements
 
-1. Supply synchronized RGB/depth and an estimated camera pose. Transform measured points into the declared metric map frame outside Mem0Sharp. `FrameId` must change when coordinates are no longer comparable; this library does not perform SLAM corrections or frame transforms.
+1. Supply synchronized RGB/depth and an estimated camera pose. Transform measured points into the declared metric map frame outside MagiCore. `FrameId` must change when coordinates are no longer comparable; this library does not perform SLAM corrections or frame transforms.
 2. Supply stable instance identities from tracking, fiducials, asset IDs or a validated association pipeline. Do not let an LLM invent stable identities or world coordinates. Similar objects and reappearance after long occlusion need explicit data-association handling.
 3. Estimate uncertainty from depth, calibration, segmentation and localization error. A model's self-reported confidence is not a substitute. Validate timestamps, units, source identity and tenant permissions at the adapter/service boundary.
 4. Decide absence only after checking field of view, range, occlusion, target extent and detector coverage. `NeedsObservation == false` still does not authorize movement, grasping or contact.

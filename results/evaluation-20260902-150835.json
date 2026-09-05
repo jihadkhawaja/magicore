@@ -5,7 +5,7 @@
   "EmbeddingModel": "text-embedding-3-small",
   "JudgeModel": "gpt-5.6-luna",
   "Store": "VectorData",
-  "Dataset": "Mem0Sharp event-time benchmark v1",
+  "Dataset": "MagiCore event-time benchmark v1",
   "ConversationCount": 1,
   "QuestionCount": 6,
   "SyntheticDataset": true,

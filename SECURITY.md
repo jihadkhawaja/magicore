@@ -1,6 +1,6 @@
 # Security Policy
 
-Mem0Sharp takes the security of the library and its users seriously. Thank you for
+MagiCore takes the security of the library and its users seriously. Thank you for
 reporting vulnerabilities responsibly.
 
 ## Reporting a vulnerability
@@ -9,7 +9,7 @@ Please do not report security vulnerabilities through public GitHub issues, pull
 requests, or discussions.
 
 Report vulnerabilities privately through [GitHub Private Vulnerability
-Reporting](https://github.com/jihadkhawaja/mem0sharp/security/advisories/new).
+Reporting](https://github.com/jihadkhawaja/magicore/security/advisories/new).
 
 Please include as much of the following information as possible:
 
@@ -26,13 +26,13 @@ coordinate any fix or disclosure with the reporter.
 
 ## Scope
 
-This policy covers security vulnerabilities in the Mem0Sharp source code,
+This policy covers security vulnerabilities in the MagiCore source code,
 NuGet package, built-in storage and provider integrations, and repository
 configuration.
 
-Mem0Sharp does not call the hosted Mem0 Platform API or depend on mem0.ai at
-runtime. Vulnerabilities in external services or deployments should also be
-reported to their respective maintainers, while including any Mem0Sharp-specific
+MagiCore does not require a hosted memory service at runtime. Vulnerabilities
+in external services or deployments should also be
+reported to their respective maintainers, while including any MagiCore-specific
 impact in the private report.
 
 ## Protect credentials and memory data

@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 480" role="img" aria-labelledby="title description">
+  <title id="title">MagiCore</title>
+  <desc id="description">A technical command interface showing semantic, temporal, and spatial memory systems online.</desc>
+  <defs>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#17343a" stroke-width="1"/>
+    </pattern>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="1440" height="480" fill="#08171d"/>
+  <rect width="1440" height="480" fill="url(#grid)"/>
+  <path d="M0 36H360l28 28h664l28-28h360M0 444h360l28-28h664l28 28h360" fill="none" stroke="#ee792b" stroke-width="3"/>
+  <path d="M36 0v112L18 130v220l18 18v112M1404 0v112l18 18v220l-18 18v112" fill="none" stroke="#ee792b" stroke-width="3"/>
+
+  <g transform="translate(145 118)" fill="none" stroke="#56c5c3" stroke-width="3">
+    <path d="M0 38h110l28 28h78M0 84h70l28 28h118M0 130h122l28 28h66M0 176h82l28 28h106"/>
+    <circle cx="0" cy="38" r="7" fill="#56c5c3"/><circle cx="0" cy="84" r="7" fill="#56c5c3"/>
+    <circle cx="0" cy="130" r="7" fill="#56c5c3"/><circle cx="0" cy="176" r="7" fill="#56c5c3"/>
+  </g>
+
+  <g transform="translate(720 240)" filter="url(#glow)">
+    <polygon points="0,-112 97,-56 97,56 0,112 -97,56 -97,-56" fill="#0c242b" stroke="#ee792b" stroke-width="12"/>
+    <polygon points="0,-82 71,-41 71,41 0,82 -71,41 -71,-41" fill="none" stroke="#56c5c3" stroke-width="6"/>
+    <path d="M0-54 47-27v54L0 54-47 27v-54ZM0-54v54m47-27L0 0-47-27M0 0v54" fill="none" stroke="#ee792b" stroke-width="6"/>
+    <circle cx="0" cy="0" r="8" fill="#ffd166" stroke="none"/>
+  </g>
+
+  <g transform="translate(1070 116)" font-family="Consolas, 'Courier New', monospace">
+    <text x="0" y="0" fill="#7a9da1" font-size="15">MEMORY SYSTEM STATUS</text>
+    <g font-size="22" font-weight="700">
+      <text x="0" y="52" fill="#56c5c3">SEMANTIC</text><text x="248" y="52" fill="#ffd166">ONLINE</text>
+      <text x="0" y="100" fill="#56c5c3">TEMPORAL</text><text x="248" y="100" fill="#ffd166">ONLINE</text>
+      <text x="0" y="148" fill="#56c5c3">SPATIAL</text><text x="248" y="148" fill="#ffd166">ONLINE</text>
+    </g>
+    <path d="M0 174h320" stroke="#31555b" stroke-width="2"/>
+    <text x="0" y="210" fill="#ee792b" font-size="17">CORE CONSENSUS  3 / 3</text>
+  </g>
+
+  <text x="720" y="402" fill="#f3f6f4" font-family="Segoe UI, Arial, sans-serif" font-size="50" font-weight="700" text-anchor="middle" letter-spacing="4">MAGICORE</text>
+  <text x="720" y="438" fill="#7fa4a8" font-family="Consolas, 'Courier New', monospace" font-size="17" text-anchor="middle" letter-spacing="2">LONG-TERM MEMORY INFRASTRUCTURE FOR .NET AGENTS</text>
+</svg>

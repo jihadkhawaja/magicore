@@ -1,6 +1,6 @@
-# Mem0Sharp documentation
+# MagiCore documentation
 
-Mem0Sharp is a standalone .NET memory library. It runs locally or with providers you configure; it does not call the hosted Mem0 Platform API.
+MagiCore is a standalone .NET memory library that runs locally with the providers you configure.
 
 ## Start here
 
@@ -13,17 +13,16 @@ Mem0Sharp is a standalone .NET memory library. It runs locally or with providers
 | Goal | Guide |
 | --- | --- |
 | Build and test without external services | [Getting started](getting-started.md) |
-| Use OpenAI-compatible, Anthropic, or Ollama models | [Providers and persistence](providers-and-persistence.md#openai-compatible-provider) |
-| Persist vectors in PostgreSQL or Qdrant | [Providers and persistence](providers-and-persistence.md#postgresql-and-pgvector) |
+| Use OpenAI, Azure OpenAI, Ollama, or another `Microsoft.Extensions.AI` provider | [Providers and persistence](providers-and-persistence.md#1-openai--azure-openai) |
+| Persist vectors in PostgreSQL, SQLite, Qdrant, or another vector store | [Providers and persistence](providers-and-persistence.md#4-microsoftextensionsvectordata-persistence-postgresql-sqlite-azure-ai-search-redis-etc) |
 | Build an embodied 3D memory workflow | [Godot spatial memory sample](../samples/3DSpatialMemoryGodot/README.md) |
-| Add reranking or custom providers | [Providers and persistence](providers-and-persistence.md#reranking-providers) |
+| Add reranking or custom providers | [Providers and persistence](providers-and-persistence.md#available-model-and-storage-ecosystems) |
 | Expose memory through local MCP tools | [Getting started](getting-started.md#expose-local-mcp-tools) |
 
 ## Reference and project internals
 
 - [API reference](api-reference.md) describes public contracts and configuration models.
 - [Architecture](architecture.md) explains dependency direction and extension boundaries.
-- [Mem0 Python feature parity](mem0-python-parity.md) tracks behavioral and provider coverage.
 - [Evaluation](evaluation.md) describes the benchmark harness and the latest measured results.
 - [Contribution guide](../CONTRIBUTING.md) covers local development and pull requests.
 

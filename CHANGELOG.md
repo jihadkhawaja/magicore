@@ -9,6 +9,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v1.0.0] - 2026-09-05
+
+### Breaking Changes
+- **Renamed to MagiCore**: Renamed the `Mem0Sharp` package, assembly, root namespace, solution, projects, tests, evaluation harness, and repository paths to `MagiCore`. Consumers must replace the old package reference and update `using Mem0Sharp` directives to `using MagiCore`.
+
+### Added
+- **3D Spatial Memory**: Added provider-neutral APIs for storing timestamped 3D observations and recalling them by map, user or agent scope, Euclidean radius, observation time, confidence, and entity identity.
+- **Robotics Object Memory**: Added event-time reconstruction of object beliefs from frame-aware sensor evidence, including visibility, freshness, uncertainty, conflict, relocation, conservative association, and spatial-relation states.
+- **Robot Action Episodes**: Added persistence and recall for controller-reported action attempts with measured poses, outcomes, feedback, and spatial, temporal, action, and heading filters.
+- **Godot Robot Sample**: Added a 3D warehouse robot sample using OpenAI vision and embeddings with PostgreSQL/pgvector persistence, plus offline and live memory checks.
+
+### Fixed
+- **VectorData Persistence Enumeration**: Fixed `VectorDataMemoryStore.GetAllAsync` so a new store instance can enumerate persisted records with scope filtering.
+
+### Documentation
+- Reworked the README and project artwork for the MagiCore identity, and documented spatial memory, robotics evidence, action-history boundaries, architecture, and Godot sample setup.
+
 ## [v0.3.1] - 2026-09-02
 
 ### Added
@@ -19,16 +36,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [v0.3.0] - 2026-08-30
 
 ### ⚠️ Breaking Changes
-- **Single-Package Architecture with `Microsoft.Extensions.VectorData` Consolidation**: Consolidated all storage and vector database operations directly into the core `Mem0Sharp` package. Removed legacy `Mem0Sharp.PostgreSQL`, `Mem0Sharp.SQLite`, and `Mem0Sharp.VectorData` satellite packages.
-- Any MEVD connector (`Microsoft.SemanticKernel.Connectors.*`, `CommunityToolkit.AI.VectorStore.*`) can now be plugged directly into `VectorDataMemoryStore` (built into `Mem0Sharp`) to support PostgreSQL/pgvector, SQLite, Azure AI Search, Redis, Qdrant, Milvus, Pinecone, and more.
+- **Single-Package Architecture with `Microsoft.Extensions.VectorData` Consolidation**: Consolidated all storage and vector database operations directly into the core `MagiCore` package. Removed legacy `MagiCore.PostgreSQL`, `MagiCore.SQLite`, and `MagiCore.VectorData` satellite packages.
+- Any MEVD connector (`Microsoft.SemanticKernel.Connectors.*`, `CommunityToolkit.AI.VectorStore.*`) can now be plugged directly into `VectorDataMemoryStore` (built into `MagiCore`) to support PostgreSQL/pgvector, SQLite, Azure AI Search, Redis, Qdrant, Milvus, Pinecone, and more.
 
 ### Added
 - **Point-in-Time Memory Reads**: Added `SearchAtAsync`, `GetAllAtAsync`, and opt-in `ITemporalMemoryStore` support for non-destructive historical queries.
 - **Filtered Rollback**: Corrected `RollbackAsync` filtering so recovery can be limited to matching users, metadata subjects, and other memory scopes while preserving complete snapshots and embeddings.
 
 ### Improved
-- **Single Unified Package**: Installing `dotnet add package Mem0Sharp` provides the full feature set without requiring additional provider packages.
-- Updated `samples/McpServer`, `samples/AgentFrameworkMemory`, and `evaluation/Mem0Sharp.Evaluation` to use `VectorDataMemoryStore`.
+- **Single Unified Package**: Installing `dotnet add package MagiCore` provides the full feature set without requiring additional provider packages.
+- Updated `samples/McpServer`, `samples/AgentFrameworkMemory`, and `evaluation/MagiCore.Evaluation` to use `VectorDataMemoryStore`.
 
 ---
 
@@ -56,10 +73,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [v0.2.0] - 2026-08-15
 
 ### ⚠️ Breaking Changes
-- **Storage Interface Consolidation**: Merged 8 fragmented storage interfaces (`IVectorMemoryStore`, `IBulkMemoryStore`, `IBatchMemoryStore`, `IAtomicMemoryStore`, `IBatchVectorMemoryStore`, `IMemoryHistoryStore`, `IResettableMemoryStore`) into a single cohesive [`IMemoryStore`](src/Mem0Sharp/Contracts/StorageContracts.cs).
-- **Embedding Generator Consolidation**: Merged `IBatchEmbeddingGenerator` into [`IEmbeddingGenerator`](src/Mem0Sharp/Contracts/EmbeddingContracts.cs) with default interface fallback.
-- **Memory Extractor Consolidation**: Merged `IBehaviorAwareMemoryExtractor` into [`IMemoryExtractor`](src/Mem0Sharp/Contracts/IntelligenceContracts.cs) with `ExtractAsync(messages, options, ct)`.
-- **Canonical Service Signatures**: Standardized [`IMemoryService`](src/Mem0Sharp/Contracts/ServiceContracts.cs) and `MemoryService` around canonical options records (`MemoryAddOptions`, `MemorySearchOptions`, `MemoryPageOptions`, `MemoryUpdate`).
+- **Storage Interface Consolidation**: Merged 8 fragmented storage interfaces (`IVectorMemoryStore`, `IBulkMemoryStore`, `IBatchMemoryStore`, `IAtomicMemoryStore`, `IBatchVectorMemoryStore`, `IMemoryHistoryStore`, `IResettableMemoryStore`) into a single cohesive [`IMemoryStore`](src/MagiCore/Contracts/StorageContracts.cs).
+- **Embedding Generator Consolidation**: Merged `IBatchEmbeddingGenerator` into [`IEmbeddingGenerator`](src/MagiCore/Contracts/EmbeddingContracts.cs) with default interface fallback.
+- **Memory Extractor Consolidation**: Merged `IBehaviorAwareMemoryExtractor` into [`IMemoryExtractor`](src/MagiCore/Contracts/IntelligenceContracts.cs) with `ExtractAsync(messages, options, ct)`.
+- **Canonical Service Signatures**: Standardized [`IMemoryService`](src/MagiCore/Contracts/ServiceContracts.cs) and `MemoryService` around canonical options records (`MemoryAddOptions`, `MemorySearchOptions`, `MemoryPageOptions`, `MemoryUpdate`).
 
 ### Added
 - **SIMD Hardware Acceleration**: Integrated `System.Numerics.Tensors` across vector cosine similarity (`TensorPrimitives.CosineSimilarity`), vector normalization (`TensorPrimitives.Norm`), and vector scaling (`TensorPrimitives.Divide`).
@@ -96,9 +113,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - **Package split**: Split persistence providers into separate NuGet packages:
-  - `Mem0Sharp` (dependency-free core)
-  - `Mem0Sharp.PostgreSQL`
-  - `Mem0Sharp.SQLite`
+  - `MagiCore` (dependency-free core)
+  - `MagiCore.PostgreSQL`
+  - `MagiCore.SQLite`
 - Atomic memory and history persistence for built-in stores.
 - Memory provenance with behavior-aware retrieval.
 - Factual search excludes associative memories by default.
@@ -138,7 +155,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Expanded batch memory operations and history persistence.
 - Enhanced PostgreSQL and OpenAI integration coverage.
 - Added provider and reranker tests.
-- Updated API, provider, persistence, parity, and onboarding documentation.
+- Updated API, provider, persistence, capability, and onboarding documentation.
 
 ---
 
@@ -163,7 +180,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [v0.1.2] - 2026-07-14
 
 ### Changed
-- Updated copyright information and added `NOTICE` file for attribution.
+- Updated copyright information and licensing metadata.
 
 ---
 
@@ -177,5 +194,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [v0.1.0] - 2026-07-13
 
 ### Added
-- Initial release of Mem0Sharp: Long-term memory for AI applications in .NET with semantic search and replaceable embedding and storage providers.
+- Initial release of MagiCore: Long-term memory for AI applications in .NET with semantic search and replaceable embedding and storage providers.
 - GitHub Actions workflow for publishing NuGet packages and project metadata.

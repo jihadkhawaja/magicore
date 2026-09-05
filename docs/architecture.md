@@ -1,6 +1,6 @@
 # Architecture
 
-Mem0Sharp uses a pragmatic ports-and-adapters architecture across a dependency-free core package and optional provider packages. The public `Mem0Sharp` namespace remains stable, while the source tree separates domain types, contracts, application orchestration, and replaceable infrastructure.
+MagiCore uses a pragmatic ports-and-adapters architecture in one package. The core depends on the `Microsoft.Extensions.AI` and `Microsoft.Extensions.VectorData` abstractions, while applications supply concrete model and vector-store providers. The public `MagiCore` namespace remains stable, and the source tree separates domain types, contracts, application orchestration, and replaceable infrastructure.
 
 Keeping one assembly preserves compatibility for existing consumers. The folders express ownership and dependency direction without requiring applications to reference several packages for the default experience.
 
@@ -31,13 +31,13 @@ Dependencies point toward contracts and domain models. Contracts never depend on
 | `Infrastructure/InMemory` | Ephemeral store adapters used by the default service and tests. |
 | `Infrastructure/Extraction` | Deterministic built-in extraction implementations. |
 | `Infrastructure/Embeddings` | Deterministic local embedding implementations. |
-| `Infrastructure/OpenAI` | OpenAI-compatible HTTP adapters. |
+| `Infrastructure/Postgres`, `Qdrant`, and `Sqlite` | Built-in persistence adapters for those storage engines. |
 | `Intelligence` | Provider-neutral LLM extraction, conflict resolution, procedural memory, graph extraction, and reranking policies. |
 | `Telemetry` | Telemetry decorators and collectors. |
 | `Facades` | Alternative API façades, including the synchronous wrapper. |
 | `Infrastructure/VectorData` | Standard `Microsoft.Extensions.VectorData` persistence provider for any MEVD vector database. |
 
-All public types remain in `namespace Mem0Sharp`. Folder names are architectural boundaries, not namespace segments.
+All public types remain in `namespace MagiCore`. Folder names are architectural boundaries, not namespace segments.
 
 ## Composition
 
@@ -55,11 +55,11 @@ No store-specific geospatial contract or schema is required, so in-memory, Qdran
 
 ## Consistency boundaries
 
-Built-in in-memory and VectorData stores implement `IAtomicMemoryStore`.
-When available, `MemoryService` commits a memory row and its `ADD`, `UPDATE`, or
-`DELETE` history event in the same transaction, including filtered bulk
-deletes. Custom stores retain the basic `IMemoryStore` contract and can opt into
-the stronger boundary when their backend supports it.
+`IMemoryStore.SaveBatchAsync` receives each memory together with its history
+entry, while delete operations receive the corresponding history records. This
+lets a store preserve its own consistency boundary for memory and audit data.
+Atomicity depends on the concrete adapter and backend; the public contract does
+not expose a separate transactional-store capability.
 
 Entity and graph stores remain independent optional adapters because they may be
 hosted in a different backend. Enrichment is extracted before a memory write;
@@ -76,6 +76,6 @@ aggregate store instead of relying on distributed transactions.
 3. Put HTTP and vendor SDK code under core `Infrastructure`; put database adapters in their dedicated provider projects.
 4. Put model-driven memory policies under `Intelligence` when they depend only on provider-neutral contracts.
 5. Put protocol concerns under `Transports` and cross-cutting decorators under their dedicated folder.
-6. Preserve the public `Mem0Sharp` namespace unless a planned major version explicitly introduces namespace migration.
+6. Preserve the public `MagiCore` namespace unless a planned major version explicitly introduces namespace migration.
 
-Vector database integrations are standardized via `Microsoft.Extensions.VectorData.Abstractions` inside core `Mem0Sharp`. MCP hosting is kept in `samples/McpServer` and uses the official `ModelContextProtocol` SDK, leaving the core package independent of protocol hosting dependencies.
+Vector database integrations are standardized via `Microsoft.Extensions.VectorData.Abstractions` inside core `MagiCore`. MCP hosting is kept in `samples/McpServer` and uses the official `ModelContextProtocol` SDK, leaving the core package independent of protocol hosting dependencies.

@@ -1,6 +1,6 @@
 using System.Text.Json;
 using Godot;
-using Mem0Sharp;
+using MagiCore;
 
 public partial class RobotLab
 {
@@ -40,12 +40,14 @@ public partial class RobotLab
             robot.Rotation = Vector3.Zero;
             pitch = 0;
             camera.Rotation = Vector3.Zero;
+            await DemoPauseAsync("OBSERVE", "Robot 01 captures RGB-D evidence of the red crate.");
             var first = await ScenarioObservationAsync(red, "red-crate", "red crate", "first", time, token);
             await memory.RememberObjectAsync(first, ScenarioScope, token);
             await memory.RememberObjectAsync(first, ScenarioScope, token);
             await memory.RememberSpatialAsync(first.Observation, ScenarioScope, token);
             Require((await memory.RecallObjectsAsync(ScenarioQuery(time.AddSeconds(1)), token)).Single().ObservationCount == 1, "retry deduplication");
             checks.Add("Repeated sensor event counts once.");
+            await DemoPauseAsync("REMEMBER", "Duplicate sensor events resolve to one observation.");
 
             red.Position = new Vector3(5, 0.65f, -5);
             var moved = await ScenarioObservationAsync(red, "red-crate", "red crate", "moved", time.AddSeconds(10), token);
@@ -60,6 +62,8 @@ public partial class RobotLab
             var relocated = (await memory.RecallObjectsAsync(ScenarioQuery(time.AddSeconds(11)), token)).Single();
             Require(relocated.RelocationCount == 1 && relocated.Position == moved.Observation.Position, "out-of-order reconstruction");
             checks.Add("Moved crate leaves zero ghost objects at its old location; raw spatial recall still returns the old point.");
+            ShowMemories([relocated]);
+            await DemoPauseAsync("RELOCATED", "The crate moved. Object memory removes its stale location.");
 
             var midpoint = (camera.GlobalPosition + red.Position) / 2;
             Box("ScenarioOccluder", midpoint, new Vector3(2.5f, 3, 0.5f), "566d73");
@@ -75,6 +79,8 @@ public partial class RobotLab
             }, ScenarioScope, token);
             var occluded = (await memory.RecallObjectsAsync(ScenarioQuery(time.AddSeconds(21)), token)).Single();
             Require(occluded.State == SpatialBeliefState.Occluded && occluded.LastSeenAt == time.AddSeconds(10), "occlusion is not absence");
+            ShowMemories([occluded]);
+            await DemoPauseAsync("OCCLUDED", "Occlusion preserves the last-seen position for re-observation.");
             blocker.QueueFree();
             blocker = null;
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
@@ -101,6 +107,8 @@ public partial class RobotLab
             var aged = await memory.RecallObjectsAsync(ScenarioQuery(time.AddDays(1)), token);
             Require(aged.All(item => item.NeedsObservation && item.Confidence < 0.5), "time-based re-observation");
             checks.Add("Confirmed absence, reacquisition, geometric relations and confidence aging verified.");
+            ShowMemories(objects);
+            await DemoPauseAsync("REACQUIRED", "The crate is found again; confidence and relations are refreshed.");
 
             robot.Position = new Vector3(0, 0.9f, -11);
             await ToSignal(GetTree(), SceneTree.SignalName.PhysicsFrame);
@@ -108,6 +116,7 @@ public partial class RobotLab
             Require(blocked.Outcome == RobotActionOutcome.Blocked && robot.Position.Z >= -11.6f, "controller wall feedback");
             await memory.RememberRobotEpisodeAsync(blocked, ScenarioScope, token);
             checks.Add("Actual wall collision recorded as Blocked, not mission success.");
+            await DemoPauseAsync("BLOCKED", "Controller feedback records wall contact as a blocked action.");
 
             var checkpointPath = Path.Combine(directory, "robotics-checkpoint.json");
             await using (var stream = File.Create(checkpointPath))
@@ -118,6 +127,7 @@ public partial class RobotLab
             robot.Position = new Vector3(0, 0.9f, 7);
             ShowMemories(objects);
             reasoning.Text = "MEMORY TEST PASS\nMoved crate recovered; blocked motion recorded.";
+            await DemoPauseAsync("MEMORY TEST PASS", "Two objects and the blocked action survived checkpoint replay.");
             await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
             using var screen = GetViewport().GetTexture().GetImage();
             screen.SavePng(Path.Combine(directory, "robotics-memory.png"));
@@ -143,10 +153,18 @@ public partial class RobotLab
         }
     }
 
+    private async Task DemoPauseAsync(string phase, string detail)
+    {
+        if (!OS.GetCmdlineUserArgs().Contains("--record-demo")) return;
+        status.Text = phase;
+        reasoning.Text = detail;
+        await ToSignal(GetTree().CreateTimer(2), SceneTreeTimer.SignalName.Timeout);
+    }
+
     private async Task ReplayRoboticsAsync(string directory, CancellationToken token)
     {
         await using var stream = File.OpenRead(Path.Combine(directory, "robotics-checkpoint.json"));
-        var records = await JsonSerializer.DeserializeAsync<Mem0Sharp.Memory[]>(stream, cancellationToken: token)
+        var records = await JsonSerializer.DeserializeAsync<MagiCore.Memory[]>(stream, cancellationToken: token)
             ?? throw new InvalidDataException("Missing robotics checkpoint.");
         var store = new InMemoryStore();
         foreach (var record in records) await store.SaveAsync(record, cancellationToken: token);

@@ -1,5 +1,5 @@
 /**
- * Mem0Sharp Graph Memory Visualizer
+ * MagiCore Graph Memory Visualizer
  * High-Performance Vanilla JS Graph Engine & Dynamic Results Loader
  */
 
@@ -1654,10 +1654,10 @@
 
     expCtx.font = 'bold 16px sans-serif';
     expCtx.fillStyle = '#f8fafc';
-    expCtx.fillText(`Mem0Sharp Graph Memory Visualizer • ${state.activeScenarioName}`, 24, 36);
+    expCtx.fillText(`MagiCore Graph Memory Visualizer • ${state.activeScenarioName}`, 24, 36);
 
     const link = document.createElement('a');
-    link.download = `mem0sharp-graph-${state.activeScenarioName}-${Date.now()}.png`;
+    link.download = `magicore-graph-${state.activeScenarioName}-${Date.now()}.png`;
     link.href = exportCanvas.toDataURL('image/png');
     link.click();
   }
@@ -1673,7 +1673,7 @@
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
-    link.download = `mem0sharp-graph-${state.activeScenarioName}.json`;
+    link.download = `magicore-graph-${state.activeScenarioName}.json`;
     link.href = url;
     link.click();
     URL.revokeObjectURL(url);
@@ -1706,7 +1706,7 @@
           updateScenarioHud();
           if (els.localFilePrompt) els.localFilePrompt.classList.remove('visible');
         } else {
-          alert('Invalid Mem0Sharp Evaluation Report JSON: Missing ScenarioReports.');
+          alert('Invalid MagiCore Evaluation Report JSON: Missing ScenarioReports.');
         }
       } catch (err) {
         alert('Error parsing JSON file: ' + err.message);

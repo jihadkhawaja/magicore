@@ -1,6 +1,6 @@
 # Evaluation
 
-Mem0Sharp ships with a comprehensive evaluation suite in [evaluation/](../evaluation/README.md) that measures both deterministic API feature capabilities and memory-quality performance across realistic multi-session workloads.
+MagiCore ships with a comprehensive evaluation suite in [evaluation/](../evaluation/README.md) that measures both deterministic API feature capabilities and memory-quality performance across realistic multi-session workloads.
 
 The suite evaluates memory across two complementary layers:
 1. **Feature Capability Verification**: 26 comprehensive checks exercising core CRUD, conversation ingestion, batching, deduplication, identity scopes, compound metadata expressions, paging, expiration, event-time retrieval, point-in-time reads, rollback, consolidation verification, memory behavior policies, conflict decisions, procedural memory, entity linking, graph memory lifecycle, admission gates, deferred trajectory extraction, multimodal image memory, and reset semantics.
@@ -27,7 +27,7 @@ flowchart TD
     end
 ```
 
-The benchmark corpus ([`evaldataset.realworld.json`](../evaluation/Mem0Sharp.Evaluation/evaldataset.realworld.json)) spans 4 realistic domains across 20 dated sessions (120 conversation turns) and evaluates 40 questions across 5 categories:
+The benchmark corpus ([`evaldataset.realworld.json`](../evaluation/MagiCore.Evaluation/evaldataset.realworld.json)) spans 4 realistic domains across 20 dated sessions (120 conversation turns) and evaluates 40 questions across 5 categories:
 
 | Category | Questions | What it tests |
 | --- | ---: | --- |
@@ -64,7 +64,7 @@ The benchmark corpus ([`evaldataset.realworld.json`](../evaluation/Mem0Sharp.Eva
 Authoritative full run with `gpt-5.6-luna` for extraction, answering, and judging, and `text-embedding-3-small` for embeddings via `Microsoft.Extensions.AI` against the `VectorDataMemoryStore` backend.
 
 Raw detailed reports: [Markdown](../evaluation/results/evaluation-20260902-150733.md) and [JSON](../evaluation/results/evaluation-20260902-150733.json).  
-Interactive visualizer: [Mem0Sharp Graph Memory Visualizer](../evaluation/visualizer/index.html).
+Interactive visualizer: [MagiCore Graph Memory Visualizer](../evaluation/visualizer/index.html).
 
 #### Feature capability evaluation
 
@@ -122,9 +122,9 @@ The deterministic self-test run validates the harness plumbing, 20 local capabil
 Event-time retrieval has two evaluation layers:
 
 - The deterministic capability check stores canonical reference timestamps and verifies that an interpreted 2025 query selects the 2025 fact.
-- The opt-in `event-time` scenario compares baseline retrieval against session-dated ingestion and temporal filtering on [`evaldataset.temporal.json`](../evaluation/Mem0Sharp.Evaluation/evaldataset.temporal.json), a cross-year Atlas workload with explicit year/date questions and a non-temporal control.
+- The opt-in `event-time` scenario compares baseline retrieval against session-dated ingestion and temporal filtering on [`evaldataset.temporal.json`](../evaluation/MagiCore.Evaluation/evaldataset.temporal.json), a cross-year Atlas workload with explicit year/date questions and a non-temporal control.
 
-A live model-judged comparison on 2026-09-02 on `evaldataset.temporal.json` achieved 83% accuracy (5/6) for both `baseline` and `event-time`, while temporal filtering reduced mean retrieved candidates from 10.0 to 5.0 (and exact-date candidates to 2), preserving high signal while cutting distractors. The deterministic suite confirmed 22 capability checks passed with 0 failures.
+A live model-judged comparison on 2026-09-02 on `evaldataset.temporal.json` achieved 83% accuracy (5/6) for both `baseline` and `event-time`, while temporal filtering reduced mean retrieved candidates from 10.0 to 5.0. One exact-date query returned no candidates, so the result demonstrates lower retrieval volume but not uniformly preserved recall. The deterministic suite confirmed 22 capability checks passed with 0 failures.
 
 ## Key findings
 
@@ -138,14 +138,14 @@ A live model-judged comparison on 2026-09-02 on `evaldataset.temporal.json` achi
 To run the deterministic self-test suite (no credentials needed):
 
 ```powershell
-dotnet run --project .\evaluation\Mem0Sharp.Evaluation\Mem0Sharp.Evaluation.csproj --configuration Release -- --self-test
+dotnet run --project .\evaluation\MagiCore.Evaluation\MagiCore.Evaluation.csproj --configuration Release -- --self-test
 ```
 
 To validate and compare event-time retrieval without credentials:
 
 ```powershell
-dotnet run --project .\evaluation\Mem0Sharp.Evaluation\Mem0Sharp.Evaluation.csproj --configuration Release -- --dataset .\evaluation\Mem0Sharp.Evaluation\evaldataset.temporal.json --validate-dataset
-dotnet run --project .\evaluation\Mem0Sharp.Evaluation\Mem0Sharp.Evaluation.csproj --configuration Release -- --self-test --dataset .\evaluation\Mem0Sharp.Evaluation\evaldataset.temporal.json --scenario baseline,event-time
+dotnet run --project .\evaluation\MagiCore.Evaluation\MagiCore.Evaluation.csproj --configuration Release -- --dataset .\evaluation\MagiCore.Evaluation\evaldataset.temporal.json --validate-dataset
+dotnet run --project .\evaluation\MagiCore.Evaluation\MagiCore.Evaluation.csproj --configuration Release -- --self-test --dataset .\evaluation\MagiCore.Evaluation\evaldataset.temporal.json --scenario baseline,event-time
 ```
 
 The `event-time` scenario is excluded from the default matrix to keep published longitudinal comparisons stable. Request it explicitly with `--scenario event-time` or the baseline comparison above.
@@ -153,15 +153,15 @@ The `event-time` scenario is excluded from the default matrix to keep published 
 To run the full live model evaluation matrix:
 
 ```powershell
-Copy-Item .\evaluation\Mem0Sharp.Evaluation\evalconfig.example.yaml .\evaluation\Mem0Sharp.Evaluation\evalconfig.local.yaml
+Copy-Item .\evaluation\MagiCore.Evaluation\evalconfig.example.yaml .\evaluation\MagiCore.Evaluation\evalconfig.local.yaml
 # Add your API key to evalconfig.local.yaml, then:
-dotnet run --project .\evaluation\Mem0Sharp.Evaluation\Mem0Sharp.Evaluation.csproj --configuration Release
+dotnet run --project .\evaluation\MagiCore.Evaluation\MagiCore.Evaluation.csproj --configuration Release
 ```
 
 To evaluate a custom dataset JSON:
 
 ```powershell
-dotnet run --project .\evaluation\Mem0Sharp.Evaluation\Mem0Sharp.Evaluation.csproj --configuration Release -- --dataset .\path\to\dataset.json
+dotnet run --project .\evaluation\MagiCore.Evaluation\MagiCore.Evaluation.csproj --configuration Release -- --dataset .\path\to\dataset.json
 ```
 
 The run writes Markdown and JSON reports to `results/`.

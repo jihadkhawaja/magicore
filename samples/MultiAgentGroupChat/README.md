@@ -1,6 +1,6 @@
 # Multi-agent group chat sample
 
-This console application creates a shared group chat with a user and four AI agents. Each agent has a distinct personality and an isolated Mem0Sharp long-term memory partition connected through Microsoft Agent Framework `AIContextProvider`:
+This console application creates a shared group chat with a user and four AI agents. Each agent has a distinct personality and an isolated MagiCore long-term memory partition connected through Microsoft Agent Framework `AIContextProvider`:
 
 - **Maya** is warm, empathetic, and optimistic.
 - **Atlas** is analytical and constructively skeptical.

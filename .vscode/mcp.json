@@ -1,6 +1,6 @@
 {
   "servers": {
-    "mem0sharp": {
+    "magicore": {
       "type": "stdio",
       "command": "dotnet",
       "args": [

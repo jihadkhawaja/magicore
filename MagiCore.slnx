@@ -1,0 +1,25 @@
+<Solution>
+  <Folder Name="/evaluation/">
+    <Project Path="evaluation/MagiCore.Evaluation/MagiCore.Evaluation.csproj" />
+  </Folder>
+  <Folder Name="/samples/">
+    <Project Path="samples/AgentFrameworkMemory/AgentFrameworkMemory.csproj" />
+    <Project Path="samples/GettingStarted/GettingStarted.csproj" />
+    <Project Path="samples/McpServer/McpServer.csproj" />
+    <Project Path="samples/MemoryBehaviors/MemoryBehaviors.csproj" />
+    <Project Path="samples/MultiAgentGroupChat/MultiAgentGroupChat.csproj" />
+    <Project Path="samples/Ollama/Ollama.csproj" />
+    <Project Path="samples/OnnxLocal/OnnxLocal.csproj" />
+    <Project Path="samples/VectorDataPostgres/VectorDataPostgres.csproj" />
+    <Project Path="samples/VectorDataSqlite/VectorDataSqlite.csproj" />
+  </Folder>
+  <Folder Name="/src/" />
+  <Folder Name="/tests/">
+    <Project Path="tests/MagiCore.NetStandard.Tests/MagiCore.NetStandard.Tests.csproj" />
+    <Project Path="tests/MagiCore.Tests/MagiCore.Tests.csproj" />
+  </Folder>
+  <Project Path="samples/3DSpatialMemoryGodot/MagiCore-Spatial-Memory.csproj">
+    <BuildType Project="Debug" />
+  </Project>
+  <Project Path="src/MagiCore/MagiCore.csproj" />
+</Solution>

@@ -1,5 +1,5 @@
 name: Feature request
-description: Suggest an improvement or new capability for Mem0Sharp
+description: Suggest an improvement or new capability for MagiCore
 title: "[Feature]: "
 labels:
   - enhancement
@@ -28,7 +28,7 @@ body:
     attributes:
       label: Project fit
       options:
-        - label: This proposal is focused on Mem0Sharp and does not require the hosted Mem0 Platform API.
+        - label: This proposal is focused on MagiCore's public capabilities.
           required: true
         - label: I have searched existing issues and pull requests for duplicates.
           required: true

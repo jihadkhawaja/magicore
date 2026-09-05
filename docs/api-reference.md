@@ -2,7 +2,7 @@
 
 ## Runtime requirements
 
-`Mem0Sharp` targets .NET Standard 2.0, .NET 8, .NET 9, and .NET 10. It includes `VectorDataMemoryStore` providing adapters for any `Microsoft.Extensions.VectorData` vector store connector (such as Azure AI Search, PostgreSQL/pgvector, SQLite, Redis, Qdrant, Milvus, Pinecone, etc.).
+`MagiCore` targets .NET Standard 2.0, .NET 8, .NET 9, and .NET 10. It includes `VectorDataMemoryStore` providing adapters for any `Microsoft.Extensions.VectorData` vector store connector (such as Azure AI Search, PostgreSQL/pgvector, SQLite, Redis, Qdrant, Milvus, Pinecone, etc.).
 
 ## MemoryService
 
@@ -160,7 +160,7 @@ A vector store such as `VectorDataMemoryStore` applies similarity ordering and `
 
 `SearchAtAsync` answers a transaction-time question: what did the store contain at a historical instant? Event-time retrieval answers a different question: which current memories describe events in a requested period?
 
-Supply `ReferenceTime` when the event or source conversation occurred. Mem0Sharp stores it as round-trip timestamp metadata under `TemporalMemoryMetadata.ReferenceTimeKey`, so existing persistence providers require no schema migration.
+Supply `ReferenceTime` when the event or source conversation occurred. MagiCore stores it as round-trip timestamp metadata under `TemporalMemoryMetadata.ReferenceTimeKey`, so existing persistence providers require no schema migration.
 
 ```csharp
 await memory.AddAsync("The rollout moved to April 21.", new MemoryAddOptions
@@ -182,10 +182,10 @@ Use `TimeRange` for an explicit range. `IncludeUndatedMemories` defaults to `tru
 
 ## Extension points
 
-- `IEmbeddingGenerator` generates a vector for text.
+- `IEmbeddingGenerator<string, Embedding<float>>` from `Microsoft.Extensions.AI` generates vectors for text.
 - `IImageEmbeddingGenerator` generates a vector for image / multimodal `DataContent`.
-- `OpenAiCompatibleClient`, `OllamaClient`, `LocalEmbeddingGenerator`, and `LocalImageEmbeddingGenerator` provide hosted and local embedding protocols.
-- `OpenAiCompatibleClient`, `AnthropicClient`, and `OllamaClient` provide hosted and local chat protocols.
+- `LocalEmbeddingGenerator` and `LocalImageEmbeddingGenerator` provide deterministic local defaults. Hosted models are supplied through provider SDKs that implement `Microsoft.Extensions.AI` abstractions.
+- `IChatClient` from `Microsoft.Extensions.AI` supplies model-backed extraction, conflict resolution, graph extraction, and reranking.
 - `IMemoryExtractor` converts messages into `MemoryInput` values.
 - `IBehaviorAwareMemoryExtractor` optionally adds behavior and persona-aware extraction without changing existing `IMemoryExtractor` implementations.
 - `IMemoryStore` provides persistence, vector search, batch operations, history, rollback, and reset.
@@ -197,7 +197,7 @@ Use `TimeRange` for an explicit range. `IncludeUndatedMemories` defaults to `tru
 - `IMemoryReranker` reranks fused search candidates. Built-in implementations cover LLM scoring, Cohere, ZeroEntropy, and local cross-encoders through `ICrossEncoderScorer`.
 - `IMemoryTelemetry` receives privacy-preserving operation events when configured.
 
-`MemoryServiceConfiguration` composes these providers without any hosted Mem0 dependency. `SynchronousMemoryService` exposes blocking equivalents for applications that cannot use async APIs, including batch search, paging, and graph relation retrieval. The `samples/McpServer` project exposes local MCP tools through the official .NET SDK.
+`MemoryServiceConfiguration` composes these providers without requiring a hosted memory service. `SynchronousMemoryService` exposes blocking equivalents for applications that cannot use async APIs, including batch search, paging, and graph relation retrieval. The `samples/McpServer` project exposes local MCP tools through the official .NET SDK.
 
 The service requires `IMemoryStore`. Point-in-time reads additionally require `ITemporalMemoryStore`; `MemoryService.GetAllAtAsync` and `SearchAtAsync` throw `NotSupportedException` when the configured store does not implement it. Relationship and entity stores remain independent optional adapters.
 
@@ -206,4 +206,4 @@ The service requires `IMemoryStore`. Point-in-time reads additionally require `I
 - Use a stable `UserId` for each user so filters isolate data correctly.
 - Keep embedding dimensions aligned between the configured provider and the vector database collection.
 - Treat `InMemoryStore` as ephemeral; all data is lost when the process exits.
-- `OpenAiCompatibleClient` expects the provider root as `BaseAddress`, not the `/v1` path, because it appends `/v1/embeddings` and `/v1/chat/completions` itself.
+- Configure hosted model endpoints and credentials through the selected `Microsoft.Extensions.AI` provider SDK; MagiCore does not own provider-specific HTTP clients.

@@ -2,7 +2,7 @@
 
 ## Our pledge
 
-We are committed to making participation in the Mem0Sharp community a welcoming,
+We are committed to making participation in the MagiCore community a welcoming,
 respectful, and harassment-free experience for everyone, regardless of age,
 disability, ethnicity, gender identity or expression, level of experience,
 nationality, personal appearance, race, religion, or sexual orientation.

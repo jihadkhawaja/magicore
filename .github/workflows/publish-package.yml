@@ -1,4 +1,4 @@
-name: Publish Mem0Sharp NuGet packages
+name: Publish MagiCore NuGet packages
 
 on:
   push:
@@ -31,15 +31,15 @@ jobs:
             10.0.x
 
       - name: Restore dependencies
-        run: dotnet restore Mem0Sharp.slnx
+        run: dotnet restore MagiCore.slnx
 
       - name: Build
-        run: dotnet build Mem0Sharp.slnx --configuration Release --no-restore
+        run: dotnet build MagiCore.slnx --configuration Release --no-restore
 
       - name: Test
         run: |
-          dotnet test tests/Mem0Sharp.Tests/Mem0Sharp.Tests.csproj --configuration Release --no-restore
-          dotnet test tests/Mem0Sharp.NetStandard.Tests/Mem0Sharp.NetStandard.Tests.csproj --configuration Release --no-restore
+          dotnet test tests/MagiCore.Tests/MagiCore.Tests.csproj --configuration Release --no-restore
+          dotnet test tests/MagiCore.NetStandard.Tests/MagiCore.NetStandard.Tests.csproj --configuration Release --no-restore
 
       - name: Validate release version
         shell: bash
@@ -54,7 +54,7 @@ jobs:
         shell: bash
         run: |
           version="${GITHUB_REF_NAME#v}"
-          dotnet pack src/Mem0Sharp/Mem0Sharp.csproj \
+          dotnet pack src/MagiCore/MagiCore.csproj \
             --configuration Release \
             --no-build \
             --output ./artifacts/package \

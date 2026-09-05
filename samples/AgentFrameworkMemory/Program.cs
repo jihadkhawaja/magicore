@@ -1,5 +1,5 @@
 using System.Globalization;
-using Mem0Sharp;
+using MagiCore;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 using OpenAI;
@@ -19,7 +19,7 @@ var chatClient = new OpenAIClient(apiKey).GetChatClient(model).AsIChatClient();
 IMemoryService memory = new MemoryService(
     store: vectorMemoryStore,
     extractor: new LlmMemoryExtractor(chatClient));
-var contextProvider = new Mem0ContextProvider(memory, userId: "alice", agentId: "assistant");
+var contextProvider = new MagiCoreContextProvider(memory, userId: "alice", agentId: "assistant");
 
 var agent = new ChatClientAgent(
     chatClient,
@@ -66,7 +66,7 @@ static string? GetEnvironmentSetting(string name)
         : Environment.GetEnvironmentVariable(name, EnvironmentVariableTarget.User);
 }
 
-static void PrintProviderActivity(Mem0ContextProvider provider)
+static void PrintProviderActivity(MagiCoreContextProvider provider)
 {
     const string italic = "\u001b[3m";
     const string reset = "\u001b[0m";
@@ -96,21 +96,21 @@ static async Task PrintMemoriesAsync(IMemoryService memory, string userId, strin
     Console.WriteLine();
 }
 
-static string? GetReferenceTime(Mem0Sharp.Memory memory) =>
+static string? GetReferenceTime(MagiCore.Memory memory) =>
     memory.Metadata.TryGetValue(TemporalMemoryMetadata.ReferenceTimeKey, out var value) ? value : null;
 
 /// <summary>
 /// Bridges Microsoft Agent Framework's <see cref="AIContextProvider"/> with <see cref="MemoryService"/>.
 /// Automatically injects remembered context before invocation and stores turns after invocation.
 /// </summary>
-internal sealed class Mem0ContextProvider(
+internal sealed class MagiCoreContextProvider(
     IMemoryService memory,
     string userId,
     string agentId) : AIContextProvider
 {
     public IReadOnlyList<SearchResult> LastRecalledMemories { get; private set; } = [];
 
-    public IReadOnlyList<Mem0Sharp.Memory> LastSavedMemories { get; private set; } = [];
+    public IReadOnlyList<MagiCore.Memory> LastSavedMemories { get; private set; } = [];
 
     public string LastRecallDescription { get; private set; } = "found no query to search";
 
@@ -234,6 +234,6 @@ internal sealed class Mem0ContextProvider(
         return !string.IsNullOrWhiteSpace(query);
     }
 
-    private static string? GetReferenceTime(Mem0Sharp.Memory memory) =>
+    private static string? GetReferenceTime(MagiCore.Memory memory) =>
         memory.Metadata.TryGetValue(TemporalMemoryMetadata.ReferenceTimeKey, out var value) ? value : null;
 }

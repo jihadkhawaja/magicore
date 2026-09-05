@@ -1,6 +1,6 @@
 # Godot Spatial Memory Robot
 
-A Godot .NET warehouse robot that uses Mem0Sharp to persist timestamped camera observations and recall nearby objects. OpenAI provides image understanding and embeddings; PostgreSQL with pgvector provides durable storage.
+A Godot .NET warehouse robot that uses MagiCore to persist timestamped camera observations and recall nearby objects. OpenAI provides image understanding and embeddings; PostgreSQL with pgvector provides durable storage.
 
 ## Prerequisites
 
@@ -9,7 +9,7 @@ A Godot .NET warehouse robot that uses Mem0Sharp to persist timestamped camera o
 - Docker Desktop or another Docker Compose environment.
 - An OpenAI API key. The chat model must support images and JSON responses.
 
-The project references the Mem0Sharp source in this checkout through `../../src/Mem0Sharp/Mem0Sharp.csproj`.
+The project references the MagiCore source in this checkout through `../../src/MagiCore/MagiCore.csproj`.
 
 ## Configure the sample
 
@@ -54,14 +54,14 @@ Open `project.godot` in the Godot editor and run the main scene. The robot start
 
 Each observation is stored through `RememberSpatialAsync` with map, world position, observation time, confidence, and optional detected-object position. `RecallSpatialAsync` returns up to 12 observations within 35 meters for the same map, user, and agent, ordered by distance and recency. Model and embedding calls incur API usage charges.
 
-This sample demonstrates the foundational spatial-observation API. Mem0Sharp also provides robotics evidence reconstruction and measured action-episode APIs for applications with external object tracking, versioned coordinate frames, visibility coverage, uncertainty estimates, and controller feedback. See [Spatial memory](../../docs/api-reference.md#spatial-memory) in the API reference.
+This sample demonstrates the foundational spatial-observation API. MagiCore also provides robotics evidence reconstruction and measured action-episode APIs for applications with external object tracking, versioned coordinate frames, visibility coverage, uncertainty estimates, and controller feedback. See [Spatial memory](../../docs/api-reference.md#spatial-memory) in the API reference.
 
 ## Smoke tests
 
 Build the C# project from the sample directory:
 
 ```powershell
-dotnet build .\Mem0Sharp-Spatial-Memory.csproj
+dotnet build .\MagiCore-Spatial-Memory.csproj
 ```
 
 Run the offline smoke test with your Godot console executable:

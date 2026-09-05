@@ -1,6 +1,6 @@
 # ONNX Runtime Local Inference Sample
 
-This sample demonstrates how to run **Mem0Sharp** with **100% on-device, offline model execution** using ONNX Runtime GenAI and `Microsoft.Extensions.AI`.
+This sample demonstrates how to run **MagiCore** with **100% on-device, offline model execution** using ONNX Runtime GenAI and `Microsoft.Extensions.AI`.
 
 ## Architecture
 
@@ -8,7 +8,7 @@ This sample demonstrates how to run **Mem0Sharp** with **100% on-device, offline
 [Agent / Application]
         │
         ▼
-   [Mem0Sharp]
+   [MagiCore]
         │
         ├── IChatClient (ONNX Runtime GenAI / Phi-3.5 / Phi-4 ONNX)
         └── IEmbeddingGenerator (Local ONNX / all-MiniLM-L6-v2 ONNX)

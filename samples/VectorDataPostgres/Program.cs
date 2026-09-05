@@ -1,12 +1,12 @@
-using Mem0Sharp;
+using MagiCore;
 using Microsoft.SemanticKernel.Connectors.PgVector;
 using Npgsql;
 
-Console.WriteLine("=== Mem0Sharp with PostgreSQL pgvector (MEVD) ===");
+Console.WriteLine("=== MagiCore with PostgreSQL pgvector (MEVD) ===");
 Console.WriteLine();
 
-var connectionString = Environment.GetEnvironmentVariable("MEM0_POSTGRES_CONNECTION")
-    ?? "Host=localhost;Port=5432;Database=mem0;Username=postgres;Password=postgres";
+var connectionString = Environment.GetEnvironmentVariable("MAGICORE_POSTGRES_CONNECTION")
+    ?? "Host=localhost;Port=5432;Database=magicore;Username=postgres;Password=postgres";
 
 Console.WriteLine($"Connecting to PostgreSQL: {connectionString}");
 

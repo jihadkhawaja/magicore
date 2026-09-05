@@ -1,13 +1,13 @@
 services:
   postgres:
     image: pgvector/pgvector:pg17
-    container_name: mem0sharp-postgres
+    container_name: magicore-postgres
     ports:
       - "5432:5432"
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: mem0
+      POSTGRES_DB: magicore
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:

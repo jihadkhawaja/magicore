@@ -7,7 +7,7 @@ This sample sends one conversation through all four optional memory behaviors:
 - `RandomThoughts` creates useful or surprising thoughts inspired by the conversation.
 - `PersonalMemory` writes from the agent's first-person perspective and can use `Prompt` as its personality.
 
-The non-normal modes are a Mem0Sharp extension to conventional memory extraction. Instead of limiting memory to a neutral list of user facts, an application can opt into reflective associations or an agent-owned point of view while keeping uncertain model output explicitly tentative.
+The non-normal modes are a MagiCore extension to conventional memory extraction. Instead of limiting memory to a neutral list of user facts, an application can opt into reflective associations or an agent-owned point of view while keeping uncertain model output explicitly tentative.
 
 ## Prerequisites
 

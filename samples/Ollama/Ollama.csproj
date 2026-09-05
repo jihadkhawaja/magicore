@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Mem0Sharp\Mem0Sharp.csproj" />
+    <ProjectReference Include="..\..\src\MagiCore\MagiCore.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="OllamaSharp" Version="5.4.30" />

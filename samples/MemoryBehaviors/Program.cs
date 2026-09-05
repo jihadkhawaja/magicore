@@ -1,5 +1,5 @@
 using System.ClientModel;
-using Mem0Sharp;
+using MagiCore;
 using Microsoft.Extensions.AI;
 using OpenAI;
 

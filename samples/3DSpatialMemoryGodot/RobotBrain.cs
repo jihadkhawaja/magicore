@@ -1,6 +1,6 @@
 using System.ClientModel;
 using System.Text.Json;
-using Mem0Sharp;
+using MagiCore;
 using Microsoft.Extensions.AI;
 using Microsoft.SemanticKernel.Connectors.PgVector;
 using OpenAI;
@@ -23,7 +23,7 @@ internal sealed class RobotBrain : IDisposable
     public RobotBrain(string projectDirectory)
     {
         var path = Path.Combine(projectDirectory, "sampleconfig.local.yaml");
-        if (!File.Exists(path)) path = Path.GetFullPath(Path.Combine(projectDirectory, "../../GitHub/mem0sharp/samples/MemoryBehaviors/sampleconfig.local.yaml"));
+        if (!File.Exists(path)) path = Path.GetFullPath(Path.Combine(projectDirectory, "../../GitHub/magicore/samples/MemoryBehaviors/sampleconfig.local.yaml"));
         if (!File.Exists(path)) throw new FileNotFoundException("Robot configuration is missing.");
         using var reader = File.OpenText(path);
         var config = new DeserializerBuilder().WithNamingConvention(CamelCaseNamingConvention.Instance)

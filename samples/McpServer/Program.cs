@@ -1,5 +1,5 @@
-using Mem0Sharp;
-using Mem0Sharp.McpSample;
+using MagiCore;
+using MagiCore.McpSample;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;

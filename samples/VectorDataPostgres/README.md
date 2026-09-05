@@ -1,11 +1,11 @@
 # PostgreSQL pgvector Sample (Microsoft.Extensions.VectorData)
 
-This sample demonstrates how to use **Mem0Sharp** with **PostgreSQL** and **pgvector** using Microsoft's official `Microsoft.Extensions.VectorData` abstraction via `Microsoft.SemanticKernel.Connectors.PgVector`.
+This sample demonstrates how to use **MagiCore** with **PostgreSQL** and **pgvector** using Microsoft's official `Microsoft.Extensions.VectorData` abstraction via `Microsoft.SemanticKernel.Connectors.PgVector`.
 
 ## Features Demonstrated
 
 - Instantiating a `PostgresVectorStore` from `Microsoft.SemanticKernel.Connectors.PgVector`
-- Wrapping it in the core `Mem0Sharp.VectorDataMemoryStore`
+- Wrapping it in the core `MagiCore.VectorDataMemoryStore`
 - Auto-creating vector and audit history tables in PostgreSQL
 - Storing memories with user identity, metadata, and deterministic local embeddings
 - Executing semantic vector similarity search
@@ -30,10 +30,10 @@ docker compose up -d
 dotnet run --project samples/VectorDataPostgres/VectorDataPostgres.csproj
 ```
 
-By default, the sample connects to `Host=localhost;Port=5432;Database=mem0;Username=postgres;Password=postgres`.
-You can customize the connection string using the `MEM0_POSTGRES_CONNECTION` environment variable:
+By default, the sample connects to `Host=localhost;Port=5432;Database=magicore;Username=postgres;Password=postgres`.
+You can customize the connection string using the `MAGICORE_POSTGRES_CONNECTION` environment variable:
 
 ```powershell
-$env:MEM0_POSTGRES_CONNECTION = "Host=my-postgres-host;Port=5432;Database=mydb;Username=myuser;Password=mypass"
+$env:MAGICORE_POSTGRES_CONNECTION = "Host=my-postgres-host;Port=5432;Database=mydb;Username=myuser;Password=mypass"
 dotnet run --project samples/VectorDataPostgres/VectorDataPostgres.csproj
 ```

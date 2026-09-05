@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.AI.OpenAI" Version="10.9.0" />
+    <ProjectReference Include="..\..\src\MagiCore\MagiCore.csproj" />
+    <PackageReference Include="YamlDotNet" Version="16.3.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="evalconfig.local.yaml" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="evaldataset.realworld.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="evaldataset.temporal.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

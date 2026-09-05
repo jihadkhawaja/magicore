@@ -1,6 +1,6 @@
-# Mem0Sharp evaluation harness
+# MagiCore evaluation harness
 
-This console application evaluates Mem0Sharp in two complementary layers:
+This console application evaluates MagiCore in two complementary layers:
 
 1. A deterministic capability suite exercises public memory features and records pass, fail, or skip evidence.
 2. A memory-quality matrix follows an ingest -> search -> answer -> judge pipeline across extraction and retrieval configurations.
@@ -28,7 +28,7 @@ flowchart TD
 
 ## What it measures
 
-The default [`evaldataset.realworld.json`](Mem0Sharp.Evaluation/evaldataset.realworld.json) corpus models enterprise rollout, family care coordination, household and travel planning, and small-business operations. It includes corrections, preference drift, delayed plans, distractors, similar names, negation, sensitive-information boundaries, and facts spread across sessions.
+The default [`evaldataset.realworld.json`](MagiCore.Evaluation/evaldataset.realworld.json) corpus models enterprise rollout, family care coordination, household and travel planning, and small-business operations. It includes corrections, preference drift, delayed plans, distractors, similar names, negation, sensitive-information boundaries, and facts spread across sessions.
 
 | Conversations | Sessions | Turns | Questions | Categories |
 | ---: | ---: | ---: | ---: | --- |
@@ -85,7 +85,7 @@ Provider-specific integrations that cannot be validated without credentials, loc
 ## Configure live mode
 
 ```powershell
-Copy-Item .\evaluation\Mem0Sharp.Evaluation\evalconfig.example.yaml .\evaluation\Mem0Sharp.Evaluation\evalconfig.local.yaml
+Copy-Item .\evaluation\MagiCore.Evaluation\evalconfig.example.yaml .\evaluation\MagiCore.Evaluation\evalconfig.local.yaml
 ```
 
 Add the API key to `evalconfig.local.yaml`, which is ignored by Git. The judge defaults to the chat model; configure a separate model for independent judging when appropriate. Embedding dimensions must match the selected embedding model.
@@ -94,23 +94,23 @@ Add the API key to `evalconfig.local.yaml`, which is ignored by Git. The judge d
 
 ```powershell
 # Deterministic feature checks plus retrieval-only quality check
-dotnet run --project .\evaluation\Mem0Sharp.Evaluation\Mem0Sharp.Evaluation.csproj -- --self-test
+dotnet run --project .\evaluation\MagiCore.Evaluation\MagiCore.Evaluation.csproj -- --self-test
 
 # Full capability and model-judged quality matrix
-dotnet run --project .\evaluation\Mem0Sharp.Evaluation\Mem0Sharp.Evaluation.csproj
+dotnet run --project .\evaluation\MagiCore.Evaluation\MagiCore.Evaluation.csproj
 
 # A subset of quality scenarios
-dotnet run --project .\evaluation\Mem0Sharp.Evaluation\Mem0Sharp.Evaluation.csproj -- --scenario baseline,llm-rerank
+dotnet run --project .\evaluation\MagiCore.Evaluation\MagiCore.Evaluation.csproj -- --scenario baseline,llm-rerank
 
 # Validate the bundled default dataset
-dotnet run --project .\evaluation\Mem0Sharp.Evaluation\Mem0Sharp.Evaluation.csproj -- --validate-dataset
+dotnet run --project .\evaluation\MagiCore.Evaluation\MagiCore.Evaluation.csproj -- --validate-dataset
 
 # Validate or run a custom dataset using evaldataset.realworld.json as the schema
-dotnet run --project .\evaluation\Mem0Sharp.Evaluation\Mem0Sharp.Evaluation.csproj -- --dataset .\path\to\dataset.json --validate-dataset
-dotnet run --project .\evaluation\Mem0Sharp.Evaluation\Mem0Sharp.Evaluation.csproj -- --dataset .\path\to\dataset.json
+dotnet run --project .\evaluation\MagiCore.Evaluation\MagiCore.Evaluation.csproj -- --dataset .\path\to\dataset.json --validate-dataset
+dotnet run --project .\evaluation\MagiCore.Evaluation\MagiCore.Evaluation.csproj -- --dataset .\path\to\dataset.json
 
 # List scenarios
-dotnet run --project .\evaluation\Mem0Sharp.Evaluation\Mem0Sharp.Evaluation.csproj -- --list
+dotnet run --project .\evaluation\MagiCore.Evaluation\MagiCore.Evaluation.csproj -- --list
 ```
 
 Reports are written as JSON and Markdown to the configured `resultsDirectory`. With the example configuration, this is `results/` relative to the working directory. Each scenario uses its own reset in-memory VectorData collection and scenario-scoped user IDs.
@@ -121,13 +121,13 @@ The default longitudinal matrix remains unchanged for comparison with published 
 
 ```powershell
 # Validate the dedicated dataset
-dotnet run --project .\evaluation\Mem0Sharp.Evaluation\Mem0Sharp.Evaluation.csproj --configuration Release -- --dataset .\evaluation\Mem0Sharp.Evaluation\evaldataset.temporal.json --validate-dataset
+dotnet run --project .\evaluation\MagiCore.Evaluation\MagiCore.Evaluation.csproj --configuration Release -- --dataset .\evaluation\MagiCore.Evaluation\evaldataset.temporal.json --validate-dataset
 
 # Deterministic baseline-versus-event-time retrieval comparison
-dotnet run --project .\evaluation\Mem0Sharp.Evaluation\Mem0Sharp.Evaluation.csproj --configuration Release -- --self-test --dataset .\evaluation\Mem0Sharp.Evaluation\evaldataset.temporal.json --scenario baseline,event-time
+dotnet run --project .\evaluation\MagiCore.Evaluation\MagiCore.Evaluation.csproj --configuration Release -- --self-test --dataset .\evaluation\MagiCore.Evaluation\evaldataset.temporal.json --scenario baseline,event-time
 
 # Model-judged comparison using evalconfig.local.yaml
-dotnet run --project .\evaluation\Mem0Sharp.Evaluation\Mem0Sharp.Evaluation.csproj --configuration Release -- --dataset .\evaluation\Mem0Sharp.Evaluation\evaldataset.temporal.json --scenario baseline,event-time
+dotnet run --project .\evaluation\MagiCore.Evaluation\MagiCore.Evaluation.csproj --configuration Release -- --dataset .\evaluation\MagiCore.Evaluation\evaldataset.temporal.json --scenario baseline,event-time
 ```
 
 The event-time scenario parses each session's `yyyy-MM-dd` date into `MemoryAddOptions.ReferenceTime`, enables temporal search, and excludes undated candidates. Compare retrieval hit rate and mean retrieved together: a useful result preserves evidence hits while returning fewer cross-year distractors. Also inspect the exact-date and non-temporal questions in the JSON report to confirm strict filtering and fail-open behavior respectively.

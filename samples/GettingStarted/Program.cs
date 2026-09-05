@@ -1,4 +1,4 @@
-using Mem0Sharp;
+using MagiCore;
 
 var memory = new MemoryService();
 

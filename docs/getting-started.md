@@ -1,6 +1,6 @@
 # Getting started
 
-Mem0Sharp targets .NET Standard 2.0, .NET 8, .NET 9, and .NET 10 and exposes the `MemoryService` API for long-term application memory.
+MagiCore targets .NET Standard 2.0, .NET 8, .NET 9, and .NET 10 and exposes the `MemoryService` API for long-term application memory.
 
 For a complete executable version of this guide, run the [getting started sample](../samples/GettingStarted/README.md).
 
@@ -9,21 +9,21 @@ For a complete executable version of this guide, run the [getting started sample
 Install the NuGet package in a compatible .NET Standard 2.0 or .NET 8-10 application:
 
 ```powershell
-dotnet add package Mem0Sharp
+dotnet add package MagiCore
 ```
 
-The single `Mem0Sharp` package includes in-memory storage, Qdrant, and standard `Microsoft.Extensions.VectorData` adapters (for Azure AI Search, PostgreSQL/pgvector, SQLite, Redis, Milvus, etc.).
+The single `MagiCore` package includes in-memory storage, Qdrant, and standard `Microsoft.Extensions.VectorData` adapters (for Azure AI Search, PostgreSQL/pgvector, SQLite, Redis, Milvus, etc.).
 
 Reference the project when developing against a local checkout:
 
 ```powershell
-dotnet add .\src\YourApp\YourApp.csproj reference .\src\Mem0Sharp\Mem0Sharp.csproj
+dotnet add .\src\YourApp\YourApp.csproj reference .\src\MagiCore\MagiCore.csproj
 ```
 
 Build the library with:
 
 ```powershell
-dotnet build .\src\Mem0Sharp\Mem0Sharp.csproj
+dotnet build .\src\MagiCore\MagiCore.csproj
 ```
 
 ## Create a service
@@ -35,7 +35,7 @@ The parameterless constructor is deliberately useful for tests and offline devel
 - `BasicMemoryExtractor` for conversation messages.
 
 ```csharp
-using Mem0Sharp;
+using MagiCore;
 
 var memory = new MemoryService();
 ```
@@ -66,7 +66,7 @@ foreach (var result in results)
 
 `SearchResult.Score` is a cosine-similarity score. Results are ordered from the highest score to the lowest score. The in-memory fallback excludes results below `MemoryOptions.MinimumScore`.
 
-Mem0Sharp stores the originating `MemoryBehavior` and optional `MemoryType` on
+MagiCore stores the originating `MemoryBehavior` and optional `MemoryType` on
 each record. Searches are factual by default and return only
 `MemoryBehavior.Normal`; use `MemorySearchOptions { IncludeNonFactual = true }`
 or set `Behavior` to retrieve associative, personal, or procedural memories.
@@ -91,7 +91,7 @@ For model-backed fact extraction, use `LlmMemoryExtractor` with an OpenAI-compat
 
 ## Multimodal and image memories
 
-Mem0Sharp natively supports multimodal messages and image embeddings via `Microsoft.Extensions.AI`:
+MagiCore natively supports multimodal messages and image embeddings via `Microsoft.Extensions.AI`:
 
 ### 1. Extracting memories from images with Vision LLMs
 
@@ -195,7 +195,7 @@ The available behaviors are:
 - `RandomThoughts` records useful or surprising associations inspired by the conversation.
 - `PersonalMemory` records what the agent noticed or concluded in first-person language; use `Prompt` to supply its personality or perspective.
 
-These opt-in modes differ from conventional Mem0-style fact extraction by allowing reflective and agent-owned memories, not only neutral user facts. Prompts require uncertain associations to remain tentative rather than being stored as invented facts.
+These opt-in modes extend conventional fact extraction with reflective and agent-owned memories, not only neutral user facts. Prompts require uncertain associations to remain tentative rather than being stored as invented facts.
 
 Behavior shaping requires `Infer = true` and an `IBehaviorAwareMemoryExtractor`; the built-in `LlmMemoryExtractor` implements it. `Infer = false` stores content verbatim regardless of the selected behavior. Third-party `IMemoryExtractor` implementations remain source-compatible and continue to work with `Normal`.
 
@@ -238,7 +238,7 @@ var memory = new MemoryService(
 
 ## Expose local MCP tools
 
-The [`McpServer` sample](../samples/McpServer/README.md) exposes nine local tools over stdio using the official `ModelContextProtocol` .NET SDK. It uses the same local `IMemoryService` without calling a hosted Mem0 service.
+The [`McpServer` sample](../samples/McpServer/README.md) exposes nine local tools over stdio using the official `ModelContextProtocol` .NET SDK. It uses the same local `IMemoryService` implementation as the library.
 
 ```csharp
 dotnet run --project .\samples\McpServer\McpServer.csproj
@@ -252,4 +252,3 @@ The sample registers the memory tools with dependency injection and uses the SDK
 - Build the [3D spatial memory robot](../samples/3DSpatialMemoryGodot/README.md) for an embodied observation and radius-recall workflow.
 - Use [Providers and persistence](providers-and-persistence.md) for model-backed embeddings and PostgreSQL.
 - Use [API reference](api-reference.md) for interfaces, filters, scopes, and custom implementations.
-- Use [Python feature parity](mem0-python-parity.md) to check which Mem0 behaviors and providers are implemented.

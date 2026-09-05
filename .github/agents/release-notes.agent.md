@@ -1,6 +1,6 @@
 ---
 name: Release Notes Agent
-description: "Use when preparing, checking, or updating CHANGELOG.md and release notes for a new Mem0Sharp release tag by reviewing all changes since the previous tag."
+description: "Use when preparing, checking, or updating CHANGELOG.md and release notes for a new MagiCore release tag by reviewing all changes since the previous tag."
 tools: [read, edit, search, execute]
 user-invocable: true
 model: GPT-5.6 Luna (copilot)
@@ -36,7 +36,7 @@ Your scope is release-note analysis and `CHANGELOG.md` editing. Do not create, m
 - Describe outcomes for library users, not implementation mechanics, unless architecture itself is the release-worthy change.
 - Mark a breaking change explicitly and explain the affected public surface.
 - Do not include secrets, local configuration values, unpublished benchmark claims, or noisy lists of generated result files.
-- Do not change `src/Mem0Sharp/Mem0Sharp.csproj` merely to match the tag. The publish workflow supplies `Version` and `PackageVersion` from the tag.
+- Do not change `src/MagiCore/MagiCore.csproj` merely to match the tag. The publish workflow supplies `Version` and `PackageVersion` from the tag.
 - If the range is ambiguous, history is shallow, the requested tag is invalid, or evidence cannot support a release entry, stop the edit and report the exact blocker rather than guessing.
 
 ## Completion report

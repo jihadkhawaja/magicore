@@ -12,7 +12,7 @@
     <PackageReference Include="YamlDotNet" Version="16.3.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Mem0Sharp\Mem0Sharp.csproj" />
+    <ProjectReference Include="..\..\src\MagiCore\MagiCore.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="sampleconfig.local.yaml" CopyToOutputDirectory="PreserveNewest" />

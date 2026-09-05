@@ -10,7 +10,7 @@ config_version=5
 
 [application]
 
-config/name="Mem0Sharp-Spatial-Memory"
+config/name="MagiCore-Spatial-Memory"
 run/main_scene="res://RobotLab.tscn"
 config/features=PackedStringArray("4.8", "C#", "GL Compatibility")
 config/icon="res://icon.svg"
@@ -26,7 +26,7 @@ window/stretch/aspect="expand"
 
 [dotnet]
 
-project/assembly_name="Mem0Sharp-Spatial-Memory"
+project/assembly_name="MagiCore-Spatial-Memory"
 
 [input_devices]
 

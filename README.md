@@ -1,35 +1,49 @@
 <div align="center">
-  <img src="assets/banner.png" alt="Mem0Sharp Banner" width="100%" />
+    <img src="assets/readme-header.svg" alt="MagiCore semantic, temporal, and spatial memory systems online" width="100%" />
 </div>
 
-# Mem0Sharp
+<h1 align="center">MagiCore</h1>
 
-[![NuGet version](https://img.shields.io/nuget/v/Mem0Sharp.svg)](https://www.nuget.org/packages/Mem0Sharp)
-[![NuGet downloads](https://img.shields.io/nuget/dt/Mem0Sharp.svg)](https://www.nuget.org/packages/Mem0Sharp)
-[![GitHub Release](https://img.shields.io/github/v/release/jihadkhawaja/mem0sharp?include_prereleases&label=release)](https://github.com/jihadkhawaja/mem0sharp/releases)
+<p align="center"><strong>Long-term memory infrastructure for AI applications and agents in .NET.</strong></p>
+
+<p align="center">
+    Store what happened. Recover what mattered. Recall it in the right context.
+</p>
+
+<div align="center">
+
+[![NuGet version](https://img.shields.io/nuget/v/MagiCore.svg)](https://www.nuget.org/packages/MagiCore)
+[![NuGet downloads](https://img.shields.io/nuget/dt/MagiCore.svg)](https://www.nuget.org/packages/MagiCore)
+[![GitHub Release](https://img.shields.io/github/v/release/jihadkhawaja/magicore?include_prereleases&label=release)](https://github.com/jihadkhawaja/magicore/releases)
 [![.NET](https://img.shields.io/badge/.NET-Standard%202.0%20%7C%208%20%7C%209%20%7C%2010-512BD4.svg)](https://dotnet.microsoft.com/)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
-**Long-term cognitive memory engine for AI applications and agents in .NET.**
+</div>
 
-Mem0Sharp is an independent, standalone C#/.NET implementation of the open-source [Mem0 project](https://github.com/mem0ai/mem0). It delivers a unified service API for saving, searching, updating, and consolidating semantic memories with modular embedding and vector storage providers.
+MagiCore is a local-first C# library for building memory into agents, assistants, simulations, and robots. It combines semantic retrieval with auditable history, event-time recall, cognitive consolidation, and provider-neutral persistence.
 
-- 🔒 **100% Standalone & Local-First**: Runs entirely in-process in .NET with zero telemetry or third-party cloud service requirements.
-- 🪶 **Broad Runtime Support**: Targets .NET Standard 2.0, .NET 8, .NET 9, and .NET 10 with built-in in-memory, Qdrant, and universal `Microsoft.Extensions.VectorData` persistence in a single package.
-- 🧠 **Cognitive Memory Behaviors**: Goes beyond raw vector storage with autonomous behaviors (dreaming/consolidation, spontaneous associations, and personality-shaped first-person recall).
-- 📍 **Spatial & Robotics Memory**: Stores timestamped 3D observations, reconstructs object beliefs from sensor evidence, and recalls measured action outcomes.
-- 🔌 **Native Model Context Protocol (MCP)**: Includes 9 local MCP tools out of the box for agentic developer tools (Cursor, Claude Desktop, Copilot).
+| Memory plane | What it gives your application |
+| --- | --- |
+| **Semantic** | Dense and hybrid retrieval, reranking, entities, relations, and multimodal memories. |
+| **Temporal** | Audit history, point-in-time reads, rollback, and event-time filtering. |
+| **Spatial** | Timestamped 3D observations, reconstructed object beliefs, and measured action episodes. |
 
-*Mem0Sharp is not affiliated with, sponsored by, or endorsed by Mem0 or mem0ai.*
+Everything runs in-process by default with no telemetry and no required hosted service. Production integrations use standard `Microsoft.Extensions.AI` and `Microsoft.Extensions.VectorData` abstractions, so model and storage choices stay at the application boundary.
 
 ---
 
-## Quickstart
+## Start the core
 
-Get started immediately with in-memory storage, deterministic local embeddings, and no external services:
+Install the package:
+
+```powershell
+dotnet add package MagiCore
+```
+
+Then create a zero-configuration memory service. The default store, extractor, and lexical embedding generator are deterministic and local:
 
 ```csharp
-using Mem0Sharp;
+using MagiCore;
 
 var memory = new MemoryService();
 await memory.AddAsync("I prefer C# over Python.", new MemoryAddOptions { UserId = "alice" });
@@ -37,46 +51,30 @@ var results = await memory.SearchAsync(
     "What language does Alice like?",
     new MemorySearchOptions { Filter = new MemoryFilter(UserId: "alice"), TopK = 1 });
 
-Console.WriteLine(results[0].Memory.Text); // I prefer C# over Python.
+Console.WriteLine(results[0].Memory.Text);
 ```
 
----
-
-## Why Mem0Sharp? (Comparison Matrix)
-
-| Feature / Capability | **Mem0Sharp** | Python Mem0 (OSS) | Hosted Mem0 SaaS | Raw Vector DBs | Ephemeral Chat Buffers |
-| :--- | :---: | :---: | :---: | :---: | :---: |
-| **Ecosystem & Runtime** | **.NET Standard 2.0 / .NET 8-10** | Python | Cloud API | Any Driver | Any Framework |
-| **Local-First & Offline** | **100% (No Telemetry)** | 100% | ❌ Cloud Only | 100% | 100% |
-| **Local In-Process Core** | **Yes** | ❌ Multi-package | ❌ Client SDK | ❌ Heavy client | Yes |
-| **Cognitive Behaviors** *(Dreaming, Identity)* | **Built-in** | ❌ (Static) | ❌ (Static) | ❌ (Raw vectors) | ❌ |
-| **Model Context Protocol (MCP)** | **9 Built-in Tools** | Separate repo | ❌ Cloud only | ❌ | ❌ |
-| **Hybrid Search + Cross-Encoder Reranking** | **Built-in (BM25 + Dense)** | Basic | Proprietary | ❌ Manual setup | ❌ |
-| **Audit History & Temporal Tracking** | **Built-in for supported stores** | Basic | Proprietary | ❌ Manual setup | ❌ |
-
----
-
-## Architecture & Memory Lifecycle
+## How memory moves
 
 ```mermaid
 flowchart LR
-    subgraph Ingestion["1. Memory Ingestion"]
+    subgraph Ingestion["01 / Ingest"]
         Msg["User & Agent Messages"] --> Extractor["LLM / Lexical Extractor"]
         Extractor --> Dedupe["Deduplication & Conflict Resolver"]
     end
 
-    subgraph Behaviors["2. Cognitive Behaviors"]
+    subgraph Behaviors["02 / Resolve and shape"]
         Dedupe --> Normal["Normal Fact Memory"]
         Dedupe --> Dream["Dreaming & Consolidation"]
         Dedupe --> Assoc["Spontaneous Associations"]
         Dedupe --> Identity["Personality / First-Person"]
     end
 
-    subgraph Storage["3. Modular Persistence"]
+    subgraph Storage["03 / Persist"]
         Normal & Dream & Assoc & Identity --> Store["Storage Engine<br/>(InMemory / Qdrant / Microsoft.Extensions.VectorData)"]
     end
 
-    subgraph Retrieval["4. Context Retrieval"]
+    subgraph Retrieval["04 / Recall"]
         Query["Search Query"] --> Hybrid["Hybrid Search<br/>(Dense Vector + BM25)"]
         Store --> Hybrid
         Hybrid --> Rerank["Reranker (Cohere / Cross-Encoder / LLM)"]
@@ -84,23 +82,11 @@ flowchart LR
     end
 ```
 
----
-
-## Installation
-
-Install the package via NuGet:
-
-```powershell
-dotnet add package Mem0Sharp
-```
-
----
-
-## Features
+## System capabilities
 
 - **Semantic & Hybrid Retrieval**: Dense vector search combined with BM25 keyword scoring and LLM/Cohere/Cross-Encoder reranking.
-- **Multimodal & Image Memory**: Native support for image ingestion via Vision LLMs (OpenAI GPT-4.1 / GPT-4o, Anthropic Claude Sonnet 4, Google Gemini 2.5, and Ollama Qwen2.5-VL / Llama 3.2 Vision) and direct image embedding search (`IImageEmbeddingGenerator`).
-- **Model Support**: Built-in support for OpenAI-compatible, Anthropic, and Ollama model APIs.
+- **Multimodal & Image Memory**: Ingest image content through `Microsoft.Extensions.AI` and search direct image embeddings with `IImageEmbeddingGenerator`.
+- **Model Integration**: Bring any compatible `IChatClient` and `IEmbeddingGenerator`; examples cover OpenAI, Ollama, and local ONNX workflows.
 - **Cognitive Behaviors**:
   - `Normal`: Standard factual extraction and recall.
   - `Dreaming`: Background memory consolidation, compressing repeated facts into long-term insights.
@@ -109,17 +95,17 @@ dotnet add package Mem0Sharp
 - **Audit, Temporal Reads & Recovery**: Track `ADD`, `UPDATE`, and `DELETE` events, query historical state without mutation, and perform filtered rollback with history-capable stores. See [Providers & Persistence](docs/providers-and-persistence.md#5-point-in-time-reads-and-rollback) for provider limitations.
 - **3D Spatial & Robotics Memory**: Save map-scoped observations, reconstruct event-time object beliefs with uncertainty and visibility states, derive conservative metric relations, and recall controller-reported action episodes.
 - **Scoped Organization**: User, session, and agent-level memory partitioning with run filters and metadata matching.
-- **Model Context Protocol (MCP)**: 9 built-in tools ready to plug into Claude Desktop, Cursor, and VS Code.
+- **Model Context Protocol (MCP)**: A runnable sample server exposes nine local memory tools through the official .NET MCP SDK.
 - **Batch Operations**: High-throughput transactional batch embeddings and searches.
 
 ---
 
-## Usage Examples
+## Build from local to durable
 
-### 1. Basic In-Memory Operations
+### Local memory lifecycle
 
 ```csharp
-using Mem0Sharp;
+using MagiCore;
 
 var memory = new MemoryService();
 
@@ -144,7 +130,7 @@ await memory.UpdateAsync(memoryId, "I prefer dark mode and Neovim keybindings");
 var history = await memory.GetHistoryAsync(memoryId);
 ```
 
-### 2. Multi-turn & Multimodal Conversation Extraction
+### Multi-turn and multimodal extraction
 
 ```csharp
 // Extract facts from messages including images
@@ -158,10 +144,10 @@ userId: "alice",
 scope: MemoryScope.User);
 ```
 
-### 3. Microsoft.Extensions.VectorData (MEVD) Store
+### Durable vector storage
 
 ```csharp
-using Mem0Sharp;
+using MagiCore;
 using Microsoft.Extensions.VectorData;
 
 // Use any MEVD-compatible vector store (Azure AI Search, PostgreSQL/pgvector, SQLite, Redis, Qdrant, Milvus, Pinecone, etc.)
@@ -179,9 +165,9 @@ var memory = new MemoryService(store: store);
 
 ---
 
-## Ecosystem Integration & Samples
+## Choose a working sample
 
-Explore practical runnable examples in the [`samples/`](samples/) folder:
+Each sample is runnable and focused on one deployment path. Start with [Getting Started](samples/GettingStarted/README.md), then select the infrastructure your application needs.
 
 - **[Getting Started](samples/GettingStarted/README.md)**: Zero-setup CRUD, search, and history tracking.
 - **[SQLite Vector Store](samples/VectorDataSqlite/README.md)**: Local embedded persistence with `Microsoft.Extensions.VectorData` and `sqlite-vec`.
@@ -190,31 +176,29 @@ Explore practical runnable examples in the [`samples/`](samples/) folder:
 - **[3D Spatial Memory Robot](samples/3DSpatialMemoryGodot/README.md)**: A Godot warehouse robot that remembers camera observations and recalls nearby objects from PostgreSQL/pgvector.
 - **[Ollama Integration](samples/Ollama/README.md)**: Fully offline local LLM extraction and embeddings.
 - **[Agent Framework Memory](samples/AgentFrameworkMemory/README.md)**: Cross-session persistent memory with `Microsoft.Extensions.VectorData` for Microsoft Agent Framework.
-- **[MCP Server](samples/McpServer/README.md)**: Standalone Model Context Protocol server exposing Mem0Sharp tools to Claude Desktop & Cursor.
+- **[MCP Server](samples/McpServer/README.md)**: Standalone Model Context Protocol host for Claude Desktop, Cursor, and other MCP clients.
 
 ---
 
-## Documentation
+## Operator manual
 
 - **Guides**: [Documentation Home](docs/README.md) | [Getting Started](docs/getting-started.md) | [Providers & Persistence](docs/providers-and-persistence.md)
-- **Reference**: [API Reference](docs/api-reference.md) | [Mem0 Python Parity Guide](docs/mem0-python-parity.md)
+- **Reference**: [API Reference](docs/api-reference.md)
 - **Benchmarking**: [Evaluation Harness & Metrics](docs/evaluation.md)
 - **Architecture**: [Architecture Overview](docs/architecture.md) | [Contribution Guidelines](CONTRIBUTING.md)
 
 ---
 
-## Build & Test
+## Verify the system
 
 ```powershell
-dotnet build .\Mem0Sharp.slnx
-dotnet test .\tests\Mem0Sharp.Tests\Mem0Sharp.Tests.csproj
+dotnet build .\MagiCore.slnx
+dotnet test .\tests\MagiCore.Tests\MagiCore.Tests.csproj
 ```
 
 ---
 
-## Attribution and Trademarks
+## License
 
-Mem0Sharp is an independent .NET implementation inspired by the open-source [Mem0 project](https://github.com/mem0ai/mem0). The original Mem0 project is copyright 2023 Taranjeet Singh and is licensed under the Apache License 2.0. Copyright for the Mem0Sharp implementation and its modifications is held by Jihad Khawaja and contributors. See [NOTICE](NOTICE) and [LICENSE](LICENSE) for details.
-
-Mem0 and related marks belong to their respective owners. Mem0Sharp is not affiliated with, sponsored by, or endorsed by Mem0 or mem0ai.
+MagiCore is licensed under the [Apache License 2.0](LICENSE).
 

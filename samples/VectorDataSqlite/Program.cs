@@ -1,10 +1,10 @@
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
-using Mem0Sharp;
+using MagiCore;
 using Microsoft.SemanticKernel.Connectors.SqliteVec;
 
-Console.WriteLine("=== Mem0Sharp with SQLite Vector Store (MEVD) ===");
+Console.WriteLine("=== MagiCore with SQLite Vector Store (MEVD) ===");
 Console.WriteLine();
 
 // Ensure native sqlite-vec (vec0.dll / vec0.so / vec0.dylib) is discoverable

@@ -1,7 +1,7 @@
-using Mem0Sharp;
+using MagiCore;
 using Microsoft.Extensions.AI;
 
-Console.WriteLine("=== Mem0Sharp ONNX Runtime Local Inference Sample ===");
+Console.WriteLine("=== MagiCore ONNX Runtime Local Inference Sample ===");
 Console.WriteLine("Running 100% on-device private memory extraction and search via ONNX Runtime & MEAI.");
 Console.WriteLine();
 
@@ -13,7 +13,7 @@ var localEmbeddings = new LocalEmbeddingGenerator(dimensions: 384);
 // 2. Mock / Local Onnx Chat Adapter demonstrating the IChatClient contract for on-device ONNX models:
 IChatClient onnxChatClient = new OnnxLocalChatClient();
 
-// 3. Instantiate Mem0Sharp with ONNX components
+// 3. Instantiate MagiCore with ONNX components
 var memory = new MemoryService(
     embeddings: localEmbeddings,
     extractor: new LlmMemoryExtractor(onnxChatClient));

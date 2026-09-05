@@ -6,7 +6,7 @@ Mem0Sharp is a standalone .NET memory library. It runs locally or with providers
 
 1. Follow [Getting started](getting-started.md) to install the package and learn the memory lifecycle.
 2. Run the [sample projects](../samples/README.md), beginning with the zero-setup console application.
-3. Use the [API reference](api-reference.md) when you need filters, scopes, paging, expiration, or extension interfaces.
+3. Use the [API reference](api-reference.md) when you need filters, scopes, paging, expiration, spatial and robotics memory, or extension interfaces.
 
 ## Choose a deployment path
 
@@ -15,6 +15,7 @@ Mem0Sharp is a standalone .NET memory library. It runs locally or with providers
 | Build and test without external services | [Getting started](getting-started.md) |
 | Use OpenAI-compatible, Anthropic, or Ollama models | [Providers and persistence](providers-and-persistence.md#openai-compatible-provider) |
 | Persist vectors in PostgreSQL or Qdrant | [Providers and persistence](providers-and-persistence.md#postgresql-and-pgvector) |
+| Build an embodied 3D memory workflow | [Godot spatial memory sample](../samples/3DSpatialMemoryGodot/README.md) |
 | Add reranking or custom providers | [Providers and persistence](providers-and-persistence.md#reranking-providers) |
 | Expose memory through local MCP tools | [Getting started](getting-started.md#expose-local-mcp-tools) |
 

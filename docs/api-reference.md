@@ -49,6 +49,15 @@ All methods are asynchronous and accept an optional `CancellationToken`.
 - `MemoryPage` contains paged results and total count.
 - `SearchScoreDetails` separates semantic, keyword, entity/graph, and reranker signals.
 - `RollbackResult` reports the numbers of restored and deleted memories and the affected memory IDs.
+- `SpatialPoint` contains three finite coordinates and calculates Euclidean distance with `DistanceTo`.
+- `SpatialObservation` describes one map-scoped observation with a position, description, observation time, optional observer position and entity ID, and confidence.
+- `SpatialRecallOptions` defines the map, user, optional agent, center, radius, result limit, earliest observation time, minimum confidence, and optional entity ID.
+- `SpatialRecallResult` contains the stored `Memory`, decoded `SpatialObservation`, and distance from the recall center.
+- `RoboticsObservation` wraps an object observation with a stable event ID, sensor source, exact coordinate-frame revision, positional uncertainty, and explicit visibility.
+- `RoboticsRecallOptions` adds event-time, freshness, confidence-decay, uncertainty, and relocation policies to `SpatialRecallOptions`.
+- `SpatialObjectMemory` is a reconstructed object belief with its state, last-seen position, decayed confidence, distance, relocation count, and ordered evidence.
+- `RobotActionEpisode` stores measured start/end positions, heading, action, timing, outcome, and controller feedback for one attempt.
+- `RobotEpisodeRecallOptions` filters action attempts by spatial scope, coordinate frame, completion cutoff, optional action, and optional wrapped heading tolerance.
 
 ## Filters and scopes
 
@@ -73,6 +82,69 @@ The scope is metadata used for filtering; it does not automatically expire memor
 `MemoryFilter` can also constrain `Behavior` and `MemoryType`. Listing and
 deletion include all behaviors unless those fields are supplied; search applies
 the factual-only default described above.
+
+## Spatial memory
+
+`RememberSpatialAsync` and `RecallSpatialAsync` are provider-neutral extensions on `IMemoryService`:
+
+```csharp
+Task<AddResult> RememberSpatialAsync(
+    SpatialObservation observation,
+    MemoryAddOptions options,
+    CancellationToken cancellationToken = default);
+
+Task<IReadOnlyList<SpatialRecallResult>> RecallSpatialAsync(
+    SpatialRecallOptions options,
+    CancellationToken cancellationToken = default);
+```
+
+`RememberSpatialAsync` stores the observation description verbatim with `MemoryType = "spatial_memory"`, versioned JSON metadata, and `ReferenceTime = ObservedAt`. Inference and text deduplication are disabled so separate observations are retained. The supplied `MemoryAddOptions` still controls user, agent, run, scope, expiration, and additional metadata.
+
+`SpatialObservation.ObservedAt` defaults to the current UTC time and `Confidence` defaults to `1`. Positions must contain finite coordinates, map IDs and descriptions cannot be blank, and confidence must be between `0` and `1`.
+
+`SpatialRecallOptions` defaults to `Radius = 10`, `TopK = 10`, and `MinimumConfidence = 0`. Recall loads current memories for the required user and optional agent, then filters by memory type, map, expiration, confidence, `ObservedAfter`, optional entity ID, and inclusive Euclidean radius. Results are ordered by nearest distance, newest observation, and memory ID. Invalid or malformed spatial metadata is skipped.
+
+Spatial recall scans records returned by `GetAllAsync`; it is geometric filtering rather than vector similarity search or database-native spatial indexing. Use stable user and agent IDs to bound the candidate set. Units are application-defined but must be consistent within a map. See the [Godot spatial memory sample](../samples/3DSpatialMemoryGodot/README.md) for a complete 3D workflow.
+
+### Robotics object evidence
+
+The robotics extensions build auditable object beliefs on the same memory stores:
+
+```csharp
+Task<AddResult> RememberObjectAsync(
+    RoboticsObservation evidence,
+    MemoryAddOptions options,
+    CancellationToken cancellationToken = default);
+
+Task<IReadOnlyList<SpatialObjectMemory>> RecallObjectsAsync(
+    RoboticsRecallOptions options,
+    CancellationToken cancellationToken = default);
+```
+
+`RememberObjectAsync` requires a stable `ObservationId`, `SourceId`, exact `FrameId`, and a `SpatialObservation` with an externally assigned `EntityId`. Frame units are meters. `PositionUncertainty` is a conservative error radius, not a covariance estimate. `ObjectVisibility.Absent` must come from an explicit visibility or coverage check; detector silence alone is not absence.
+
+`RecallObjectsAsync` replays evidence through `RoboticsRecallOptions.At`, resolves each entity's history, and only then applies radius filtering. This prevents a stale location from replacing a newer relocation. Positive confidence decays by `ConfidenceHalfLife`; `FreshFor`, `MaximumUncertainty`, visibility, and conflicting evidence determine the `SpatialBeliefState`. The result retains ordered evidence and reports whether fresh sensing is required through `NeedsObservation`.
+
+`RoboticsMemoryExtensions.AssociateObject` provides conservative label-and-distance association only when exactly one candidate matches in the same frame. It is not visual re-identification. `GetObjectRelations` derives `Near` and Y-up `Above` point relations only between fresh, unambiguous beliefs in the same map and frame. These relations do not imply support, containment, collision-free paths, or other physical affordances.
+
+### Robot action episodes
+
+Controller-reported attempts can be persisted and recalled independently of object evidence:
+
+```csharp
+Task<AddResult> RememberRobotEpisodeAsync(
+    RobotActionEpisode episode,
+    MemoryAddOptions options,
+    CancellationToken cancellationToken = default);
+
+Task<IReadOnlyList<RobotActionEpisode>> RecallRobotEpisodesAsync(
+    RobotEpisodeRecallOptions options,
+    CancellationToken cancellationToken = default);
+```
+
+An episode requires a stable ID, map and frame, mission, executed action, finite measured poses, ordered timestamps, outcome, and controller feedback. Recall filters by user, optional agent, map, exact frame, start-position radius, completion time, optional entity/action, and optional heading. Heading differences wrap at $2\pi$ and use `HeadingToleranceRadians`, which defaults to `0.35`. Results are newest first and identical retry writes appear once.
+
+`RobotActionOutcome.Completed` means only that the primitive completed; it does not prove mission success. Recalled outcomes and feedback are untrusted historical context, not safety clearance for future motion.
 
 ## Tuning search
 

@@ -10,6 +10,7 @@ using YamlDotNet.Serialization.NamingConventions;
 internal sealed class RobotBrain : IDisposable
 {
     public const string MapId = "warehouse-v1";
+    public const string FrameId = "warehouse-y-up-v1";
     public const string UserId = "godot-spatial-robot";
     public const string AgentId = "robot-01";
     private readonly IChatClient chat;
@@ -48,22 +49,46 @@ internal sealed class RobotBrain : IDisposable
 
     public Task InitializeAsync(CancellationToken token) => store.InitializeAsync(token);
 
-    public Task<IReadOnlyList<SpatialRecallResult>> RecallAsync(SpatialPoint center, CancellationToken token) =>
-        memory.RecallSpatialAsync(new SpatialRecallOptions
+    public Task<IReadOnlyList<SpatialObjectMemory>> RecallAsync(SpatialPoint center, CancellationToken token) =>
+        memory.RecallObjectsAsync(new RoboticsRecallOptions
         {
-            MapId = MapId, UserId = UserId, AgentId = AgentId, Center = center, Radius = 35, TopK = 12
+            FrameId = FrameId,
+            Spatial = new SpatialRecallOptions
+            {
+                MapId = MapId, UserId = UserId, AgentId = AgentId, Center = center, Radius = 35,
+                TopK = 64, MinimumConfidence = 0.6
+            }
         }, token);
 
     public async Task<RobotDecision> DecideAsync(byte[] image, SpatialPoint position, double yaw, double pitch,
-        string mission, IReadOnlyList<SpatialRecallResult> recalled, CancellationToken token)
+        string mission, IReadOnlyList<SpatialObjectMemory> recalled, CancellationToken token)
     {
+        var episodes = await memory.RecallRobotEpisodesAsync(new RobotEpisodeRecallOptions
+        {
+            FrameId = FrameId, HeadingRadians = yaw,
+            Spatial = new SpatialRecallOptions
+            {
+                MapId = MapId, UserId = UserId, AgentId = AgentId, Center = position, Radius = 2, TopK = 6,
+                ObservedAfter = DateTimeOffset.UtcNow.AddDays(-7)
+            }
+        }, token);
         var context = JsonSerializer.Serialize(new
         {
             mission, position, yawRadians = yaw, pitchRadians = pitch,
             memories = recalled.Select(result => new
             {
-                result.Observation.Description, result.Observation.Position, result.Observation.ObservedAt,
-                result.Observation.Confidence, result.Distance
+                result.EntityId, result.Latest.Observation.Description, result.Position, result.LastSeenAt,
+                result.Confidence, result.Distance, state = result.State.ToString(), result.NeedsObservation,
+                result.RelocationCount, result.Latest.PositionUncertainty
+            }),
+            relations = RoboticsMemoryExtensions.GetObjectRelations(recalled).Select(relation => new
+            {
+                relation.SubjectId, relation.TargetId, kind = relation.Kind.ToString(), relation.Distance
+            }),
+            recentAttempts = episodes.Select(episode => new
+            {
+                episode.Action, outcome = episode.Outcome.ToString(), episode.Start, episode.End,
+                episode.HeadingRadians, episode.CompletedAt, episode.Feedback
             })
         });
         var response = await chat.GetResponseAsync([
@@ -74,6 +99,11 @@ internal sealed class RobotBrain : IDisposable
                 Coordinates are meters, Y up, yaw=0 faces -Z; positive yaw turns left toward -X.
                 Positive camera pitch looks up. Forward speed is 1.5 m/s, turn speed is 0.8 rad/s.
                 Memories describe past observations, not guaranteed current object locations.
+                Stale, missing, occluded, uncertain or conflicted objects require another observation.
+                Never claim a remembered object is currently visible without checking the CURRENT image.
+                Near/above relations are measured point geometry, not proof of reachability or support.
+                Recent attempts are controller feedback. Replan after a blocked action; do not blindly repeat it.
+                Completion of a motion primitive is not proof of mission completion.
                 Never invent objects or coordinates. Identify up to four clearly visible objects using
                 normalized image center points (x,y in [0,1], origin top-left); depth is measured separately.
                 Name the object descriptively, e.g. red crate. No world coordinates in your response.
@@ -94,6 +124,36 @@ internal sealed class RobotBrain : IDisposable
 
     public Task<AddResult> RememberAsync(SpatialObservation observation, CancellationToken token) =>
         memory.RememberSpatialAsync(observation, new MemoryAddOptions { UserId = UserId, AgentId = AgentId }, token);
+
+    public async Task RememberObjectsAsync(IReadOnlyList<SpatialObservation> observations,
+        IReadOnlyList<SpatialObjectMemory> recalled, CancellationToken token)
+    {
+        var assigned = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var observation in observations)
+        {
+            var entityId = RoboticsMemoryExtensions.AssociateObject(observation, FrameId, recalled);
+            if (entityId is null || !assigned.Add(entityId)) entityId = Guid.NewGuid().ToString("N");
+            await memory.RememberObjectAsync(new RoboticsObservation
+            {
+                ObservationId = Guid.NewGuid().ToString("N"), FrameId = FrameId, SourceId = "godot-rgbd-vlm",
+                Observation = observation with { EntityId = entityId }, PositionUncertainty = 0.35
+            }, new MemoryAddOptions { UserId = UserId, AgentId = AgentId }, token);
+        }
+    }
+
+    public Task<AddResult> RememberEpisodeAsync(RobotActionEpisode episode, CancellationToken token) =>
+        memory.RememberRobotEpisodeAsync(episode, new MemoryAddOptions { UserId = UserId, AgentId = AgentId }, token);
+
+    public Task<IReadOnlyList<RobotActionEpisode>> RecallEpisodesAsync(SpatialPoint center, DateTimeOffset after, CancellationToken token) =>
+        memory.RecallRobotEpisodesAsync(new RobotEpisodeRecallOptions
+        {
+            FrameId = FrameId,
+            Spatial = new SpatialRecallOptions
+            {
+                MapId = MapId, UserId = UserId, AgentId = AgentId, Center = center,
+                Radius = 35, TopK = 64, ObservedAfter = after
+            }
+        }, token);
 
     public void Dispose()
     {

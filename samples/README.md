@@ -12,9 +12,10 @@ These runnable projects progress from a zero-dependency local setup to on-device
 | [Microsoft Agent Framework memory](AgentFrameworkMemory/README.md) | Use Mem0Sharp as an `AIContextProvider` with `Microsoft.Extensions.VectorData` for a .NET agent | .NET 10, OpenAI API key |
 | [Multi-agent group chat](MultiAgentGroupChat/README.md) | Four distinct agents share a chat while keeping isolated long-term memories | .NET 10, OpenAI API key |
 | [Memory behaviors](MemoryBehaviors/README.md) | Normal, dreaming, random-thought, and personality-shaped memory | .NET 10, OpenAI API key |
+| [3D spatial memory robot](3DSpatialMemoryGodot/README.md) | Godot robot observations, radius-based spatial recall, movement, and persistent pgvector storage | .NET 10, Godot .NET 4.8 dev 3, Docker, OpenAI API key |
 | [MCP Server](McpServer/README.md) | Model Context Protocol server for Claude Desktop / Cursor | .NET 10 |
 
-The persistent VectorData samples use `LocalEmbeddingGenerator` with 384 dimensions. When switching them to OpenAI `text-embedding-3-small`, set `VectorDataMemoryStoreOptions.VectorDimensions` to 1536 and recreate any collection previously created with a different dimension.
+The SQLite and PostgreSQL VectorData samples use `LocalEmbeddingGenerator` with 384 dimensions. When switching them to OpenAI `text-embedding-3-small`, set `VectorDataMemoryStoreOptions.VectorDimensions` to 1536 and recreate any collection previously created with a different dimension. The Godot sample already uses configured OpenAI embeddings and defaults to 1536 dimensions.
 
 Run a sample from the repository root:
 

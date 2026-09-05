@@ -17,6 +17,7 @@ Mem0Sharp is an independent, standalone C#/.NET implementation of the open-sourc
 - 🔒 **100% Standalone & Local-First**: Runs entirely in-process in .NET with zero telemetry or third-party cloud service requirements.
 - 🪶 **Broad Runtime Support**: Targets .NET Standard 2.0, .NET 8, .NET 9, and .NET 10 with built-in in-memory, Qdrant, and universal `Microsoft.Extensions.VectorData` persistence in a single package.
 - 🧠 **Cognitive Memory Behaviors**: Goes beyond raw vector storage with autonomous behaviors (dreaming/consolidation, spontaneous associations, and personality-shaped first-person recall).
+- 📍 **Spatial & Robotics Memory**: Stores timestamped 3D observations, reconstructs object beliefs from sensor evidence, and recalls measured action outcomes.
 - 🔌 **Native Model Context Protocol (MCP)**: Includes 9 local MCP tools out of the box for agentic developer tools (Cursor, Claude Desktop, Copilot).
 
 *Mem0Sharp is not affiliated with, sponsored by, or endorsed by Mem0 or mem0ai.*
@@ -106,6 +107,7 @@ dotnet add package Mem0Sharp
   - `Random Thoughts`: Spontaneous associations and creative prompt injections.
   - `Personal/Identity`: First-person perspective memory shaping.
 - **Audit, Temporal Reads & Recovery**: Track `ADD`, `UPDATE`, and `DELETE` events, query historical state without mutation, and perform filtered rollback with history-capable stores. See [Providers & Persistence](docs/providers-and-persistence.md#5-point-in-time-reads-and-rollback) for provider limitations.
+- **3D Spatial & Robotics Memory**: Save map-scoped observations, reconstruct event-time object beliefs with uncertainty and visibility states, derive conservative metric relations, and recall controller-reported action episodes.
 - **Scoped Organization**: User, session, and agent-level memory partitioning with run filters and metadata matching.
 - **Model Context Protocol (MCP)**: 9 built-in tools ready to plug into Claude Desktop, Cursor, and VS Code.
 - **Batch Operations**: High-throughput transactional batch embeddings and searches.
@@ -185,6 +187,7 @@ Explore practical runnable examples in the [`samples/`](samples/) folder:
 - **[SQLite Vector Store](samples/VectorDataSqlite/README.md)**: Local embedded persistence with `Microsoft.Extensions.VectorData` and `sqlite-vec`.
 - **[PostgreSQL pgvector](samples/VectorDataPostgres/README.md)**: Enterprise persistent vector storage with `Microsoft.Extensions.VectorData` and `pgvector`.
 - **[Memory Behaviors](samples/MemoryBehaviors/README.md)**: Fact extraction, dreaming/consolidation, spontaneous associations, and personality-shaped memory.
+- **[3D Spatial Memory Robot](samples/3DSpatialMemoryGodot/README.md)**: A Godot warehouse robot that remembers camera observations and recalls nearby objects from PostgreSQL/pgvector.
 - **[Ollama Integration](samples/Ollama/README.md)**: Fully offline local LLM extraction and embeddings.
 - **[Agent Framework Memory](samples/AgentFrameworkMemory/README.md)**: Cross-session persistent memory with `Microsoft.Extensions.VectorData` for Microsoft Agent Framework.
 - **[MCP Server](samples/McpServer/README.md)**: Standalone Model Context Protocol server exposing Mem0Sharp tools to Claude Desktop & Cursor.

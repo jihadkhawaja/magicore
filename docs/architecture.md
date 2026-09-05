@@ -25,7 +25,7 @@ Dependencies point toward contracts and domain models. Contracts never depend on
 
 | Folder | Responsibility |
 | --- | --- |
-| `Domain` | Memory, filtering, search, relationship, history, and operation models. |
+| `Domain` | Memory, filtering, search, spatial observation, relationship, history, and operation models. |
 | `Contracts` | Storage, embedding, intelligence, telemetry, relationship, and service ports. |
 | `Application` | Use-case orchestration, composition, and internal search policies. |
 | `Infrastructure/InMemory` | Ephemeral store adapters used by the default service and tests. |
@@ -46,6 +46,12 @@ All public types remain in `namespace Mem0Sharp`. Folder names are architectural
 The parameterless `MemoryService` path composes deterministic in-memory defaults for local development. Production applications should compose persistent stores and model providers at their own startup boundary.
 
 Event-time retrieval is an additive projection over ordinary memory metadata. Ingestion records an optional canonical reference timestamp without replacing the memory's transaction timestamps. Search can apply an explicit range or use `ITemporalQueryInterpreter`; automatic interpretation is opt-in and fails open below its confidence threshold. This keeps persistence provider-neutral and distinct from point-in-time state reconstruction through `ITemporalMemoryStore`.
+
+Spatial memory follows the same additive design. `SpatialMemoryExtensions` writes a `SpatialObservation` as an ordinary memory with versioned metadata and a dedicated memory type. Recall asks `IMemoryService` for the current user/agent records and applies map, time, confidence, entity, expiration, and Euclidean-radius filters in application code.
+
+`RoboticsMemoryExtensions` adds immutable sensor evidence and measured action episodes as separate memory types. Object recall replays evidence by external entity identity and coordinate-frame revision before applying geometric filters, producing explicit freshness, uncertainty, occlusion, absence, and conflict states. Episode recall remains separate so controller feedback cannot be mistaken for object perception. Neither layer owns localization, tracking, perception, planning, or motor control, and remembered evidence never authorizes physical motion.
+
+No store-specific geospatial contract or schema is required, so in-memory, Qdrant, and `Microsoft.Extensions.VectorData` stores share these behaviors. Applications with very large spatial datasets can add a backend-specific spatial index outside the provider-neutral extensions.
 
 ## Consistency boundaries
 

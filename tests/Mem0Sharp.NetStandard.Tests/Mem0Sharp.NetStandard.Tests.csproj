@@ -6,6 +6,7 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\Mem0Sharp.Tests\Unit\RoboticsMemoryTests.cs" Link="RoboticsMemoryTests.cs" />
     <ProjectReference Include="..\..\src\Mem0Sharp\Mem0Sharp.csproj" SetTargetFramework="TargetFramework=netstandard2.0" />
     <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="10.0.11" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />

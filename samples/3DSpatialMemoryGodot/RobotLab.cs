@@ -31,12 +31,14 @@ public partial class RobotLab : Node3D
         BuildWorld();
         BuildRobot();
         BuildHud();
-        if (OS.GetCmdlineUserArgs().Contains("--smoke-test") || OS.GetCmdlineUserArgs().Contains("--live-smoke"))
+        if (OS.GetCmdlineUserArgs().Contains("--smoke-test") || OS.GetCmdlineUserArgs().Contains("--live-smoke")
+            || OS.GetCmdlineUserArgs().Contains("--robotics-test") || OS.GetCmdlineUserArgs().Contains("--robotics-replay"))
             _ = SmokeTestAsync(OS.GetCmdlineUserArgs().Contains("--live-smoke"));
     }
 
     public override void _PhysicsProcess(double delta)
     {
+        var executingTranslation = actionRemaining > 0 && activeAction is "forward" or "backward";
         var movement = Vector3.Zero;
         if (Input.MouseMode == Input.MouseModeEnum.Captured)
         {
@@ -61,7 +63,15 @@ public partial class RobotLab : Node3D
         }
         robot.Velocity = robot.Basis * movement.Normalized() * speed + Vector3.Down * 2;
         robot.MoveAndSlide();
+        if (executingTranslation && robot.IsOnWall()) motionBlocked = true;
         sensorCamera.GlobalTransform = camera.GlobalTransform;
+        if (depthCapture is not null)
+        {
+            var pending = depthCapture;
+            depthCapture = null;
+            try { pending.SetResult(CaptureDepth()); }
+            catch (Exception error) { pending.SetException(error); }
+        }
         pose.Text = $"ROBOT 01    X {robot.Position.X:F1}    Y {camera.GlobalPosition.Y:F1}    Z {robot.Position.Z:F1}    |    MAP warehouse-v1";
         if (autonomous && !busy && Time.GetTicksMsec() >= nextStepAt) _ = StepAsync();
     }
@@ -176,9 +186,14 @@ public partial class RobotLab : Node3D
         row.AddChild(title);
         status = new Label { Text = "MANUAL", Modulate = new Color("245c58") };
         row.AddChild(status);
-        var panel = new PanelContainer { Position = new Vector2(24, 90), CustomMinimumSize = new Vector2(310, 440), Size = new Vector2(310, 590) };
+        var panel = new PanelContainer { CustomMinimumSize = new Vector2(310, 440) };
         panel.AddThemeStyleboxOverride("panel", new StyleBoxFlat { BgColor = new Color(0.94f, 0.97f, 0.95f, 0.96f), ContentMarginLeft = 20, ContentMarginRight = 20, ContentMarginTop = 20, ContentMarginBottom = 20 });
         root.AddChild(panel);
+        panel.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.LeftWide);
+        panel.OffsetLeft = 24;
+        panel.OffsetTop = 90;
+        panel.OffsetRight = 334;
+        panel.OffsetBottom = -76;
         var column = new VBoxContainer();
         column.AddThemeConstantOverride("separation", 14);
         panel.AddChild(column);
@@ -200,10 +215,11 @@ public partial class RobotLab : Node3D
         });
         AddButton(controls, "Stop", "Cancel the pending decision and stop movement", Stop);
         AddButton(column, "Recall Memories", "Load persisted observations without a model request", () => { if (!busy) _ = RecallAsync(); });
-        reasoning = new Label { Text = "PAUSED", AutowrapMode = TextServer.AutowrapMode.WordSmart, CustomMinimumSize = new Vector2(270, 65) };
+        AddButton(column, "Test Memory", "Run the offline robotics memory regression", () => { if (!busy) _ = RunMemoryScenarioAsync(); });
+        reasoning = new Label { Text = "PAUSED", AutowrapMode = TextServer.AutowrapMode.WordSmart, MaxLinesVisible = 4, CustomMinimumSize = new Vector2(270, 65) };
         reasoning.AddThemeColorOverride("font_color", new Color("244c50"));
         column.AddChild(reasoning);
-        memories = new RichTextLabel { Text = "No observations recalled.", SizeFlagsVertical = Control.SizeFlags.ExpandFill, CustomMinimumSize = new Vector2(270, 260) };
+        memories = new RichTextLabel { Text = "No observations recalled.", SizeFlagsVertical = Control.SizeFlags.ExpandFill, CustomMinimumSize = new Vector2(270, 140) };
         memories.AddThemeColorOverride("default_color", new Color("244c50"));
         column.AddChild(memories);
         var footer = new PanelContainer();
@@ -275,55 +291,48 @@ public partial class RobotLab : Node3D
         {
             await EnsureBrainAsync(token);
             status.Text = "CAPTURING";
+            var depth = await CaptureDepthAsync(token);
             await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
             token.ThrowIfCancellationRequested();
-            var observer = Point(sensorCamera.GlobalPosition);
-            var observedAt = DateTimeOffset.UtcNow;
-            var capturedTransform = sensorCamera.GlobalTransform;
+            var observer = depth.Observer;
+            var observedAt = depth.ObservedAt;
+            var missionText = mission.Text;
             using var image = sensor.GetTexture().GetImage();
             var imageBytes = image.SavePngToBuffer();
             var recalled = await brain!.RecallAsync(observer, token);
             token.ThrowIfCancellationRequested();
             ShowMemories(recalled);
             status.Text = "THINKING";
-            var decision = await brain.DecideAsync(imageBytes, observer, robot.Rotation.Y, pitch, mission.Text, recalled, token);
+            var decision = await brain.DecideAsync(imageBytes, observer, robot.Rotation.Y, pitch, missionText, recalled, token);
             token.ThrowIfCancellationRequested();
-            await ToSignal(GetTree(), SceneTree.SignalName.PhysicsFrame);
-            token.ThrowIfCancellationRequested();
-            sensorCamera.GlobalTransform = capturedTransform;
-            var observations = new List<SpatialObservation>
-            {
-                new() { MapId = RobotBrain.MapId, Position = observer, ObserverPosition = observer,
-                    Description = decision.Description, ObservedAt = observedAt, Confidence = 0.5 }
-            };
+            var observations = new List<SpatialObservation>();
             foreach (var detection in decision.Objects.Where(item => item.Confidence >= 0.6))
             {
-                var pixel = new Vector2((float)detection.X * sensor.Size.X, (float)detection.Y * sensor.Size.Y);
-                var origin = sensorCamera.ProjectRayOrigin(pixel);
-                var ray = PhysicsRayQueryParameters3D.Create(origin, origin + sensorCamera.ProjectRayNormal(pixel) * 30);
-                ray.Exclude = new Godot.Collections.Array<Rid> { robot.GetRid() };
-                var hit = GetWorld3D().DirectSpaceState.IntersectRay(ray);
-                if (hit.Count == 0) continue;
+                var measured = depth.PointAt(detection.X, detection.Y);
+                if (measured is null) continue;
+                if (OS.GetCmdlineUserArgs().Contains("--live-smoke"))
+                    GD.Print($"LIVE DEPTH: {detection.Name} pixel=({detection.X:F3},{detection.Y:F3}) point=({measured.X:F2},{measured.Y:F2},{measured.Z:F2}).");
                 observations.Add(new SpatialObservation
                 {
-                    MapId = RobotBrain.MapId, Position = Point((Vector3)hit["position"]), ObserverPosition = observer,
+                    MapId = RobotBrain.MapId, Position = measured, ObserverPosition = observer,
                     Description = detection.Name, Confidence = detection.Confidence, ObservedAt = observedAt
                 });
             }
             status.Text = "REMEMBERING";
-            foreach (var observation in observations) await brain.RememberAsync(observation, token);
+            await brain.RememberAsync(new SpatialObservation
+            {
+                MapId = RobotBrain.MapId, Position = observer, ObserverPosition = observer,
+                Description = decision.Description, ObservedAt = observedAt, Confidence = 0.5
+            }, token);
+            await brain.RememberObjectsAsync(observations, recalled, token);
             recalled = await brain.RecallAsync(observer, token);
             token.ThrowIfCancellationRequested();
             ShowMemories(recalled);
             reasoning.Text = $"{decision.Action.ToUpperInvariant()} / {decision.Seconds:F1}s\n{decision.Reason}";
-            activeAction = decision.Action;
-            actionRemaining = decision.Seconds;
             status.Text = "MOVING";
-            while (actionRemaining > 0)
-            {
-                await ToSignal(GetTree(), SceneTree.SignalName.PhysicsFrame);
-                token.ThrowIfCancellationRequested();
-            }
+            var episode = await ExecuteActionAsync(decision.Action, decision.Seconds, missionText, token);
+            await brain.RememberEpisodeAsync(episode, token);
+            reasoning.Text += $"\n{episode.Outcome}: {episode.Feedback}";
             stepCount++;
             if (stepCount >= 30 || decision.Action == "wait") autonomous = false;
             status.Text = autonomous ? $"RUNNING / {stepCount}" : "PAUSED";
@@ -339,21 +348,21 @@ public partial class RobotLab : Node3D
         finally { EndOperation(); }
     }
 
-    private void ShowMemories(IReadOnlyList<SpatialRecallResult> recalled)
+    private void ShowMemories(IReadOnlyList<SpatialObjectMemory> recalled)
     {
         foreach (var marker in markers) marker.QueueFree();
         markers.Clear();
-        memories.Text = $"NEARBY MEMORY / {recalled.Count}\n\n" + string.Join("\n\n", recalled.Select(result =>
-            $"{result.Observation.Description}\n{result.Distance:F1} m | {result.Observation.ObservedAt:MM-dd HH:mm} UTC | {result.Observation.Confidence:P0}"));
-        foreach (var result in recalled.Where(item => item.Observation.Confidence >= 0.6))
+        memories.Text = $"OBJECT MEMORY / {recalled.Count}\n\n" + string.Join("\n\n", recalled.Select(result =>
+            $"{result.Latest.Observation.Description} / {result.State}\n{result.Distance:F1} m | {result.Confidence:P0} | seen {result.LastSeenAt:MM-dd HH:mm}\n{result.ObservationCount} observations | {result.RelocationCount} moves"));
+        foreach (var result in recalled)
         {
-            var point = result.Observation.Position;
+            var point = result.Position;
             var marker = new MeshInstance3D
             {
                 Position = new Vector3((float)point.X, (float)point.Y + 0.15f, (float)point.Z),
                 Mesh = new SphereMesh { Radius = 0.09f, Height = 0.18f },
                 Layers = 2,
-                MaterialOverride = new StandardMaterial3D { AlbedoColor = new Color("f3d96c"), ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded }
+                MaterialOverride = new StandardMaterial3D { AlbedoColor = new Color(result.NeedsObservation ? "dc7968" : "f3d96c"), ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded }
             };
             AddChild(marker);
             markers.Add(marker);
@@ -410,16 +419,23 @@ public partial class RobotLab : Node3D
             if (robot.Position.Z < -11.6f) throw new InvalidOperationException("Robot crossed the wall.");
             robot.Position = initialPosition;
             await ToSignal(GetTree(), SceneTree.SignalName.PhysicsFrame);
+            if (OS.GetCmdlineUserArgs().Contains("--robotics-replay"))
+                await ReplayRoboticsAsync(directory, lifetime.Token);
+            else
+                await RoboticsScenarioAsync(directory, lifetime.Token);
             if (live)
             {
+                var liveStartedAt = DateTimeOffset.UtcNow;
                 await StepAsync();
                 if (!string.IsNullOrEmpty(lastFailure)) throw new InvalidOperationException(lastFailure);
                 using var restarted = new RobotBrain(ProjectSettings.GlobalizePath("res://"));
                 using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(30));
                 await restarted.InitializeAsync(timeout.Token);
                 var recalled = await restarted.RecallAsync(Point(camera.GlobalPosition), timeout.Token);
-                if (recalled.Count == 0) throw new InvalidOperationException("Persisted spatial recall was empty.");
-                GD.Print($"LIVE PASS: recalled {recalled.Count} observations from a new database client.");
+                var currentObjects = recalled.Count(item => item.LastSeenAt >= liveStartedAt);
+                var episodes = await restarted.RecallEpisodesAsync(Point(camera.GlobalPosition), liveStartedAt, timeout.Token);
+                if (currentObjects == 0 || episodes.Count == 0) throw new InvalidOperationException("This run's persisted objects or action feedback were missing.");
+                GD.Print($"LIVE PASS: recalled {currentObjects} current-run object beliefs and {episodes.Count} action episodes from a new database client.");
                 await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
                 using var liveScreen = GetViewport().GetTexture().GetImage();
                 liveScreen.SavePng(Path.Combine(directory, "robot-lab-live.png"));

@@ -131,6 +131,49 @@ var results = await memory.SearchAsync(imageBytes, "image/png", new MemorySearch
 });
 ```
 
+## Remember and recall spatial observations
+
+Spatial memory stores a description together with an application-defined 3D position. Coordinates can represent meters, tiles, or another consistent unit.
+
+```csharp
+var observation = new SpatialObservation
+{
+    MapId = "warehouse-v1",
+    Position = new SpatialPoint(12.5, 0, -4),
+    ObserverPosition = new SpatialPoint(10, 1.2, -4),
+    EntityId = "red-crate-17",
+    Description = "Red crate beside loading bay three",
+    Confidence = 0.92
+};
+
+await memory.RememberSpatialAsync(observation, new MemoryAddOptions
+{
+    UserId = "alice",
+    AgentId = "inspection-robot"
+});
+
+var nearby = await memory.RecallSpatialAsync(new SpatialRecallOptions
+{
+    MapId = "warehouse-v1",
+    UserId = "alice",
+    AgentId = "inspection-robot",
+    Center = new SpatialPoint(10, 0, -4),
+    Radius = 5,
+    TopK = 10
+});
+
+foreach (var result in nearby)
+{
+    Console.WriteLine($"{result.Distance:F1}: {result.Observation.Description}");
+}
+```
+
+`RememberSpatialAsync` stores the description as an ordinary memory with versioned spatial metadata. `RecallSpatialAsync` filters current records by user, optional agent, map, expiration, confidence, observation time, optional entity, and Euclidean distance. It does not perform semantic vector search or require a spatially indexed database.
+
+For tracked objects, use `RememberObjectAsync` with a stable observation ID, sensor source, versioned metric frame, externally assigned entity ID, visibility, and position uncertainty. `RecallObjectsAsync` replays that evidence at a requested event time and returns explicit `Observed`, `Stale`, `Occluded`, `Missing`, `Uncertain`, or `Conflicted` beliefs. The robotics API also persists measured controller outcomes with `RememberRobotEpisodeAsync` and recalls nearby attempts with `RecallRobotEpisodesAsync`. These memories provide evidence to a controller; they do not authorize physical motion or replace fresh sensing.
+
+Run the [3D spatial memory Godot sample](../samples/3DSpatialMemoryGodot/README.md) for a complete camera-observation workflow with persistent PostgreSQL/pgvector storage.
+
 ## Choose a memory behavior
 
 `MemoryAddOptions.Behavior` optionally changes how inferred memories are shaped. The default is `MemoryBehavior.Normal`, which preserves the existing durable-fact extraction behavior.
@@ -206,6 +249,7 @@ The sample registers the memory tools with dependency injection and uses the SDK
 ## Next steps
 
 - Run the [sample projects](../samples/README.md) for complete local, Ollama, and PostgreSQL workflows.
+- Build the [3D spatial memory robot](../samples/3DSpatialMemoryGodot/README.md) for an embodied observation and radius-recall workflow.
 - Use [Providers and persistence](providers-and-persistence.md) for model-backed embeddings and PostgreSQL.
 - Use [API reference](api-reference.md) for interfaces, filters, scopes, and custom implementations.
 - Use [Python feature parity](mem0-python-parity.md) to check which Mem0 behaviors and providers are implemented.

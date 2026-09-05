@@ -151,6 +151,34 @@ public sealed class VectorDataMemoryStoreTests
     }
 
     [Fact]
+    public async Task GetAllAsync_NewStoreInstance_ReturnsPersistedRecordsWithFiltering()
+    {
+        var collection = new InMemoryTestRecordCollection<VectorDataMemoryRecord>("persisted", record => record.Id);
+        var writer = new VectorDataMemoryStore(collection);
+        for (var index = 0; index < 12; index++)
+        {
+            await writer.SaveAsync(new Memory
+            {
+                Id = $"memory-{index}", Text = "Warehouse observation", UserId = "robot", AgentId = "camera"
+            });
+        }
+        await writer.SaveAsync(new Memory { Id = "other-user", Text = "Private", UserId = "other", AgentId = "camera" });
+        await writer.SaveAsync(new Memory { Id = "other-agent", Text = "Private", UserId = "robot", AgentId = "other" });
+        await writer.SaveAsync(new Memory
+        {
+            Id = "expired", Text = "Old", UserId = "robot", AgentId = "camera", ExpiresAt = DateTimeOffset.UtcNow.AddDays(-1)
+        });
+
+        var reader = new VectorDataMemoryStore(collection);
+        var records = new List<Memory>();
+        await foreach (var memory in reader.GetAllAsync(new MemoryFilter(UserId: "robot", AgentId: "camera")))
+            records.Add(memory);
+
+        Assert.Equal(12, records.Count);
+        Assert.All(records, memory => Assert.StartsWith("memory-", memory.Id));
+    }
+
+    [Fact]
     public void VectorDataMemoryRecord_Roundtrip_PreservesAllFields()
     {
         var original = new Memory

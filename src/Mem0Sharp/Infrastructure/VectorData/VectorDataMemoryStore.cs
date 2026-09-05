@@ -114,11 +114,8 @@ public sealed class VectorDataMemoryStore : IMemoryStore, ITemporalMemoryStore
         MemoryFilter? filter = null,
         [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var keys = _trackedKeys.Keys.ToArray();
-        if (keys.Length == 0)
-            yield break;
-
-        var records = _collection.GetAsync(keys, cancellationToken: cancellationToken);
+        var records = _collection.GetAsync(CreateSearchFilter(filter, DateTimeOffset.UtcNow),
+            int.MaxValue, cancellationToken: cancellationToken);
         await foreach (var record in records.WithCancellation(cancellationToken).ConfigureAwait(false))
         {
             if (record is null)

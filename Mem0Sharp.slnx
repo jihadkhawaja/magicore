@@ -13,9 +13,13 @@
     <Project Path="samples/VectorDataPostgres/VectorDataPostgres.csproj" />
     <Project Path="samples/VectorDataSqlite/VectorDataSqlite.csproj" />
   </Folder>
+  <Folder Name="/src/" />
   <Folder Name="/tests/">
     <Project Path="tests/Mem0Sharp.NetStandard.Tests/Mem0Sharp.NetStandard.Tests.csproj" />
     <Project Path="tests/Mem0Sharp.Tests/Mem0Sharp.Tests.csproj" />
   </Folder>
+  <Project Path="samples/3DSpatialMemoryGodot/Mem0Sharp-Spatial-Memory.csproj">
+    <BuildType Project="Debug" />
+  </Project>
   <Project Path="src/Mem0Sharp/Mem0Sharp.csproj" />
 </Solution>

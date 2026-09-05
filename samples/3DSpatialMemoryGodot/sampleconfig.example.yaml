@@ -1,0 +1,10 @@
+openAi:
+  endpoint: https://api.openai.com/v1
+  apiKey: replace-with-an-openai-api-key
+  chatModel: gpt-5.6-luna
+  embeddingModel: text-embedding-3-small
+
+postgres:
+  connectionString: Host=127.0.0.1;Port=55432;Database=godot_spatial_memory;Username=postgres;Password=postgres
+  embeddingDimensions: 1536
+  tableName: sample_memories
